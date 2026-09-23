@@ -179,11 +179,27 @@ export class PharmaGateWebOS {
         const icons = document.querySelectorAll('.desktop-icon');
         const savedPositions = JSON.parse(localStorage.getItem('pharmagate_icons_pos') || '{}');
 
+        // Гарантированные координаты по умолчанию для всех иконок (включая персонализацию)
+        const defaultPositions = {
+            winEditor: { x: 16, y: 16 },
+            winSchema: { x: 16, y: 112 },
+            winDb: { x: 16, y: 208 },
+            winReconcile: { x: 16, y: 304 },
+            winKb: { x: 16, y: 400 },
+            winWizard: { x: 120, y: 16 },
+            winInspector: { x: 120, y: 112 },
+            winSettings: { x: 120, y: 208 },
+            winPersonalization: { x: 120, y: 304 },
+            winScale: { x: 120, y: 400 },
+            winLiteMode: { x: 120, y: 496 }
+        };
+
         icons.forEach((icon) => {
             const appTarget = icon.getAttribute('data-app');
-            if (savedPositions[appTarget]) {
-                icon.style.left = `${savedPositions[appTarget].x}px`;
-                icon.style.top = `${savedPositions[appTarget].y}px`;
+            const pos = savedPositions[appTarget] || defaultPositions[appTarget];
+            if (pos) {
+                icon.style.left = `${pos.x}px`;
+                icon.style.top = `${pos.y}px`;
             }
 
             let isDrag = false;
@@ -542,12 +558,32 @@ export class PharmaGateWebOS {
     }
 
     openApp(winId) {
+        if (winId === 'winPersonalization' || winId === 'winScale') {
+            this.openSettingsTab('tabPersonalization');
+            return;
+        }
+        if (winId === 'winLiteMode') {
+            this.toggleLiteMode();
+            return;
+        }
         const win = document.getElementById(winId);
         if (win) {
             win.classList.remove('minimized');
             this.focusWindow(winId);
             this._updateTaskbar();
             this._redrawWindowContents(winId);
+        }
+    }
+
+    toggleLiteMode() {
+        if (this.crossPlatform) {
+            this.crossPlatform.setLiteMode(!this.crossPlatform.liteModeEnabled, true);
+        }
+    }
+
+    toggleFullscreen() {
+        if (this.crossPlatform) {
+            this.crossPlatform.toggleFullscreen();
         }
     }
 
@@ -624,6 +660,62 @@ export class PharmaGateWebOS {
         const startMenu = document.getElementById('startMenu');
         const searchInput = document.getElementById('startSearchInput');
         const clearBtn = document.getElementById('btnStartSearchClear');
+        const startMenuHeader = document.getElementById('startMenuHeader');
+
+        const btnClose = document.getElementById('btnStartMenuClose');
+        const btnMin = document.getElementById('btnStartMenuMinimize');
+        const btnMax = document.getElementById('btnStartMenuMaximize');
+
+        // Синхронизация бейджей и состояния персонализации внутри меню Пуск
+        const syncStartMenuState = () => {
+            const currentTheme = localStorage.getItem('pharmagate_theme') || 'fluent-dark';
+            const themeNames = {
+                'fluent-dark': 'Fluent Dark',
+                'macos': 'macOS Glass',
+                'pharma-light': 'Pharma Light',
+                'cyber-matrix': 'Cyber Matrix',
+                'retro-win95': 'Win95 / 2000',
+                'midnight-nebula': 'Midnight Nebula'
+            };
+            const themeBadge = document.getElementById('startMenuThemeCurrentBadge');
+            if (themeBadge) themeBadge.textContent = themeNames[currentTheme] || currentTheme;
+
+            // Масштаб
+            const currentZoom = Math.round((parseFloat(localStorage.getItem('pharmagate_zoom') || '1.0')) * 100);
+            const scaleBadge = document.getElementById('startMenuScaleValueBadge');
+            if (scaleBadge) scaleBadge.textContent = `${currentZoom}%`;
+            const scaleSlider = document.getElementById('startScaleSlider');
+            if (scaleSlider) scaleSlider.value = currentZoom;
+
+            // Lite режим
+            const isLite = localStorage.getItem('pharmagate_lite_mode') === 'true';
+            const liteBadge = document.getElementById('startMenuLiteBadge');
+            const liteBtn = document.getElementById('btnStartToggleLite');
+            if (liteBadge) {
+                liteBadge.textContent = isLite ? 'Lite: Вкл ⚡' : 'Lite: Выкл';
+                liteBadge.className = isLite 
+                    ? 'px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono text-[10px]'
+                    : 'px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-mono text-[10px]';
+            }
+            if (liteBtn) {
+                liteBtn.textContent = isLite ? 'Выключить Lite Режим' : 'Включить Lite Режим';
+                liteBtn.className = isLite
+                    ? 'px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-colors shadow'
+                    : 'px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-colors shadow';
+            }
+
+            // Auto-DPI
+            const autoDpi = localStorage.getItem('pharmagate_auto_dpi') === 'true';
+            const autoDpiBadge = document.getElementById('startMenuAutoDpiBadge');
+            const autoDpiChk = document.getElementById('chkStartAutoDpi');
+            if (autoDpiBadge) {
+                autoDpiBadge.textContent = autoDpi ? 'Auto-DPI: Вкл' : 'Auto-DPI: Выкл';
+                autoDpiBadge.className = autoDpi
+                    ? 'px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 font-mono text-[10px]'
+                    : 'px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-mono text-[10px]';
+            }
+            if (autoDpiChk) autoDpiChk.checked = autoDpi;
+        };
 
         this.toggleStartMenu = () => {
             if (!startMenu) return;
@@ -632,6 +724,7 @@ export class PharmaGateWebOS {
                 startMenu.style.display = 'none';
             } else {
                 startMenu.style.display = 'flex';
+                syncStartMenuState();
                 this.crossPlatform?.playSound('click');
                 setTimeout(() => searchInput?.focus(), 50);
             }
@@ -642,48 +735,192 @@ export class PharmaGateWebOS {
             this.toggleStartMenu();
         });
 
+        // Кнопки заголовка macOS / Windows Mini-Window
+        btnClose?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (startMenu) startMenu.style.display = 'none';
+        });
+
+        btnMin?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (startMenu) startMenu.style.display = 'none';
+        });
+
+        btnMax?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!startMenu) return;
+            const isMax = startMenu.classList.toggle('start-menu-fullscreen');
+            btnMax.title = isMax ? 'Восстановить размер' : 'Развернуть на весь экран';
+            btnMax.textContent = isMax ? '❐' : '⛶';
+        });
+
+        // Перетаскивание мини-окна за заголовок (Draggable Windows Mini-Window)
+        if (startMenuHeader && startMenu) {
+            let isDraggingMenu = false;
+            let startX = 0, startY = 0, initLeft = 0, initTop = 0;
+
+            startMenuHeader.addEventListener('pointerdown', (e) => {
+                if (e.target.closest('button') || startMenu.classList.contains('start-menu-fullscreen')) return;
+                isDraggingMenu = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                const rect = startMenu.getBoundingClientRect();
+                initLeft = rect.left;
+                initTop = rect.top;
+                startMenu.style.bottom = 'auto';
+                startMenu.style.left = `${initLeft}px`;
+                startMenu.style.top = `${initTop}px`;
+                startMenuHeader.setPointerCapture(e.pointerId);
+            });
+
+            startMenuHeader.addEventListener('pointermove', (e) => {
+                if (!isDraggingMenu) return;
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                startMenu.style.left = `${Math.max(8, Math.min(window.innerWidth - 300, initLeft + dx))}px`;
+                startMenu.style.top = `${Math.max(8, Math.min(window.innerHeight - 150, initTop + dy))}px`;
+            });
+
+            const stopDrag = () => { isDraggingMenu = false; };
+            startMenuHeader.addEventListener('pointerup', stopDrag);
+            startMenuHeader.addEventListener('pointercancel', stopDrag);
+        }
+
         document.addEventListener('click', (e) => {
             if (startMenu && !startMenu.contains(e.target) && e.target !== btnStart && !btnStart?.contains(e.target)) {
                 startMenu.style.display = 'none';
             }
         });
 
-        // 1. Вкладки меню Пуск: Закрепленные, Недавние, Действия
+        // 1. Вкладки macOS Finder Sidebar
         const tabPinned = document.getElementById('startTabPinned');
-        const tabRecent = document.getElementById('startTabRecent');
+        const tabFinder = document.getElementById('startTabFinder');
+        const tabThemes = document.getElementById('startTabThemes');
+        const tabScale = document.getElementById('startTabScale');
+        const tabLite = document.getElementById('startTabLite');
         const tabActions = document.getElementById('startTabActions');
 
         const viewPinned = document.getElementById('startViewPinned');
-        const viewRecent = document.getElementById('startViewRecent');
+        const viewFinder = document.getElementById('startViewFinder');
+        const viewThemes = document.getElementById('startViewThemes');
+        const viewScale = document.getElementById('startViewScale');
+        const viewLite = document.getElementById('startViewLite');
         const viewActions = document.getElementById('startViewActions');
 
-        const switchStartTab = (activeTab, targetView) => {
-            [tabPinned, tabRecent, tabActions].forEach(t => {
-                if (!t) return;
-                const isActive = t === activeTab;
-                t.className = isActive 
-                    ? 'flex-1 py-1.5 rounded-lg bg-blue-600 text-white font-semibold shadow-sm transition-all text-center'
-                    : 'flex-1 py-1.5 rounded-lg text-slate-400 hover:text-white transition-all text-center';
-            });
+        const allTabs = [
+            { btn: tabPinned, view: viewPinned },
+            { btn: tabFinder, view: viewFinder },
+            { btn: tabThemes, view: viewThemes },
+            { btn: tabScale, view: viewScale },
+            { btn: tabLite, view: viewLite },
+            { btn: tabActions, view: viewActions }
+        ];
 
-            [viewPinned, viewRecent, viewActions].forEach(v => {
-                if (!v) return;
-                v.classList.toggle('hidden', v !== targetView);
+        const switchStartTab = (targetBtn, targetView) => {
+            allTabs.forEach(item => {
+                if (!item.btn || !item.view) return;
+                const isActive = item.btn === targetBtn;
+                item.btn.className = isActive
+                    ? 'start-sidebar-btn active w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-blue-600 text-white font-medium transition-all text-left shadow-sm'
+                    : 'start-sidebar-btn w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all text-left';
+                item.view.classList.toggle('hidden', !isActive);
             });
             this.crossPlatform?.playSound('click');
         };
 
-        tabPinned?.addEventListener('click', () => switchStartTab(tabPinned, viewPinned));
-        tabRecent?.addEventListener('click', () => switchStartTab(tabRecent, viewRecent));
-        tabActions?.addEventListener('click', () => switchStartTab(tabActions, viewActions));
+        allTabs.forEach(item => {
+            item.btn?.addEventListener('click', () => switchStartTab(item.btn, item.view));
+        });
 
-        // 2. Живой поиск по приложениям и недавним файлам
+        // 2. Загрузка файла через macOS Finder в меню Пуск
+        const finderFileInput = document.getElementById('startFinderFileInput');
+        finderFileInput?.addEventListener('change', async (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            if (this.crossPlatform) {
+                await this.crossPlatform.processUploadedFile(file);
+                startMenu.style.display = 'none';
+            }
+        });
+
+        // 3. Быстрая персонализация и темы внутри меню Пуск
+        document.querySelectorAll('.btn-start-theme').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const theme = btn.getAttribute('data-theme');
+                if (theme && this.crossPlatform) {
+                    this.crossPlatform.setTheme(theme, true);
+                    syncStartMenuState();
+                }
+            });
+        });
+
+        document.querySelectorAll('.btn-start-accent').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const accent = btn.getAttribute('data-accent');
+                if (accent && this.crossPlatform) {
+                    this.crossPlatform.setAccentColor(accent, true);
+                    syncStartMenuState();
+                }
+            });
+        });
+
+        // 4. Масштабирование внутри меню Пуск
+        const startScaleSlider = document.getElementById('startScaleSlider');
+        startScaleSlider?.addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value) / 100;
+            this.crossPlatform?.applyZoom(val, false);
+            syncStartMenuState();
+        });
+        startScaleSlider?.addEventListener('change', (e) => {
+            const val = parseFloat(e.target.value) / 100;
+            this.crossPlatform?.applyZoom(val, true);
+            syncStartMenuState();
+        });
+
+        document.getElementById('btnStartScaleMinus')?.addEventListener('click', () => {
+            this.crossPlatform?.zoomOut();
+            syncStartMenuState();
+        });
+
+        document.getElementById('btnStartScalePlus')?.addEventListener('click', () => {
+            this.crossPlatform?.zoomIn();
+            syncStartMenuState();
+        });
+
+        document.querySelectorAll('.btn-start-scale-preset').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const scale = parseFloat(btn.getAttribute('data-scale'));
+                if (scale && this.crossPlatform) {
+                    this.crossPlatform.applyZoom(scale, true);
+                    syncStartMenuState();
+                }
+            });
+        });
+
+        document.getElementById('btnStartResetZoom')?.addEventListener('click', () => {
+            this.crossPlatform?.applyZoom(1.0, true);
+            syncStartMenuState();
+        });
+
+        const chkStartAutoDpi = document.getElementById('chkStartAutoDpi');
+        chkStartAutoDpi?.addEventListener('change', (e) => {
+            this.crossPlatform?.setAutoDpi(e.target.checked);
+            syncStartMenuState();
+        });
+
+        // 5. Lite Speed переключатель в меню Пуск
+        document.getElementById('btnStartToggleLite')?.addEventListener('click', () => {
+            const currentLite = this.crossPlatform?.liteModeEnabled || false;
+            this.crossPlatform?.setLiteMode(!currentLite, true);
+            syncStartMenuState();
+        });
+
+        // 6. Живой поиск Spotlight по всем разделам
         searchInput?.addEventListener('input', (e) => {
             const query = e.target.value.trim().toLowerCase();
             if (clearBtn) clearBtn.classList.toggle('hidden', query.length === 0);
 
-            // Если начался поиск, переключаем на вкладку Закрепленные
-            if (query.length > 0 && viewPinned?.classList.contains('hidden')) {
+            if (query.length > 0 && viewPinned?.classList.contains('hidden') && viewFinder?.classList.contains('hidden')) {
                 switchStartTab(tabPinned, viewPinned);
             }
 
@@ -693,8 +930,8 @@ export class PharmaGateWebOS {
                 item.style.display = (!query || text.includes(query)) ? 'flex' : 'none';
             });
 
-            // Фильтрация недавних файлов
-            document.querySelectorAll('#startRecentList > button').forEach(item => {
+            // Фильтрация списка файлов Finder
+            document.querySelectorAll('#startRecentList > div').forEach(item => {
                 const text = item.innerText.toLowerCase();
                 item.style.display = (!query || text.includes(query)) ? 'flex' : 'none';
             });
@@ -705,7 +942,7 @@ export class PharmaGateWebOS {
                 searchInput.value = '';
                 searchInput.focus();
                 clearBtn.classList.add('hidden');
-                document.querySelectorAll('#startAppsGrid .start-app-item, #startRecentList > button').forEach(item => {
+                document.querySelectorAll('#startAppsGrid .start-app-item, #startRecentList > div').forEach(item => {
                     item.style.display = 'flex';
                 });
             }

@@ -84,6 +84,7 @@ export class CrossPlatformHub {
         this._initThemeAndAccentControls();
         this._initLiteMode();
         this._initScaleAndDpiControls();
+        this._initDesktopQuickWidget();
         console.log(`[CrossPlatformHub] Инициализирован. ОС: ${this.detectedOs} (Режим: ${this.configuredOs}), Перевод строк: ${this.activeLineEnding.toUpperCase()}, Звук: ${this.audioEnabled}, Тема: ${this.activeTheme}, Lite-Mode: ${this.liteModeEnabled}`);
     }
 
@@ -415,12 +416,18 @@ export class CrossPlatformHub {
         const settingZoomDisplay = document.getElementById('settingZoomDisplay');
         if (settingZoomDisplay) settingZoomDisplay.innerText = str;
 
+        const quickWidgetScaleVal = document.getElementById('quickWidgetScaleVal');
+        if (quickWidgetScaleVal) quickWidgetScaleVal.innerText = str;
+
         // Синхронизация слайдеров
         const scaleSlider = document.getElementById('scaleSlider');
         if (scaleSlider && parseInt(scaleSlider.value, 10) !== pct) scaleSlider.value = String(pct);
 
         const dropdownScaleSlider = document.getElementById('dropdownScaleSlider');
         if (dropdownScaleSlider && parseInt(dropdownScaleSlider.value, 10) !== pct) dropdownScaleSlider.value = String(pct);
+
+        const quickWidgetScaleSlider = document.getElementById('quickWidgetScaleSlider');
+        if (quickWidgetScaleSlider && parseInt(quickWidgetScaleSlider.value, 10) !== pct) quickWidgetScaleSlider.value = String(pct);
 
         // Подсветка кнопок пресетов
         document.querySelectorAll('.btn-scale-preset').forEach(btn => {
@@ -1452,6 +1459,16 @@ export class CrossPlatformHub {
         };
         if (activeBadge) activeBadge.innerText = themeNames[themeId] || themeId;
 
+        const quickThemeBadge = document.getElementById('quickWidgetThemeBadge');
+        if (quickThemeBadge) quickThemeBadge.innerText = themeNames[themeId] || themeId;
+
+        document.querySelectorAll('.btn-quick-theme').forEach(btn => {
+            const isSel = btn.getAttribute('data-theme') === themeId;
+            btn.classList.toggle('border-blue-500', isSel);
+            btn.classList.toggle('bg-blue-600/30', isSel);
+            btn.classList.toggle('text-white', isSel);
+        });
+
         // Если выбрана macOS тема - включаем macOS стиль кнопок окон
         if (themeId === 'macos' && this.configuredOs !== 'macos') {
             this.setOsPersona('macos');
@@ -1555,6 +1572,14 @@ export class CrossPlatformHub {
             badge.className = this.liteModeEnabled
                 ? 'px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono text-[10px]'
                 : 'px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-mono text-[10px]';
+        }
+
+        const btnQuickWidgetLite = document.getElementById('btnQuickWidgetToggleLite');
+        if (btnQuickWidgetLite) {
+            btnQuickWidgetLite.innerText = this.liteModeEnabled ? 'Включен ✓' : 'Включить';
+            btnQuickWidgetLite.className = this.liteModeEnabled
+                ? 'px-3 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[10px] transition-colors shadow'
+                : 'px-3 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[10px] transition-colors shadow';
         }
 
         // Обновление кнопки в трее таскбара
@@ -1736,8 +1761,10 @@ export class CrossPlatformHub {
 
         const chkAutoDpi = document.getElementById('chkAutoDpi');
         const dropdownChkAutoDpi = document.getElementById('dropdownChkAutoDpi');
+        const chkQuickWidgetAutoDpi = document.getElementById('chkQuickWidgetAutoDpi');
         if (chkAutoDpi) chkAutoDpi.checked = this.autoDpiEnabled;
         if (dropdownChkAutoDpi) dropdownChkAutoDpi.checked = this.autoDpiEnabled;
+        if (chkQuickWidgetAutoDpi) chkQuickWidgetAutoDpi.checked = this.autoDpiEnabled;
 
         const badge = document.getElementById('autoDpiStatusBadge');
         if (badge) {
@@ -1793,5 +1820,100 @@ export class CrossPlatformHub {
         this.playSound('error');
         this.app._showToast('🧹 Кэш очищен. Перезагрузка...');
         setTimeout(() => location.reload(), 600);
+    }
+
+    // =========================================================================
+    // 16. БЫСТРЫЙ ВИДЖЕТ КАСТОМИЗАЦИИ НА РАБОЧЕМ СТОЛЕ
+    // =========================================================================
+
+    _initDesktopQuickWidget() {
+        // Темы
+        document.querySelectorAll('.btn-quick-theme').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const theme = btn.getAttribute('data-theme');
+                if (theme) this.setTheme(theme, true);
+            });
+        });
+
+        // Масштабирование - / +
+        document.getElementById('btnQuickWidgetScaleMinus')?.addEventListener('click', () => this.zoomOut());
+        document.getElementById('btnQuickWidgetScalePlus')?.addEventListener('click', () => this.zoomIn());
+
+        // Слайдер масштаба
+        const slider = document.getElementById('quickWidgetScaleSlider');
+        if (slider) {
+            slider.value = String(Math.round(this.zoomLevel * 100));
+            slider.addEventListener('input', (e) => {
+                const val = parseInt(e.target.value, 10);
+                this.applyZoom(val / 100, false);
+            });
+            slider.addEventListener('change', (e) => {
+                const val = parseInt(e.target.value, 10);
+                this.applyZoom(val / 100, true);
+            });
+        }
+
+        // Auto-DPI чекбокс
+        const chkAuto = document.getElementById('chkQuickWidgetAutoDpi');
+        if (chkAuto) {
+            chkAuto.checked = this.autoDpiEnabled;
+            chkAuto.addEventListener('change', (e) => this.setAutoDpi(e.target.checked, true));
+        }
+
+        // Сброс на 100%
+        document.getElementById('btnQuickWidgetScaleReset')?.addEventListener('click', () => this.applyZoom(1.0, true));
+
+        // Кнопка Lite Mode
+        document.getElementById('btnQuickWidgetToggleLite')?.addEventListener('click', () => {
+            localStorage.setItem('pharmagate_lite_mode_user_forced', 'true');
+            this.setLiteMode(!this.liteModeEnabled, true);
+        });
+
+        // Кнопка перехода ко всем настройкам
+        document.getElementById('btnQuickWidgetOpenSettings')?.addEventListener('click', () => {
+            this.app?.openSettingsTab('tabPersonalization');
+        });
+
+        // Свернуть / развернуть виджет
+        const btnToggle = document.getElementById('btnToggleQuickWidget');
+        const content = document.getElementById('quickWidgetContent');
+        const widget = document.getElementById('desktopQuickWidget');
+        if (btnToggle && content && widget) {
+            let isMin = localStorage.getItem('pharmagate_widget_min') === 'true';
+            const updateMinState = () => {
+                content.style.display = isMin ? 'none' : 'block';
+                btnToggle.innerText = isMin ? '+' : '_';
+                widget.style.width = isMin ? '240px' : '320px';
+            };
+            updateMinState();
+            btnToggle.addEventListener('click', () => {
+                isMin = !isMin;
+                localStorage.setItem('pharmagate_widget_min', String(isMin));
+                updateMinState();
+            });
+        }
+
+        // Первичная синхронизация
+        const quickThemeBadge = document.getElementById('quickWidgetThemeBadge');
+        const themeNames = {
+            'fluent-dark': 'Fluent Dark',
+            'macos': 'macOS Glass',
+            'pharma-light': 'Pharma Light',
+            'cyber-matrix': 'Matrix Terminal',
+            'retro-win95': 'Win95 / 2000',
+            'midnight-nebula': 'Midnight Nebula'
+        };
+        if (quickThemeBadge) quickThemeBadge.innerText = themeNames[this.activeTheme] || this.activeTheme;
+
+        const quickWidgetScaleVal = document.getElementById('quickWidgetScaleVal');
+        if (quickWidgetScaleVal) quickWidgetScaleVal.innerText = `${Math.round(this.zoomLevel * 100)}%`;
+
+        const btnQuickWidgetLite = document.getElementById('btnQuickWidgetToggleLite');
+        if (btnQuickWidgetLite) {
+            btnQuickWidgetLite.innerText = this.liteModeEnabled ? 'Включен ✓' : 'Включить';
+            btnQuickWidgetLite.className = this.liteModeEnabled
+                ? 'px-3 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[10px] transition-colors shadow'
+                : 'px-3 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[10px] transition-colors shadow';
+        }
     }
 }
