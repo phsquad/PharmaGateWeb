@@ -144,6 +144,9 @@ export class PharmaGateWebOS {
 
         // 11. Загрузка демонстрационного набора данных ГРЛС/МДЛП
         this._loadDemoData();
+
+        // 12. Инициализация универсальных дескриптивных тултипов (Smart OS Tooltips)
+        this._initGlobalTooltips();
     }
 
     // =========================================================================
@@ -166,6 +169,277 @@ export class PharmaGateWebOS {
         };
         update();
         setInterval(update, 1000);
+    }
+
+    /**
+     * Универсальная система адаптивных дескриптивных подсказок (OS Tooltip Engine)
+     * Обслуживает все ярлыки рабочего стола, панель задач, виджеты и системные контролы
+     */
+    _initGlobalTooltips() {
+        const tooltipEl = document.getElementById('osGlobalTooltip');
+        if (!tooltipEl) return;
+
+        const titleEl = tooltipEl.querySelector('.os-tt-title');
+        const badgeEl = tooltipEl.querySelector('.os-tt-badge');
+        const descEl = tooltipEl.querySelector('.os-tt-desc');
+        const shortcutEl = tooltipEl.querySelector('.os-tt-shortcut');
+        const hintEl = tooltipEl.querySelector('.os-tt-hint');
+        const arrowEl = tooltipEl.querySelector('.os-tooltip-arrow');
+
+        let activeTarget = null;
+        let showTimer = null;
+        let hideTimer = null;
+        let lastCloseTime = 0;
+
+        const hideTooltip = () => {
+            if (showTimer) {
+                clearTimeout(showTimer);
+                showTimer = null;
+            }
+            tooltipEl.classList.remove('os-tooltip-visible');
+            tooltipEl.style.opacity = '0';
+            tooltipEl.style.pointerEvents = 'none';
+            tooltipEl.setAttribute('aria-hidden', 'true');
+            if (activeTarget) {
+                activeTarget = null;
+                lastCloseTime = Date.now();
+            }
+        };
+
+        this.hideTooltip = hideTooltip;
+
+        const updatePosition = (target, preferredPos = 'auto') => {
+            if (!target || !tooltipEl) return;
+            const rect = target.getBoundingClientRect();
+            const tipRect = tooltipEl.getBoundingClientRect();
+            const tipW = tipRect.width || 280;
+            const tipH = tipRect.height || 85;
+            const margin = 10;
+            const winW = window.innerWidth;
+            const winH = window.innerHeight;
+
+            let pos = preferredPos;
+            if (pos === 'auto') {
+                if (rect.bottom > winH - 75) {
+                    pos = 'top';
+                } else if (rect.left < 160) {
+                    pos = 'right';
+                } else if (rect.right > winW - 160) {
+                    pos = 'left';
+                } else if (rect.top < 120) {
+                    pos = 'bottom';
+                } else {
+                    pos = 'top';
+                }
+            }
+
+            tooltipEl.setAttribute('data-pos', pos);
+
+            let left = 0;
+            let top = 0;
+            let arrowLeft = '50%';
+            let arrowTop = '50%';
+
+            if (pos === 'top') {
+                top = rect.top - tipH - margin;
+                left = rect.left + rect.width / 2 - tipW / 2;
+
+                if (top < 8) {
+                    top = rect.bottom + margin;
+                    pos = 'bottom';
+                    tooltipEl.setAttribute('data-pos', 'bottom');
+                }
+
+                left = Math.max(8, Math.min(winW - tipW - 8, left));
+                const diffX = (rect.left + rect.width / 2) - left;
+                arrowLeft = `${Math.max(14, Math.min(tipW - 14, diffX))}px`;
+                if (arrowEl) {
+                    arrowEl.style.left = arrowLeft;
+                    arrowEl.style.top = '';
+                }
+            } else if (pos === 'bottom') {
+                top = rect.bottom + margin;
+                left = rect.left + rect.width / 2 - tipW / 2;
+
+                if (top + tipH > winH - 8) {
+                    top = rect.top - tipH - margin;
+                    pos = 'top';
+                    tooltipEl.setAttribute('data-pos', 'top');
+                }
+
+                left = Math.max(8, Math.min(winW - tipW - 8, left));
+                const diffX = (rect.left + rect.width / 2) - left;
+                arrowLeft = `${Math.max(14, Math.min(tipW - 14, diffX))}px`;
+                if (arrowEl) {
+                    arrowEl.style.left = arrowLeft;
+                    arrowEl.style.top = '';
+                }
+            } else if (pos === 'right') {
+                left = rect.right + margin;
+                top = rect.top + rect.height / 2 - tipH / 2;
+
+                if (left + tipW > winW - 8) {
+                    left = rect.left - tipW - margin;
+                    pos = 'left';
+                    tooltipEl.setAttribute('data-pos', 'left');
+                }
+
+                top = Math.max(8, Math.min(winH - tipH - 8, top));
+                const diffY = (rect.top + rect.height / 2) - top;
+                arrowTop = `${Math.max(14, Math.min(tipH - 14, diffY))}px`;
+                if (arrowEl) {
+                    arrowEl.style.top = arrowTop;
+                    arrowEl.style.left = '';
+                }
+            } else if (pos === 'left') {
+                left = rect.left - tipW - margin;
+                top = rect.top + rect.height / 2 - tipH / 2;
+
+                if (left < 8) {
+                    left = rect.right + margin;
+                    pos = 'right';
+                    tooltipEl.setAttribute('data-pos', 'right');
+                }
+
+                top = Math.max(8, Math.min(winH - tipH - 8, top));
+                const diffY = (rect.top + rect.height / 2) - top;
+                arrowTop = `${Math.max(14, Math.min(tipH - 14, diffY))}px`;
+                if (arrowEl) {
+                    arrowEl.style.top = arrowTop;
+                    arrowEl.style.left = '';
+                }
+            }
+
+            tooltipEl.style.left = `${Math.round(left)}px`;
+            tooltipEl.style.top = `${Math.round(top)}px`;
+        };
+
+        const showTooltip = (target) => {
+            if (!target) return;
+            const title = target.getAttribute('data-tooltip-title') || target.getAttribute('title') || target.getAttribute('aria-label');
+            if (!title) return;
+
+            const desc = target.getAttribute('data-tooltip-desc') || '';
+            const badge = target.getAttribute('data-tooltip-badge') || '';
+            const shortcut = target.getAttribute('data-tooltip-shortcut') || '';
+            const hint = target.getAttribute('data-tooltip-hint') || '';
+            const preferredPos = target.getAttribute('data-tooltip-pos') || 'auto';
+
+            if (titleEl) titleEl.textContent = title;
+
+            if (descEl) {
+                if (desc) {
+                    descEl.textContent = desc;
+                    descEl.classList.remove('hidden');
+                } else {
+                    descEl.textContent = '';
+                    descEl.classList.add('hidden');
+                }
+            }
+
+            if (badgeEl) {
+                if (badge) {
+                    badgeEl.textContent = badge;
+                    badgeEl.classList.remove('hidden');
+                } else {
+                    badgeEl.textContent = '';
+                    badgeEl.classList.add('hidden');
+                }
+            }
+
+            if (shortcutEl) {
+                if (shortcut) {
+                    shortcutEl.textContent = shortcut;
+                    shortcutEl.classList.remove('hidden');
+                } else {
+                    shortcutEl.textContent = '';
+                    shortcutEl.classList.add('hidden');
+                }
+            }
+
+            if (hintEl) {
+                if (hint) {
+                    hintEl.textContent = hint;
+                    hintEl.classList.remove('hidden');
+                } else {
+                    hintEl.textContent = '';
+                    hintEl.classList.add('hidden');
+                }
+            }
+
+            activeTarget = target;
+            updatePosition(target, preferredPos);
+
+            tooltipEl.classList.add('os-tooltip-visible');
+            tooltipEl.style.opacity = '1';
+            tooltipEl.setAttribute('aria-hidden', 'false');
+
+            requestAnimationFrame(() => {
+                if (activeTarget === target) {
+                    updatePosition(target, preferredPos);
+                }
+            });
+        };
+
+        const findTarget = (node) => {
+            if (!node || node === document || node === window || !node.closest) return null;
+            return node.closest('[data-tooltip-title], .desktop-icon, #taskbar button, #taskbar select, #taskbar [data-tooltip], #desktopQuickWidget button');
+        };
+
+        document.addEventListener('pointerover', (e) => {
+            const target = findTarget(e.target);
+            if (!target) return;
+            if (target === activeTarget) return;
+
+            if (hideTimer) {
+                clearTimeout(hideTimer);
+                hideTimer = null;
+            }
+
+            // Устранение конфликта со стандартным title браузера
+            if (target.hasAttribute('title')) {
+                const nativeTitle = target.getAttribute('title');
+                target.setAttribute('data-stored-title', nativeTitle);
+                if (!target.hasAttribute('data-tooltip-title')) {
+                    target.setAttribute('data-tooltip-title', nativeTitle);
+                }
+                target.removeAttribute('title');
+            }
+
+            const isRecent = (Date.now() - lastCloseTime) < 300;
+            const delay = isRecent ? 0 : 120;
+
+            if (showTimer) clearTimeout(showTimer);
+            showTimer = setTimeout(() => {
+                showTooltip(target);
+            }, delay);
+        });
+
+        document.addEventListener('pointerout', (e) => {
+            const target = findTarget(e.target);
+            if (!target) return;
+            if (e.relatedTarget && target.contains(e.relatedTarget)) return;
+
+            // Восстановление нативного title при уходе
+            if (target.hasAttribute('data-stored-title')) {
+                target.setAttribute('title', target.getAttribute('data-stored-title'));
+                target.removeAttribute('data-stored-title');
+            }
+
+            if (showTimer) {
+                clearTimeout(showTimer);
+                showTimer = null;
+            }
+
+            hideTimer = setTimeout(() => {
+                hideTooltip();
+            }, 60);
+        });
+
+        // Скрываем при клике, перетаскивании или нажатии клавиш
+        ['pointerdown', 'click', 'scroll', 'keydown'].forEach(evt => {
+            window.addEventListener(evt, () => hideTooltip(), { passive: true });
+        });
     }
 
     // =========================================================================
@@ -208,6 +482,7 @@ export class PharmaGateWebOS {
             const onPointerDown = (e) => {
                 isDrag = true;
                 moved = false;
+                this.hideTooltip?.();
                 icon.setPointerCapture(e.pointerId);
                 startX = e.clientX;
                 startY = e.clientY;
@@ -220,7 +495,10 @@ export class PharmaGateWebOS {
                 const zoom = this.crossPlatform?.zoomFactor || 1;
                 const dx = (e.clientX - startX) / zoom;
                 const dy = (e.clientY - startY) / zoom;
-                if (Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
+                if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+                    moved = true;
+                    this.hideTooltip?.();
+                }
 
                 if (!icon) return;
                 const iconW = (icon && icon.offsetWidth) || 84;
@@ -235,6 +513,7 @@ export class PharmaGateWebOS {
             const onPointerUp = (e) => {
                 if (!isDrag) return;
                 isDrag = false;
+                this.hideTooltip?.();
                 try { icon.releasePointerCapture(e.pointerId); } catch (err) {}
 
                 if (!moved) {
@@ -631,23 +910,81 @@ export class PharmaGateWebOS {
         if (!container) return;
 
         const apps = [
-            { id: 'winEditor', title: 'Накладная', icon: '📄' },
-            { id: 'winSchema', title: 'Конструктор', icon: '📐' },
-            { id: 'winDb', title: 'СУБД ERP', icon: '🗄️' },
-            { id: 'winReconcile', title: 'Сверка', icon: '⚖️' },
-            { id: 'winKb', title: 'База Знаний', icon: '📚' },
-            { id: 'winWizard', title: 'Мастер 2.0', icon: '🚀' },
-            { id: 'winInspector', title: 'Инспектор', icon: '🛠️' },
-            { id: 'winSettings', title: 'Настройки', icon: '⚙️' }
+            { 
+                id: 'winEditor', 
+                title: 'Накладная', 
+                icon: '📄',
+                badge: 'EDI Grid',
+                desc: 'Редактор накладных: парсинг и экспорт DBF/XML/Excel, аудит ФЛК и надбавки ЖНВЛП.'
+            },
+            { 
+                id: 'winSchema', 
+                title: 'Конструктор', 
+                icon: '📐',
+                badge: 'DBF & Access',
+                desc: 'Визуальный конструктор схем и полей баз данных с настройкой типов и правил валидации.'
+            },
+            { 
+                id: 'winDb', 
+                title: 'СУБД ERP', 
+                icon: '🗄️',
+                badge: 'SQLite WASM',
+                desc: 'Встроенная база данных с каталогом ГРЛС (12 000+ лекарств) и остатками аптек без сервера.'
+            },
+            { 
+                id: 'winReconcile', 
+                title: 'Сверка', 
+                icon: '⚖️',
+                badge: 'Smart Match',
+                desc: 'Каскадная сверка номенклатуры поставщика с базой сети и выявление ценовых расхождений.'
+            },
+            { 
+                id: 'winKb', 
+                title: 'База Знаний', 
+                icon: '📚',
+                badge: '25+ регламентов',
+                desc: 'Фармацевтическая библиотека: приказы Минздрава, форматы УПД ФНС и правила МДЛП.'
+            },
+            { 
+                id: 'winWizard', 
+                title: 'Мастер 2.0', 
+                icon: '🚀',
+                badge: 'Конвертация',
+                desc: 'Пошаговый ассистент создания накладных, исправления ошибок и пакетного экспорта.'
+            },
+            { 
+                id: 'winInspector', 
+                title: 'Инспектор', 
+                icon: '🛠️',
+                badge: 'Аудит и ФЛК',
+                desc: 'Журнал операций, аудит правок ячеек, трассировка цен и детализация предупреждений ФЛК.'
+            },
+            { 
+                id: 'winSettings', 
+                title: 'Настройки', 
+                icon: '⚙️',
+                badge: 'Параметры',
+                desc: 'Профили сетей (НЕО-ФАРМ, Ригла, Катрен), автосохранение, кодировки и системные опции.'
+            }
         ];
 
         container.innerHTML = apps.map(app => {
             const win = document.getElementById(app.id);
             const isOpen = win && !win.classList.contains('minimized');
+            const isFront = isOpen && (parseInt(win.style.zIndex || '10', 10) >= (this.topZIndex - 1));
+            const statusHint = isOpen ? (isFront ? '● Активно на переднем плане' : '○ Открыто на заднем плане') : '— Свернуто на панель задач';
             const style = isOpen ? 'bg-slate-800 text-white border-blue-500 shadow-sm' : 'text-slate-400 hover:text-white border-transparent';
 
             return `
-                <button onclick="window.PharmaGate.toggleApp('${app.id}')" class="px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 border transition-all cursor-pointer ${style}">
+                <button onclick="window.PharmaGate.toggleApp('${app.id}')" 
+                        class="px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 border transition-all cursor-pointer ${style}"
+                        data-tooltip-title="${app.icon} ${app.title} — Окно программы"
+                        data-tooltip-desc="${app.desc}"
+                        data-tooltip-badge="${app.badge}"
+                        data-tooltip-shortcut="Клик: переключить / свернуть"
+                        data-tooltip-hint="${statusHint}"
+                        data-tooltip-pos="top"
+                        aria-label="${app.title}">
                     <span>${app.icon}</span>
                     <span>${app.title}</span>
                 </button>
@@ -681,7 +1018,7 @@ export class PharmaGateWebOS {
             if (themeBadge) themeBadge.textContent = themeNames[currentTheme] || currentTheme;
 
             // Масштаб
-            const currentZoom = Math.round((parseFloat(localStorage.getItem('pharmagate_zoom') || '1.0')) * 100);
+            const currentZoom = Math.round((parseFloat(localStorage.getItem('pharmagate_zoom_level') || localStorage.getItem('pharmagate_zoom') || '1.0')) * 100);
             const scaleBadge = document.getElementById('startMenuScaleValueBadge');
             if (scaleBadge) scaleBadge.textContent = `${currentZoom}%`;
             const scaleSlider = document.getElementById('startScaleSlider');

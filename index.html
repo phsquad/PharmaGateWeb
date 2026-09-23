@@ -549,6 +549,161 @@
             to { opacity: 1; transform: scale(1); }
         }
 
+        /* 💬 УНИВЕРСАЛЬНЫЕ ДЕСКРИПТИВНЫЕ ТУЛТИПЫ (SMART OS TOOLTIPS) */
+        #osGlobalTooltip {
+            position: fixed;
+            z-index: 100000;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(4px) scale(0.97);
+            transition: opacity 0.15s cubic-bezier(0.16, 1, 0.3, 1), transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+            max-width: 330px;
+            width: max-content;
+            will-change: transform, opacity;
+        }
+
+        #osGlobalTooltip.os-tooltip-visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .os-tooltip-card {
+            background: rgba(15, 23, 42, 0.96);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 14px;
+            padding: 10px 13px;
+            box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.08);
+            color: #f1f5f9;
+        }
+
+        .os-tooltip-arrow {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: rgba(15, 23, 42, 0.96);
+            transform: rotate(45deg);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            pointer-events: none;
+        }
+
+        #osGlobalTooltip[data-pos="top"] .os-tooltip-arrow {
+            bottom: -5px;
+            left: 50%;
+            margin-left: -5px;
+            border-top: none;
+            border-left: none;
+        }
+
+        #osGlobalTooltip[data-pos="bottom"] .os-tooltip-arrow {
+            top: -5px;
+            left: 50%;
+            margin-left: -5px;
+            border-bottom: none;
+            border-right: none;
+        }
+
+        #osGlobalTooltip[data-pos="right"] .os-tooltip-arrow {
+            left: -5px;
+            top: 50%;
+            margin-top: -5px;
+            border-top: none;
+            border-right: none;
+        }
+
+        #osGlobalTooltip[data-pos="left"] .os-tooltip-arrow {
+            right: -5px;
+            top: 50%;
+            margin-top: -5px;
+            border-bottom: none;
+            border-left: none;
+        }
+
+        /* Темы оформления для тултипов */
+        html.theme-pharma-light .os-tooltip-card {
+            background: rgba(255, 255, 255, 0.98) !important;
+            border-color: #cbd5e1 !important;
+            color: #0f172a !important;
+            box-shadow: 0 16px 36px -6px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+        }
+        html.theme-pharma-light .os-tooltip-arrow {
+            background: #ffffff !important;
+            border-color: #cbd5e1 !important;
+        }
+        html.theme-pharma-light #osGlobalTooltip .os-tt-desc {
+            color: #475569 !important;
+        }
+        html.theme-pharma-light #osGlobalTooltip .os-tt-footer {
+            border-color: #e2e8f0 !important;
+            color: #64748b !important;
+        }
+        html.theme-pharma-light #osGlobalTooltip .os-tt-badge {
+            background: #eff6ff !important;
+            color: #1d4ed8 !important;
+            border-color: #bfdbfe !important;
+        }
+
+        html.theme-cyber-matrix .os-tooltip-card {
+            background: rgba(2, 18, 8, 0.98) !important;
+            border-color: #059669 !important;
+            color: #34d399 !important;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+            box-shadow: 0 0 25px rgba(5, 150, 105, 0.35) !important;
+        }
+        html.theme-cyber-matrix .os-tooltip-arrow {
+            background: #021208 !important;
+            border-color: #059669 !important;
+        }
+        html.theme-cyber-matrix #osGlobalTooltip .os-tt-desc {
+            color: #a7f3d0 !important;
+        }
+
+        html.theme-retro-win95 .os-tooltip-card {
+            background: #ffffe1 !important;
+            border: 1px solid #000000 !important;
+            border-radius: 0 !important;
+            box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5) !important;
+            color: #000000 !important;
+            font-family: 'Tahoma', 'MS Sans Serif', sans-serif !important;
+        }
+        html.theme-retro-win95 .os-tooltip-arrow {
+            background: #ffffe1 !important;
+            border-color: #000000 !important;
+        }
+        html.theme-retro-win95 #osGlobalTooltip .os-tt-desc {
+            color: #333333 !important;
+        }
+        html.theme-retro-win95 #osGlobalTooltip .os-tt-title {
+            color: #000080 !important;
+        }
+        html.theme-retro-win95 #osGlobalTooltip .os-tt-footer {
+            border-color: #d4d0c8 !important;
+            color: #555555 !important;
+        }
+
+        html.theme-midnight-nebula .os-tooltip-card {
+            background: rgba(18, 12, 38, 0.96) !important;
+            border-color: rgba(168, 85, 247, 0.4) !important;
+            box-shadow: 0 16px 40px -8px rgba(147, 51, 234, 0.4), 0 0 0 1px rgba(168, 85, 247, 0.2) !important;
+        }
+        html.theme-midnight-nebula .os-tooltip-arrow {
+            background: rgba(18, 12, 38, 0.96) !important;
+            border-color: rgba(168, 85, 247, 0.4) !important;
+        }
+
+        html.lite-mode #osGlobalTooltip {
+            transition: none !important;
+            animation: none !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+        html.lite-mode .os-tooltip-card {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.8) !important;
+        }
+
         /* Адаптив для меню Пуск */
         @media (max-width: 640px) {
             #startMenu {
@@ -556,6 +711,79 @@
                 left: 10px !important;
                 bottom: 56px !important;
             }
+        }
+
+        /* Улучшенные стили для Панели задач (#taskbar) и Меню Пуск (#startMenu) */
+        footer#taskbar {
+            background: linear-gradient(180deg, rgba(13, 19, 33, 0.88) 0%, rgba(5, 8, 16, 0.96) 100%) !important;
+            backdrop-filter: blur(24px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+            box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+        }
+
+        #btnStartMenu {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+            box-shadow: 0 2px 10px rgba(37, 99, 235, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        #btnStartMenu:hover {
+            transform: translateY(-1px) scale(1.05);
+            background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%) !important;
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+        }
+        #btnStartMenu:active {
+            transform: translateY(0) scale(0.96);
+        }
+
+        #startMenu {
+            box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+            animation: startMenuPop 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            transform-origin: bottom left;
+        }
+
+        @keyframes startMenuPop {
+            0% {
+                opacity: 0;
+                transform: translateY(12px) scale(0.98);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        #startMenu.start-menu-fullscreen {
+            left: 12px !important;
+            right: 12px !important;
+            top: 12px !important;
+            bottom: 60px !important;
+            width: auto !important;
+            max-width: none !important;
+            height: auto !important;
+            max-height: none !important;
+            border-radius: 16px !important;
+        }
+
+        /* Визуальное оформление ярлыков в меню Пуск */
+        .start-app-item {
+            transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        .start-app-item:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35) !important;
+        }
+        .start-app-item:active {
+            transform: translateY(0) scale(0.97);
+        }
+
+        /* Аккуратная подсветка кнопок масштабирования */
+        .btn-quick-scale, .btn-start-scale-preset {
+            transition: all 0.15s ease !important;
+        }
+        .btn-quick-scale:hover, .btn-start-scale-preset:hover {
+            transform: scale(1.04);
         }
     </style>
 </head>
@@ -572,57 +800,112 @@
         <!-- Ярлыки рабочего стола (Свободно перемещаются мышью и пальцем) -->
         <div id="desktopIconsLayer" class="relative w-full h-full pointer-events-none z-0">
             
-            <div data-app="winEditor" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer" style="left: 16px; top: 16px;">
+            <div data-app="winEditor" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 16px; top: 16px;"
+                 data-tooltip-title="📄 EDI-Редактор Накладных"
+                 data-tooltip-desc="Профессиональный редактор накладных: чтение и сохранение DBF/XML/Excel, валидация ФЛК, расчет надбавок ЖНВЛП и согласование цен."
+                 data-tooltip-badge="DBF · XML · XLSX"
+                 data-tooltip-shortcut="Клик / Перетаскивание"
+                 aria-label="EDI-Редактор Накладных">
                 <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 flex items-center justify-center text-2xl shadow-lg shadow-blue-500/30">📄</div>
                 <span class="text-xs font-semibold text-white drop-shadow">Накладная</span>
             </div>
 
-            <div data-app="winSchema" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer" style="left: 16px; top: 112px;">
+            <div data-app="winSchema" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 16px; top: 112px;"
+                 data-tooltip-title="📐 Конструктор Схем Данных"
+                 data-tooltip-desc="Визуальный конструктор и маппер структур: типы полей (C, N, D, L, M), обязательность и правила валидации для таблиц DBF и MS Access."
+                 data-tooltip-badge="DBF · Access MDB"
+                 data-tooltip-shortcut="Клик / Перетаскивание"
+                 aria-label="Конструктор Схем Данных">
                 <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-teal-400 flex items-center justify-center text-2xl shadow-lg shadow-emerald-500/30">📐</div>
                 <span class="text-xs font-semibold text-white drop-shadow">Конструктор</span>
             </div>
 
-            <div data-app="winDb" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer" style="left: 16px; top: 208px;">
+            <div data-app="winDb" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 16px; top: 208px;"
+                 data-tooltip-title="🗄️ СУБД ERP (SQLite WASM)"
+                 data-tooltip-desc="Локальная реляционная база данных WebAssembly: каталог номенклатуры ГРЛС (12 000+ медикаментов), остатки аптек и контрагенты без сервера."
+                 data-tooltip-badge="SQLite In-Memory"
+                 data-tooltip-shortcut="Клик / Перетаскивание"
+                 aria-label="СУБД ERP SQLite WASM">
                 <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-600 via-pink-600 to-rose-500 flex items-center justify-center text-2xl shadow-lg shadow-purple-500/30">🗄️</div>
                 <span class="text-xs font-semibold text-white drop-shadow">СУБД ERP</span>
             </div>
 
-            <div data-app="winReconcile" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer" style="left: 16px; top: 304px;">
+            <div data-app="winReconcile" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 16px; top: 304px;"
+                 data-tooltip-title="⚖️ Каскадная Сверка Накладных"
+                 data-tooltip-desc="Интеллектуальное сопоставление позиций с каталогом сети: автопоиск расхождений в ценах, сериях, сроках годности и ставках НДС."
+                 data-tooltip-badge="Smart Match"
+                 data-tooltip-shortcut="Клик / Перетаскивание"
+                 aria-label="Каскадная Сверка Накладных">
                 <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-600 via-orange-600 to-yellow-500 flex items-center justify-center text-2xl shadow-lg shadow-amber-500/30">⚖️</div>
                 <span class="text-xs font-semibold text-white drop-shadow">Сверка</span>
             </div>
 
-            <div data-app="winKb" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer" style="left: 16px; top: 400px;">
+            <div data-app="winKb" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 16px; top: 400px;"
+                 data-tooltip-title="📚 База Знаний Фармацевта"
+                 data-tooltip-desc="Нормативно-справочная база: 25+ регламентов, приказы Минздрава, форматы УПД ФНС №970@, маркировка Честный ЗНАК (МДЛП) и формулы ЖНВЛП."
+                 data-tooltip-badge="25+ регламентов"
+                 data-tooltip-shortcut="Клик / Перетаскивание"
+                 aria-label="База Знаний Фармацевта">
                 <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center text-2xl shadow-lg shadow-cyan-500/30">📚</div>
                 <span class="text-xs font-semibold text-white drop-shadow">База Знаний</span>
             </div>
 
-            <div data-app="winWizard" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer" style="left: 120px; top: 16px;">
+            <div data-app="winWizard" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 120px; top: 16px;"
+                 data-tooltip-title="🚀 Мастер Накладных 2.0"
+                 data-tooltip-desc="Пошаговый ассистент создания и конвертации: определение кодировок, реквизитов поставщика, исправление ошибок и пакетная выгрузка."
+                 data-tooltip-badge="Пошаговый импорт"
+                 data-tooltip-shortcut="Клик / Перетаскивание"
+                 aria-label="Мастер Накладных 2.0">
                 <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-500 to-emerald-500 flex items-center justify-center text-2xl shadow-lg shadow-blue-500/30">🚀</div>
                 <span class="text-xs font-semibold text-white drop-shadow">Мастер 2.0</span>
             </div>
 
-            <div data-app="winInspector" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer" style="left: 120px; top: 112px;">
+            <div data-app="winInspector" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 120px; top: 112px;"
+                 data-tooltip-title="🛠️ Инспектор Изменений и ФЛК"
+                 data-tooltip-desc="Журнал аудита всех операций, история правок полей накладной, детальный разбор ошибок форматно-логического контроля и трассировка цен."
+                 data-tooltip-badge="Аудит и Трассировка"
+                 data-tooltip-shortcut="Клик / Перетаскивание"
+                 aria-label="Инспектор Изменений и ФЛК">
                 <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-violet-600 to-purple-600 flex items-center justify-center text-2xl shadow-lg shadow-purple-500/30">🛠️</div>
                 <span class="text-xs font-semibold text-white drop-shadow">Инспектор</span>
             </div>
 
-            <div data-app="winSettings" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer" style="left: 120px; top: 208px;">
+            <div data-app="winSettings" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 120px; top: 208px;"
+                 data-tooltip-title="⚙️ Настройки Системы"
+                 data-tooltip-desc="Управление системными профилями аптечных сетей (НЕО-ФАРМ, Ригла), путями сохранения, кодировками (CP866/1251) и параметрами окружения."
+                 data-tooltip-badge="Конфигурация"
+                 data-tooltip-shortcut="Клик / Перетаскивание"
+                 aria-label="Настройки Системы">
                 <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-slate-600 to-slate-800 flex items-center justify-center text-2xl shadow-lg shadow-slate-500/30">⚙️</div>
                 <span class="text-xs font-semibold text-white drop-shadow">Настройки</span>
             </div>
 
-            <div data-app="winPersonalization" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer" style="left: 120px; top: 304px;">
+            <div data-app="winPersonalization" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 120px; top: 304px;"
+                 data-tooltip-title="🎨 Персонализация и Темы"
+                 data-tooltip-desc="Настройка рабочего стола: 6 стилей ОС (Windows 11, macOS Glass, Matrix, Light, Win95, Nebula), акцентные цвета и обои."
+                 data-tooltip-badge="6 стилей ОС"
+                 data-tooltip-shortcut="Клик / Перетаскивание"
+                 aria-label="Персонализация и Темы">
                 <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-fuchsia-600 via-pink-600 to-rose-500 flex items-center justify-center text-2xl shadow-lg shadow-pink-500/30">🎨</div>
                 <span class="text-xs font-semibold text-white drop-shadow">Оформление</span>
             </div>
 
-            <div data-app="winScale" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer" style="left: 120px; top: 400px;">
+            <div data-app="winScale" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 120px; top: 400px;"
+                 data-tooltip-title="🔍 Экран и Масштаб (Auto-DPI)"
+                 data-tooltip-desc="Адаптация интерфейса под мониторы любого разрешения. Автоматический расчет DPI для 4K/FullHD и регулировка масштаба таблиц (75%–150%)."
+                 data-tooltip-badge="Auto-DPI · 75%-150%"
+                 data-tooltip-shortcut="Клик / Перетаскивание"
+                 aria-label="Экран и Масштаб">
                 <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 via-blue-600 to-indigo-600 flex items-center justify-center text-2xl shadow-lg shadow-blue-500/30">🔍</div>
                 <span class="text-xs font-semibold text-white drop-shadow">Масштаб</span>
             </div>
 
-            <div data-app="winLiteMode" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer" style="left: 120px; top: 496px;">
+            <div data-app="winLiteMode" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 120px; top: 496px;"
+                 data-tooltip-title="⚡ Режим Ускорения Lite Speed"
+                 data-tooltip-desc="Оптимизация для слабого интернет-соединения (2G/3G) и медленных ПК. Отключает анимации, тени и размытия для максимального отклика."
+                 data-tooltip-badge="Турбо-режим"
+                 data-tooltip-shortcut="Клик / Перетаскивание"
+                 aria-label="Режим Ускорения Lite Speed">
                 <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 via-orange-500 to-yellow-400 flex items-center justify-center text-2xl shadow-lg shadow-amber-500/30">⚡</div>
                 <span class="text-xs font-semibold text-white drop-shadow">Lite Режим</span>
             </div>
@@ -641,7 +924,11 @@
                         <div class="text-[10px] text-slate-400">Темы, Масштаб и Lite-режим</div>
                     </div>
                 </div>
-                <button id="btnToggleQuickWidget" title="Свернуть / Развернуть" class="text-slate-400 hover:text-white text-xs px-2 py-1 rounded-lg hover:bg-white/10 transition-colors font-mono">_</button>
+                <button id="btnToggleQuickWidget" title="Свернуть / Развернуть" 
+                        data-tooltip-title="🎨 Виджет Кастомизации"
+                        data-tooltip-desc="Свернуть или развернуть плавающий виджет управления темами и масштабом на рабочем столе."
+                        data-tooltip-shortcut="Клик мышью"
+                        class="text-slate-400 hover:text-white text-xs px-2 py-1 rounded-lg hover:bg-white/10 transition-colors font-mono">_</button>
             </div>
 
             <div id="quickWidgetContent" class="space-y-3">
@@ -652,12 +939,30 @@
                         <span id="quickWidgetThemeBadge" class="text-blue-400 font-medium">Fluent Dark</span>
                     </div>
                     <div class="grid grid-cols-3 gap-1.5 text-[10px]">
-                        <button class="btn-quick-theme px-2 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-blue-500 transition-colors font-medium truncate text-center" data-theme="fluent-dark">🌙 Fluent</button>
-                        <button class="btn-quick-theme px-2 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-blue-500 transition-colors font-medium truncate text-center" data-theme="macos">🍎 macOS</button>
-                        <button class="btn-quick-theme px-2 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-blue-500 transition-colors font-medium truncate text-center" data-theme="pharma-light">☀️ Light</button>
-                        <button class="btn-quick-theme px-2 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-blue-500 transition-colors font-medium truncate text-center" data-theme="cyber-matrix">🟩 Matrix</button>
-                        <button class="btn-quick-theme px-2 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-blue-500 transition-colors font-medium truncate text-center" data-theme="retro-win95">💾 Win95</button>
-                        <button class="btn-quick-theme px-2 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-blue-500 transition-colors font-medium truncate text-center" data-theme="midnight-nebula">🌌 Nebula</button>
+                        <button class="btn-quick-theme px-2 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-blue-500 transition-colors font-medium truncate text-center" 
+                                data-theme="fluent-dark"
+                                data-tooltip-title="🌙 Fluent Dark"
+                                data-tooltip-desc="Классический темный стиль Windows 11 с акриловыми тенями и синим акцентом.">🌙 Fluent</button>
+                        <button class="btn-quick-theme px-2 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-blue-500 transition-colors font-medium truncate text-center" 
+                                data-theme="macos"
+                                data-tooltip-title="🍎 macOS Glass"
+                                data-tooltip-desc="Стеклянный интерфейс в стиле macOS Sonoma с округлыми углами и светофором.">🍎 macOS</button>
+                        <button class="btn-quick-theme px-2 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-blue-500 transition-colors font-medium truncate text-center" 
+                                data-theme="pharma-light"
+                                data-tooltip-title="☀️ Pharma Clean Light"
+                                data-tooltip-desc="Чистая светлая медицинская тема с высокой контрастностью и четкими таблицами.">☀️ Light</button>
+                        <button class="btn-quick-theme px-2 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-blue-500 transition-colors font-medium truncate text-center" 
+                                data-theme="cyber-matrix"
+                                data-tooltip-title="🟩 Cyber Matrix"
+                                data-tooltip-desc="Терминальный стиль в изумрудных тонах для любителей консольной классики.">🟩 Matrix</button>
+                        <button class="btn-quick-theme px-2 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-blue-500 transition-colors font-medium truncate text-center" 
+                                data-theme="retro-win95"
+                                data-tooltip-title="💾 Retro Win95 / 2000"
+                                data-tooltip-desc="Ностальгический стиль классического Windows 95/2000 с объемными 3D-рамками.">💾 Win95</button>
+                        <button class="btn-quick-theme px-2 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-blue-500 transition-colors font-medium truncate text-center" 
+                                data-theme="midnight-nebula"
+                                data-tooltip-title="🌌 Midnight Nebula"
+                                data-tooltip-desc="Глубокая космическая фиолетово-неоновая тема с мягким свечением.">🌌 Nebula</button>
                     </div>
                 </div>
 
@@ -668,16 +973,30 @@
                         <span id="quickWidgetScaleVal" class="font-mono font-bold text-blue-400">100%</span>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button id="btnQuickWidgetScaleMinus" class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-xs font-bold transition-colors text-center leading-none">-</button>
-                        <input id="quickWidgetScaleSlider" type="range" min="75" max="150" step="5" value="100" class="flex-1 accent-blue-500 h-1.5 bg-slate-800 rounded-lg cursor-pointer">
-                        <button id="btnQuickWidgetScalePlus" class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-xs font-bold transition-colors text-center leading-none">+</button>
+                        <button id="btnQuickWidgetScaleMinus" 
+                                data-tooltip-title="🔍 Уменьшить масштаб (-5%)"
+                                data-tooltip-desc="Уменьшение масштаба рабочего стола для отображения большего объема информации."
+                                class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-xs font-bold transition-colors text-center leading-none">-</button>
+                        <input id="quickWidgetScaleSlider" type="range" min="75" max="150" step="5" value="100" 
+                               data-tooltip-title="🔍 Ползунок масштабирования"
+                               data-tooltip-desc="Плавное изменение масштаба рабочей области от 75% до 150%."
+                               class="flex-1 accent-blue-500 h-1.5 bg-slate-800 rounded-lg cursor-pointer">
+                        <button id="btnQuickWidgetScalePlus" 
+                                data-tooltip-title="🔍 Увеличить масштаб (+5%)"
+                                data-tooltip-desc="Увеличение масштаба рабочего стола и шрифтов для экранов высокого разрешения."
+                                class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-xs font-bold transition-colors text-center leading-none">+</button>
                     </div>
                     <div class="flex items-center justify-between text-[10px] pt-0.5">
-                        <label class="flex items-center gap-1.5 cursor-pointer text-slate-300 hover:text-white">
+                        <label class="flex items-center gap-1.5 cursor-pointer text-slate-300 hover:text-white"
+                               data-tooltip-title="🖥️ Auto-DPI адаптация"
+                               data-tooltip-desc="Автоматический подбор оптимального масштаба в зависимости от разрешения экрана.">
                             <input id="chkQuickWidgetAutoDpi" type="checkbox" class="rounded accent-blue-600 cursor-pointer">
                             <span>Auto-DPI экран</span>
                         </label>
-                        <button id="btnQuickWidgetScaleReset" class="text-slate-400 hover:text-white underline">100% (сброс)</button>
+                        <button id="btnQuickWidgetScaleReset" 
+                                data-tooltip-title="🔍 Сброс масштаба"
+                                data-tooltip-desc="Возврат базового масштаба 100% (1:1)."
+                                class="text-slate-400 hover:text-white underline">100% (сброс)</button>
                     </div>
                 </div>
 
@@ -690,11 +1009,17 @@
                             <div id="quickWidgetLiteDesc" class="text-[9px] text-amber-200/70">Для медленного интернета</div>
                         </div>
                     </div>
-                    <button id="btnQuickWidgetToggleLite" class="px-3 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[10px] transition-colors shadow">Включить</button>
+                    <button id="btnQuickWidgetToggleLite" 
+                            data-tooltip-title="⚡ Режим Lite Speed"
+                            data-tooltip-desc="Отключение визуальных эффектов для максимальной скорости на слабых ПК и при 2G/3G связи."
+                            class="px-3 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[10px] transition-colors shadow">Включить</button>
                 </div>
 
                 <!-- Кнопка открыть полное окно -->
-                <button id="btnQuickWidgetOpenSettings" class="w-full py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-xs flex items-center justify-center gap-2 transition-all shadow-md shadow-blue-600/30">
+                <button id="btnQuickWidgetOpenSettings" 
+                        data-tooltip-title="⚙️ Центр Настроек и Оформления"
+                        data-tooltip-desc="Открыть полнофункциональное окно выбора обоев, шрифтов, эффектов размытия и кастомных стилей."
+                        class="w-full py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-xs flex items-center justify-center gap-2 transition-all shadow-md shadow-blue-600/30">
                     <span>⚙️ Все параметры оформления</span>
                 </button>
             </div>
@@ -2150,19 +2475,34 @@
         
         <div class="flex items-center gap-2">
             <!-- Кнопка Меню (ОС-адаптивная) -->
-            <button id="btnStartMenu" onclick="window.PharmaGate.toggleStartMenu()" class="w-8 h-8 rounded-lg bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center text-sm shadow-md shadow-blue-600/30 transition-all cursor-pointer" title="Меню приложений">
+            <button id="btnStartMenu" onclick="window.PharmaGate.toggleStartMenu()" 
+                    data-tooltip-title="🪟 Меню «Пуск» и macOS Finder"
+                    data-tooltip-desc="Единый центр запуска программ, навигатор по документам и накладным, быстрые действия и настройки системы."
+                    data-tooltip-badge="WebOS Меню"
+                    data-tooltip-shortcut="Клик / Клавиша Win"
+                    class="w-8 h-8 rounded-lg bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center text-sm shadow-md shadow-blue-600/30 transition-all cursor-pointer" title="Меню приложений">
                 🪟
             </button>
 
             <!-- Кнопка быстрого поиска Spotlight / Command Palette -->
-            <button id="btnOpenSpotlight" class="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#090d16] hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-lg text-xs cursor-pointer transition-colors" title="Открыть Command Palette / Spotlight">
+            <button id="btnOpenSpotlight" 
+                    data-tooltip-title="🔍 Spotlight & Командная Палитра"
+                    data-tooltip-desc="Глобальный быстрый поиск по системе: мгновенный переход между окнами, поиск документов и вызов системных команд."
+                    data-tooltip-badge="⌘K / Ctrl+K"
+                    data-tooltip-shortcut="Нажмите ⌘K или Ctrl+K"
+                    class="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#090d16] hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-lg text-xs cursor-pointer transition-colors" title="Открыть Command Palette / Spotlight">
                 <span>🔍</span>
                 <span class="hidden sm:inline text-[11px] text-slate-400">Поиск</span>
                 <span id="kbdSpotlightHint" class="px-1.5 py-0.5 rounded bg-slate-900 text-blue-400 font-mono text-[10px] border border-slate-700">⌘K</span>
             </button>
 
             <!-- Селектор стратегий компоновки окон -->
-            <select id="strategySelect" class="bg-[#090d16] text-slate-300 border border-slate-800 rounded-lg px-2 py-1 text-xs font-semibold focus:outline-none cursor-pointer">
+            <select id="strategySelect" 
+                    data-tooltip-title="🪟 Компоновка Окон"
+                    data-tooltip-desc="Автоматическая организация окон: Каскад, Сплит 50/50 для сверки таблиц, Сетка 2x2 или Фокус на весь экран."
+                    data-tooltip-badge="Оконный менеджер"
+                    data-tooltip-shortcut="Выбор из списка"
+                    class="bg-[#090d16] text-slate-300 border border-slate-800 rounded-lg px-2 py-1 text-xs font-semibold focus:outline-none cursor-pointer">
                 <option value="cascade">🪟 Каскад</option>
                 <option value="split_lr">🪟 Сплит 50/50</option>
                 <option value="grid_2x2">🪟 Сетка 2x2</option>
@@ -2177,7 +2517,12 @@
 
         <div class="flex items-center gap-2.5 text-xs font-medium text-slate-400 flex-wrap">
             <!-- HUD индикатор финансовых итогов -->
-            <div class="hidden xl:flex items-center gap-3 bg-[#090d16] px-3 py-1 rounded-lg border border-slate-800 font-mono text-[11px]">
+            <div id="hudFinancialSummary" 
+                 data-tooltip-title="📊 Финансовый Аудит Документа"
+                 data-tooltip-desc="Общая сумма накладной с НДС, суммарное число строк номенклатуры и текущий статус форматно-логического контроля."
+                 data-tooltip-badge="ФЛК Контроль"
+                 data-tooltip-shortcut="В реальном времени"
+                 class="hidden xl:flex items-center gap-3 bg-[#090d16] px-3 py-1 rounded-lg border border-slate-800 font-mono text-[11px] cursor-help">
                 <div>Сумма: <b id="hudTotalSum" class="text-emerald-400">0.00 ₽</b></div>
                 <div class="h-3 w-px bg-slate-700"></div>
                 <div>Строк: <b id="hudItemsCount" class="text-slate-300">0</b></div>
@@ -2187,19 +2532,39 @@
 
             <!-- Кроссплатформенные селекторы (ОС / Окончания строк / Кодировка) -->
             <div class="flex items-center gap-1 bg-[#090d16] p-1 rounded-lg border border-slate-800 text-[11px]">
-                <button id="hudOsBadge" class="px-1.5 py-0.5 rounded bg-slate-800/80 hover:bg-slate-700 text-blue-300 font-semibold cursor-pointer" title="Стиль интерфейса (macOS / Windows / Linux)">
+                <button id="hudOsBadge" 
+                        data-tooltip-title="🪟 Стиль Оформления ОС"
+                        data-tooltip-desc="Переключение декораций окон и кнопок управления: Windows 11 Fluent, macOS Glass (светофор слева) или Linux."
+                        data-tooltip-badge="Win / macOS / Linux"
+                        data-tooltip-shortcut="Клик для переключения"
+                        class="px-1.5 py-0.5 rounded bg-slate-800/80 hover:bg-slate-700 text-blue-300 font-semibold cursor-pointer" title="Стиль интерфейса (macOS / Windows / Linux)">
                     🪟 Win
                 </button>
-                <button id="hudLineEndingBadge" class="px-1.5 py-0.5 rounded bg-slate-800/80 hover:bg-slate-700 text-amber-300 font-mono text-[10px] cursor-pointer" title="Окончания строк: CRLF (Windows) / LF (Linux/Mac)">
+                <button id="hudLineEndingBadge" 
+                        data-tooltip-title="📄 Окончания Строк в Экспорте"
+                        data-tooltip-desc="Формат переноса строк: CRLF (\r\n для Windows/1С) или LF (\n для macOS/Linux) при сохранении файлов."
+                        data-tooltip-badge="CRLF / LF"
+                        data-tooltip-shortcut="Клик для переключения"
+                        class="px-1.5 py-0.5 rounded bg-slate-800/80 hover:bg-slate-700 text-amber-300 font-mono text-[10px] cursor-pointer" title="Окончания строк: CRLF (Windows) / LF (Linux/Mac)">
                     CRLF
                 </button>
-                <button id="hudEncBadge" class="px-1.5 py-0.5 rounded bg-slate-800/80 hover:bg-slate-700 text-emerald-300 font-mono text-[10px] cursor-pointer" title="Целевая кодировка DBF (CP866 / CP1251)">
+                <button id="hudEncBadge" 
+                        data-tooltip-title="🔤 Целевая Кодировка DBF"
+                        data-tooltip-desc="Кодовая страница экспорта таблиц: DOS CP866 (традиционная для аптечных шлюзов и 1С) или Windows CP1251 (ANSI)."
+                        data-tooltip-badge="CP866 / CP1251"
+                        data-tooltip-shortcut="Клик для переключения"
+                        class="px-1.5 py-0.5 rounded bg-slate-800/80 hover:bg-slate-700 text-emerald-300 font-mono text-[10px] cursor-pointer" title="Целевая кодировка DBF (CP866 / CP1251)">
                     CP866
                 </button>
             </div>
 
             <!-- Кнопка быстрого переключения Lite режима (медленная сеть / слабые ПК) -->
-            <button id="btnTaskbarLiteMode" class="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-[#090d16] hover:bg-slate-800 text-slate-300 border border-slate-800 text-[11px] cursor-pointer transition-colors" title="Упрощенный режим (Lite Speed) для медленной сети 2G/3G">
+            <button id="btnTaskbarLiteMode" 
+                    data-tooltip-title="⚡ Режим Lite Speed"
+                    data-tooltip-desc="Турбо-режим: мгновенное отключение анимаций, теней и акрила для плавной работы на слабых устройствах и 2G/3G связи."
+                    data-tooltip-badge="Lite Speed"
+                    data-tooltip-shortcut="Ctrl + L"
+                    class="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-[#090d16] hover:bg-slate-800 text-slate-300 border border-slate-800 text-[11px] cursor-pointer transition-colors" title="Упрощенный режим (Lite Speed) для медленной сети 2G/3G">
                 <span id="taskbarLiteIcon">💎</span>
                 <span id="taskbarLiteLabel" class="hidden md:inline font-semibold text-[10px]">Full</span>
             </button>
@@ -2207,12 +2572,25 @@
             <!-- Масштаб экрана с выпадающим меню Auto-DPI и ползунком -->
             <div class="relative">
                 <div class="flex items-center gap-0.5 bg-[#090d16] p-0.5 rounded-lg border border-slate-800 text-[11px]">
-                    <button id="btnZoomMinus" class="w-5 h-5 flex items-center justify-center rounded hover:bg-slate-800 text-slate-300 font-bold" title="Уменьшить масштаб">-</button>
-                    <button id="btnScaleMenuTrigger" class="flex items-center gap-1 px-1.5 py-0.5 rounded hover:bg-slate-800 text-blue-400 font-mono font-bold text-[10px] cursor-pointer" title="Меню масштабирования и Auto-DPI">
+                    <button id="btnZoomMinus" 
+                            data-tooltip-title="🔍 Уменьшить Масштаб (-5%)"
+                            data-tooltip-desc="Уменьшение экранного масштаба для вывода большего объема данных в таблицах на экран."
+                            data-tooltip-shortcut="Ctrl + Минус"
+                            class="w-5 h-5 flex items-center justify-center rounded hover:bg-slate-800 text-slate-300 font-bold" title="Уменьшить масштаб">-</button>
+                    <button id="btnScaleMenuTrigger" 
+                            data-tooltip-title="🔍 Масштабирование & Auto-DPI"
+                            data-tooltip-desc="Текущий масштаб экрана. Открывает всплывающее меню с быстрыми пресетами и включением авто-DPI."
+                            data-tooltip-badge="Меню масштаба"
+                            data-tooltip-shortcut="Клик для меню"
+                            class="flex items-center gap-1 px-1.5 py-0.5 rounded hover:bg-slate-800 text-blue-400 font-mono font-bold text-[10px] cursor-pointer" title="Меню масштабирования и Auto-DPI">
                         <span id="hudZoomVal">100%</span>
                         <span class="text-[8px] text-slate-500">▾</span>
                     </button>
-                    <button id="btnZoomPlus" class="w-5 h-5 flex items-center justify-center rounded hover:bg-slate-800 text-slate-300 font-bold" title="Увеличить масштаб">+</button>
+                    <button id="btnZoomPlus" 
+                            data-tooltip-title="🔍 Увеличить Масштаб (+5%)"
+                            data-tooltip-desc="Увеличение экранного масштаба и шрифта для четкого и комфортного чтения на 4K/HiDPI дисплеях."
+                            data-tooltip-shortcut="Ctrl + Плюс"
+                            class="w-5 h-5 flex items-center justify-center rounded hover:bg-slate-800 text-slate-300 font-bold" title="Увеличить масштаб">+</button>
                 </div>
 
                 <!-- Всплывающее мини-окно масштабирования -->
@@ -2248,22 +2626,41 @@
             </div>
 
             <!-- Быстрый доступ к персонализации -->
-            <button onclick="window.PharmaGate.openSettingsTab('tabPersonalization')" class="p-1 rounded-lg bg-[#090d16] border border-slate-800 hover:bg-slate-800 text-xs cursor-pointer text-slate-300" title="Оформление, темы и обои">
+            <button onclick="window.PharmaGate.openSettingsTab('tabPersonalization')" 
+                    data-tooltip-title="🎨 Темы и Оформление"
+                    data-tooltip-desc="Быстрый переход в параметры персонализации: выбор из 6 стилей ОС, акцентных цветов, шрифтов и обоев."
+                    data-tooltip-badge="Персонализация"
+                    data-tooltip-shortcut="Клик мышью"
+                    class="p-1 rounded-lg bg-[#090d16] border border-slate-800 hover:bg-slate-800 text-xs cursor-pointer text-slate-300" title="Оформление, темы и обои">
                 🎨
             </button>
 
             <!-- Полный экран -->
-            <button id="btnToggleFullscreen" class="p-1 rounded-lg bg-[#090d16] border border-slate-800 hover:bg-slate-800 text-xs text-slate-300 cursor-pointer" title="Полноэкранный режим (F11)">
+            <button id="btnToggleFullscreen" 
+                    data-tooltip-title="⛶ Полноэкранный Режим"
+                    data-tooltip-desc="Переключение в режим на весь экран (F11) для работы без отвлекающих рамок браузера."
+                    data-tooltip-badge="Full Screen"
+                    data-tooltip-shortcut="Клавиша F11"
+                    class="p-1 rounded-lg bg-[#090d16] border border-slate-800 hover:bg-slate-800 text-xs text-slate-300 cursor-pointer" title="Полноэкранный режим (F11)">
                 ⛶
             </button>
 
             <!-- Звуковые эффекты -->
-            <button id="btnToggleSound" class="p-1 rounded-lg bg-[#090d16] border border-slate-800 hover:bg-slate-800 text-xs cursor-pointer" title="Звуковые эффекты">
+            <button id="btnToggleSound" 
+                    data-tooltip-title="🔔 Звуковые Эффекты"
+                    data-tooltip-desc="Включение или отключение звуков кликов, перемещения окон и предупреждений валидатора ФЛК."
+                    data-tooltip-badge="Аудио-HUD"
+                    data-tooltip-shortcut="Клик мышью"
+                    class="p-1 rounded-lg bg-[#090d16] border border-slate-800 hover:bg-slate-800 text-xs cursor-pointer" title="Звуковые эффекты">
                 🔔
             </button>
 
             <!-- Селектор целевого шлюза -->
-            <div class="hidden lg:flex items-center gap-1 bg-[#090d16] px-2 py-1 rounded-lg border border-slate-800 text-[11px]">
+            <div data-tooltip-title="🎯 Профиль Аптечной Сети"
+                 data-tooltip-desc="Выбор целевого профиля интеграции: автоматическая загрузка требований ФЛК, схем полей и кодировки для выбранной сети."
+                 data-tooltip-badge="Контрагент"
+                 data-tooltip-shortcut="Выбор из списка"
+                 class="hidden lg:flex items-center gap-1 bg-[#090d16] px-2 py-1 rounded-lg border border-slate-800 text-[11px] cursor-pointer">
                 <span>🎯</span>
                 <select id="profileSelect" class="bg-transparent text-emerald-400 font-bold focus:outline-none cursor-pointer">
                     <option value="neofarm" class="bg-slate-900">НЕО-ФАРМ</option>
@@ -2276,7 +2673,12 @@
             </div>
 
             <!-- Часы -->
-            <div id="systemClock" class="font-mono text-slate-300 font-bold text-xs pl-1">12:00</div>
+            <div id="systemClock" 
+                 data-tooltip-title="🕒 Системное Время и Дата"
+                 data-tooltip-desc="Локальное системное время станции. Фиксируется при генерации временных меток электронных документов и журнала аудита."
+                 data-tooltip-badge="Точное время"
+                 data-tooltip-shortcut="Синхронизировано"
+                 class="font-mono text-slate-300 font-bold text-xs pl-1 cursor-default">12:00</div>
         </div>
     </footer>
 
@@ -2321,6 +2723,22 @@
                 Безопасная обработка в Web Worker / In-Memory
             </div>
         </div>
+    </div>
+
+    <!-- Глобальный стилизованный дескриптивный тултип WebOS -->
+    <div id="osGlobalTooltip" class="os-tooltip" role="tooltip" aria-hidden="true" data-pos="top">
+        <div class="os-tooltip-card flex flex-col gap-1.5 pointer-events-none">
+            <div class="flex items-center justify-between gap-2 border-b border-white/10 pb-1">
+                <span class="os-tt-title font-bold text-xs text-white flex items-center gap-1.5 leading-snug"></span>
+                <span class="os-tt-badge text-[9px] font-mono uppercase px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30 whitespace-nowrap hidden"></span>
+            </div>
+            <div class="os-tt-desc text-[11px] text-slate-300 leading-relaxed max-w-[300px]"></div>
+            <div class="os-tt-footer flex items-center justify-between text-[10px] text-slate-400 pt-1 border-t border-white/5">
+                <span class="os-tt-shortcut font-mono text-[9px] text-amber-300/90 hidden"></span>
+                <span class="os-tt-hint text-[9px] text-slate-400 ml-auto hidden"></span>
+            </div>
+        </div>
+        <div class="os-tooltip-arrow"></div>
     </div>
 
     <!-- Подключение контроллера WebOS -->

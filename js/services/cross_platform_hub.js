@@ -419,9 +419,15 @@ export class CrossPlatformHub {
         const quickWidgetScaleVal = document.getElementById('quickWidgetScaleVal');
         if (quickWidgetScaleVal) quickWidgetScaleVal.innerText = str;
 
+        const startMenuScaleValueBadge = document.getElementById('startMenuScaleValueBadge');
+        if (startMenuScaleValueBadge) startMenuScaleValueBadge.innerText = str;
+
         // Синхронизация слайдеров
         const scaleSlider = document.getElementById('scaleSlider');
         if (scaleSlider && parseInt(scaleSlider.value, 10) !== pct) scaleSlider.value = String(pct);
+
+        const startScaleSlider = document.getElementById('startScaleSlider');
+        if (startScaleSlider && parseInt(startScaleSlider.value, 10) !== pct) startScaleSlider.value = String(pct);
 
         const dropdownScaleSlider = document.getElementById('dropdownScaleSlider');
         if (dropdownScaleSlider && parseInt(dropdownScaleSlider.value, 10) !== pct) dropdownScaleSlider.value = String(pct);
