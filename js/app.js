@@ -41,6 +41,7 @@ import { PharmaMath, GS1BarcodeValidator } from './engine/pharma_math.js';
 import { PharmaVocabulary, PharmacyBranch } from './domain/pharma_vocab.js';
 import { KB_ARTICLES, KB_CATEGORIES } from './domain/knowledge_base_data.js';
 import { GridController } from './ui/grid_controller.js';
+import { CrossPlatformHub } from './services/cross_platform_hub.js';
 
 export class PharmaGateWebOS {
     constructor() {
@@ -51,6 +52,9 @@ export class PharmaGateWebOS {
         this.activeProfileKey = "neofarm";
         this.activeFileName = "Накладная_№407.dbf";
         this.metaHeader = {};
+        
+        // Кроссплатформенный концентратор (macOS / Windows / Linux)
+        this.crossPlatform = null;
         
         // Данные сверки заказа
         this.orderRecords = [];
@@ -119,7 +123,11 @@ export class PharmaGateWebOS {
         // 7. Инициализация СУБД Mini-ERP на базе SQLite WASM
         await this._initErpDatabase();
 
-        // 8. Привязка всех рабочих окон и диалоговых модулей
+        // 8. Инициализация кроссплатформенного концентратора (macOS / Windows / Linux)
+        this.crossPlatform = new CrossPlatformHub(this);
+        this.crossPlatform.init();
+
+        // 9. Привязка всех рабочих окон и диалоговых модулей
         this._bindEditorActions();
         this._bindSchemaDesigner();
         this._bindReconciliation();
@@ -129,12 +137,12 @@ export class PharmaGateWebOS {
         this._bindSettingsCenter();
         this._bindWindowStrategySelectors();
 
-        // 9. Глобальные слушатели горячих клавиш, Drag & Drop и таймер автосохранения
+        // 10. Глобальные слушатели горячих клавиш, Drag & Drop и таймер автосохранения
         this._bindKeyboardShortcuts();
         this._bindDragAndDrop();
         this._startSessionAutoSaver();
 
-        // 10. Загрузка демонстрационного набора данных ГРЛС/МДЛП
+        // 11. Загрузка демонстрационного набора данных ГРЛС/МДЛП
         this._loadDemoData();
     }
 
@@ -622,13 +630,23 @@ export class PharmaGateWebOS {
         });
 
         const fileInput = document.getElementById('fileInput');
-        document.getElementById('btnOpenFile')?.addEventListener('click', () => fileInput?.click());
+        document.getElementById('btnOpenFile')?.addEventListener('click', () => {
+            if (this.crossPlatform) {
+                this.crossPlatform.openNativeFileDialog();
+            } else {
+                fileInput?.click();
+            }
+        });
         fileInput?.addEventListener('change', async (e) => {
             const file = e.target.files?.[0];
             if (file) {
                 await this.loadFile(file);
                 fileInput.value = '';
             }
+        });
+
+        document.getElementById('btnLoadDemoInvoice')?.addEventListener('click', () => {
+            this.crossPlatform?.generateDemoPharmaInvoice(50);
         });
 
         document.getElementById('btnAutoRepair')?.addEventListener('click', () => {
@@ -641,11 +659,7 @@ export class PharmaGateWebOS {
         });
 
         document.getElementById('btnSaveDbf')?.addEventListener('click', () => {
-            const prof = ProfileManager.getProfile(this.activeProfileKey);
-            const fields = this.schema.fields.map(f => new DBFFieldDescriptor(f.name, f.type, f.length, f.decimal));
-            const buf = WebDBFEngine.writeDBF(fields, this.records, prof.targetEncoding || 'cp866');
-            WebDBFEngine.downloadAsFile(buf, this.activeFileName);
-            this._showToast(`💾 Файл DBF '${this.activeFileName}' успешно сохранен!`);
+            this.saveDocumentFile();
         });
 
         document.getElementById('btnExportTorg12')?.addEventListener('click', () => {
@@ -1186,7 +1200,122 @@ export class PharmaGateWebOS {
     // =========================================================================
 
     _bindSettingsCenter() {
-        // Слушатели переключателей центра настроек
+        // Хост индикатор
+        const hostBadge = document.getElementById('detectedHostBadge');
+        if (hostBadge && this.crossPlatform) {
+            hostBadge.innerText = `Хост: ${this.crossPlatform.detectedHost.name}`;
+        }
+
+        // Селектор стиля ОС в настройках
+        const selOs = document.getElementById('settingOsPersona');
+        if (selOs && this.crossPlatform) {
+            selOs.value = this.crossPlatform.currentPersona;
+            selOs.addEventListener('change', (e) => {
+                this.crossPlatform.setPersona(e.target.value);
+            });
+        }
+
+        // Селектор окончаний строк в настройках
+        const selLineEnding = document.getElementById('settingLineEnding');
+        if (selLineEnding && this.crossPlatform) {
+            selLineEnding.value = this.crossPlatform.lineEnding;
+            selLineEnding.addEventListener('change', (e) => {
+                this.crossPlatform.setLineEnding(e.target.value);
+            });
+        }
+
+        // Селектор кодировки сохранения в настройках
+        const selEncoding = document.getElementById('settingEncoding');
+        if (selEncoding && this.crossPlatform) {
+            selEncoding.value = this.crossPlatform.activeEncoding;
+            selEncoding.addEventListener('change', (e) => {
+                this.crossPlatform.setEncoding(e.target.value);
+            });
+        }
+
+        // Звуковые эффекты в настройках
+        const chkSound = document.getElementById('settingSoundFx');
+        if (chkSound && this.crossPlatform) {
+            chkSound.checked = this.crossPlatform.soundEnabled;
+            chkSound.addEventListener('change', (e) => {
+                this.crossPlatform.setSoundEnabled(e.target.checked);
+            });
+        }
+
+        // Масштабирование в настройках
+        document.getElementById('btnSettingZoomMinus')?.addEventListener('click', () => {
+            if (!this.crossPlatform) return;
+            this.crossPlatform.setZoom(this.crossPlatform.zoomFactor - 0.1);
+            const disp = document.getElementById('settingZoomDisplay');
+            if (disp) disp.innerText = `${Math.round(this.crossPlatform.zoomFactor * 100)}%`;
+        });
+        document.getElementById('btnSettingZoomPlus')?.addEventListener('click', () => {
+            if (!this.crossPlatform) return;
+            this.crossPlatform.setZoom(this.crossPlatform.zoomFactor + 0.1);
+            const disp = document.getElementById('settingZoomDisplay');
+            if (disp) disp.innerText = `${Math.round(this.crossPlatform.zoomFactor * 100)}%`;
+        });
+        document.getElementById('btnSettingZoomReset')?.addEventListener('click', () => {
+            if (!this.crossPlatform) return;
+            this.crossPlatform.setZoom(1.0);
+            const disp = document.getElementById('settingZoomDisplay');
+            if (disp) disp.innerText = '100%';
+        });
+
+        // Кнопка генерации демо-накладной в настройках
+        document.getElementById('btnSettingDemo50')?.addEventListener('click', () => {
+            this.crossPlatform?.generateDemoPharmaInvoice(50);
+            this.openApp('winEditor');
+        });
+
+        // Кнопка Spotlight в таскбаре
+        document.getElementById('btnOpenSpotlight')?.addEventListener('click', () => {
+            this.crossPlatform?.openCommandPalette();
+        });
+
+        // Клик по бейджу ОС в таскбаре: циклическое переключение ОС
+        document.getElementById('hudOsBadge')?.addEventListener('click', () => {
+            if (!this.crossPlatform) return;
+            const cycle = { 'windows': 'macos', 'macos': 'linux', 'linux': 'windows' };
+            const next = cycle[this.crossPlatform.currentPersona] || 'macos';
+            this.crossPlatform.setPersona(next);
+            if (selOs) selOs.value = next;
+        });
+
+        // Клик по бейджу CRLF/LF: переключение окончаний строк
+        document.getElementById('hudLineEndingBadge')?.addEventListener('click', () => {
+            if (!this.crossPlatform) return;
+            const next = this.crossPlatform.lineEnding === 'crlf' ? 'lf' : 'crlf';
+            this.crossPlatform.setLineEnding(next);
+            if (selLineEnding) selLineEnding.value = next;
+        });
+
+        // Клик по бейджу кодировки: переключение CP866 / CP1251
+        document.getElementById('hudEncBadge')?.addEventListener('click', () => {
+            if (!this.crossPlatform) return;
+            const next = this.crossPlatform.activeEncoding === 'cp866' ? 'windows-1251' : 'cp866';
+            this.crossPlatform.setEncoding(next);
+            if (selEncoding) selEncoding.value = next;
+        });
+
+        // Зум кнопки в таскбаре
+        document.getElementById('btnZoomMinus')?.addEventListener('click', () => {
+            this.crossPlatform?.setZoom(this.crossPlatform.zoomFactor - 0.1);
+        });
+        document.getElementById('btnZoomPlus')?.addEventListener('click', () => {
+            this.crossPlatform?.setZoom(this.crossPlatform.zoomFactor + 0.1);
+        });
+        document.getElementById('btnToggleFullscreen')?.addEventListener('click', () => {
+            this.crossPlatform?.toggleFullscreen();
+        });
+
+        // Звук кнопка в таскбаре
+        document.getElementById('btnToggleSound')?.addEventListener('click', () => {
+            if (!this.crossPlatform) return;
+            const next = !this.crossPlatform.soundEnabled;
+            this.crossPlatform.setSoundEnabled(next);
+            if (chkSound) chkSound.checked = next;
+        });
     }
 
     // =========================================================================
@@ -1289,15 +1418,116 @@ export class PharmaGateWebOS {
         this._showToast("⏩ Повтор действия (Redo)");
     }
 
+    saveDocumentFile() {
+        const prof = ProfileManager.getProfile(this.activeProfileKey);
+        const encoding = this.crossPlatform?.activeEncoding || prof.targetEncoding || 'cp866';
+        const fields = this.schema.fields.map(f => new DBFFieldDescriptor(f.name, f.type, f.length, f.decimal));
+        const buf = WebDBFEngine.writeDBF(fields, this.records, encoding);
+        const blob = new Blob([buf], { type: 'application/x-dbf' });
+
+        if (this.crossPlatform) {
+            this.crossPlatform.saveNativeFileDialog(this.activeFileName, blob);
+        } else {
+            WebDBFEngine.downloadAsFile(buf, this.activeFileName);
+        }
+        this._showToast(`💾 Файл DBF '${this.activeFileName}' сохранен (${encoding.toUpperCase()})!`);
+    }
+
+    downloadDbf() {
+        this.saveDocumentFile();
+    }
+
     _bindKeyboardShortcuts() {
         window.addEventListener('keydown', (e) => {
             const isCtrl = e.ctrlKey || e.metaKey;
-            if (isCtrl && e.key.toLowerCase() === 'o') { e.preventDefault(); document.getElementById('fileInput')?.click(); }
-            else if (isCtrl && e.key.toLowerCase() === 's') { e.preventDefault(); this.downloadDbf(); }
-            else if (isCtrl && e.key.toLowerCase() === 'n') { e.preventDefault(); this.openApp('winWizard'); }
-            else if (e.key === 'F5') { e.preventDefault(); this.runAutoRepair(); }
-            else if (isCtrl && !e.shiftKey && e.key.toLowerCase() === 'z') { e.preventDefault(); this.undo(); }
-            else if ((isCtrl && e.key.toLowerCase() === 'y') || (isCtrl && e.shiftKey && e.key.toLowerCase() === 'z')) { e.preventDefault(); this.redo(); }
+
+            // ⌘K / Ctrl+K - Открытие Command Palette / Spotlight
+            if (isCtrl && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                this.crossPlatform?.openCommandPalette();
+            }
+            // ⌘O / Ctrl+O - Открытие файла
+            else if (isCtrl && e.key.toLowerCase() === 'o') {
+                e.preventDefault();
+                if (this.crossPlatform) {
+                    this.crossPlatform.openNativeFileDialog();
+                } else {
+                    document.getElementById('fileInput')?.click();
+                }
+            }
+            // ⌘S / Ctrl+S - Сохранение файла
+            else if (isCtrl && e.key.toLowerCase() === 's') {
+                e.preventDefault();
+                this.saveDocumentFile();
+            }
+            // ⌘F / Ctrl+F - Быстрый поиск в накладной
+            else if (isCtrl && e.key.toLowerCase() === 'f') {
+                e.preventDefault();
+                const search = document.getElementById('gridSearchInput');
+                if (search) {
+                    this.openApp('winEditor');
+                    search.focus();
+                    search.select();
+                }
+            }
+            // ⌘W / Ctrl+W - Закрытие активного окна WebOS (вместо закрытия вкладки браузера)
+            else if (isCtrl && e.key.toLowerCase() === 'w') {
+                e.preventDefault();
+                const activeWin = document.querySelector('.os-window.active-window:not(.minimized)');
+                if (activeWin) {
+                    this.closeApp(activeWin.id);
+                }
+            }
+            // ⌘M / Ctrl+M - Свернуть активное окно
+            else if (isCtrl && e.key.toLowerCase() === 'm') {
+                e.preventDefault();
+                const activeWin = document.querySelector('.os-window.active-window:not(.minimized)');
+                if (activeWin) {
+                    this.minimizeApp(activeWin.id);
+                }
+            }
+            // ⌘N / Ctrl+N - Создать накладную (Мастер)
+            else if (isCtrl && e.key.toLowerCase() === 'n') {
+                e.preventDefault();
+                this.openApp('winWizard');
+            }
+            // F5 - Супер авто-ремонт ФЛК
+            else if (e.key === 'F5') {
+                e.preventDefault();
+                document.getElementById('btnAutoRepair')?.click();
+            }
+            // F1 - Справка / База знаний
+            else if (e.key === 'F1') {
+                e.preventDefault();
+                this.openApp('winKb');
+            }
+            // F11 - Полноэкранный режим
+            else if (e.key === 'F11') {
+                e.preventDefault();
+                this.crossPlatform?.toggleFullscreen();
+            }
+            // Esc - Закрытие палитры команд / меню Пуск
+            else if (e.key === 'Escape') {
+                const palette = document.getElementById('commandPaletteModal');
+                if (palette && !palette.classList.contains('hidden')) {
+                    this.crossPlatform?.closeCommandPalette();
+                } else {
+                    const startMenu = document.getElementById('startMenu');
+                    if (startMenu && startMenu.style.display === 'flex') {
+                        this.toggleStartMenu();
+                    }
+                }
+            }
+            // ⌘Z - Отмена (Undo)
+            else if (isCtrl && !e.shiftKey && e.key.toLowerCase() === 'z') {
+                e.preventDefault();
+                this.undo();
+            }
+            // ⌘⇧Z / Ctrl+Y - Повтор (Redo)
+            else if ((isCtrl && e.key.toLowerCase() === 'y') || (isCtrl && e.shiftKey && e.key.toLowerCase() === 'z')) {
+                e.preventDefault();
+                this.redo();
+            }
         });
     }
 

@@ -229,7 +229,132 @@
             50% { opacity: 0.75; transform: scale(1.04); }
         }
         .pulse-led { animation: pulse-glow 2s infinite ease-in-out; }
-    </style>
+
+        /* ========================================================================= */
+        /* КРОССПЛАТФОРМЕННЫЕ СТИЛИ (macOS, Windows, Linux)                          */
+        /* ========================================================================= */
+
+        /* Высококачественное сглаживание шрифтов на Retina и 4K экранах */
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            touch-action: manipulation;
+        }
+
+        /* Плавные жесты панорамирования для трекпадов Mac, Win Precision и сенсорных экранов */
+        #tabulatorGridContainer, .tabulator-tableholder {
+            touch-action: pan-x pan-y !important;
+            -webkit-overflow-scrolling: touch !important;
+            overscroll-behavior: contain;
+        }
+
+        /* 🍎 СТИЛЬ macOS (Apple Cupertino) */
+        .os-mode-macos .win-header {
+            flex-direction: row-reverse !important;
+            padding-left: 14px !important;
+            padding-right: 14px !important;
+        }
+        .os-mode-macos .win-header > div:last-child {
+            display: flex !important;
+            gap: 7px !important;
+            align-items: center !important;
+        }
+        .os-mode-macos .win-btn-close {
+            width: 12px !important;
+            height: 12px !important;
+            border-radius: 9999px !important;
+            background-color: #ff5f56 !important;
+            border: 1px solid #e0443e !important;
+            color: transparent !important;
+            order: 1 !important;
+            font-size: 8px !important;
+            line-height: 1 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: all 0.15s ease;
+        }
+        .os-mode-macos .win-btn-close:hover {
+            color: rgba(0, 0, 0, 0.75) !important;
+            filter: brightness(1.08);
+        }
+        .os-mode-macos .win-btn-min {
+            width: 12px !important;
+            height: 12px !important;
+            border-radius: 9999px !important;
+            background-color: #ffbd2e !important;
+            border: 1px solid #dea123 !important;
+            color: transparent !important;
+            order: 2 !important;
+            font-size: 8px !important;
+            line-height: 1 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: all 0.15s ease;
+        }
+        .os-mode-macos .win-btn-min:hover {
+            color: rgba(0, 0, 0, 0.75) !important;
+            filter: brightness(1.08);
+        }
+        .os-mode-macos .win-btn-max {
+            width: 12px !important;
+            height: 12px !important;
+            border-radius: 9999px !important;
+            background-color: #27c93f !important;
+            border: 1px solid #1aab29 !important;
+            color: transparent !important;
+            order: 3 !important;
+            font-size: 8px !important;
+            line-height: 1 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: all 0.15s ease;
+        }
+        .os-mode-macos .win-btn-max:hover {
+            color: rgba(0, 0, 0, 0.75) !important;
+            filter: brightness(1.08);
+        }
+        .os-mode-macos .os-window {
+            border-radius: 12px;
+            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.08);
+        }
+        .os-mode-macos #taskbar {
+            border-radius: 20px;
+            margin: 0 16px 10px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        /* 🐧 СТИЛЬ Linux (GNOME / KDE Plasma) */
+        .os-mode-linux .os-window {
+            border-radius: 8px;
+            border: 1px solid #334155;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85);
+        }
+        .os-mode-linux .win-header {
+            background-color: #111827 !important;
+            border-bottom: 1px solid #1f2937 !important;
+        }
+        .os-mode-linux .win-btn-close {
+            background-color: #374151;
+            border-radius: 6px;
+        }
+        .os-mode-linux .win-btn-close:hover {
+            background-color: #dc2626 !important;
+        }
+
+        /* 🪟 СТИЛЬ Windows 11 (Fluent) */
+        .os-mode-windows .os-window {
+            border-radius: 10px;
+            box-shadow: 0 22px 60px rgba(0, 0, 0, 0.8);
+        }
+        .os-mode-windows .win-btn-close:hover {
+            background-color: #e81123 !important;
+            color: white !important;
+        }
 </head>
 <body class="h-full w-full overflow-hidden text-slate-100 flex flex-col desktop-canvas">
 
@@ -304,11 +429,11 @@
             </div>
 
             <!-- Тулбар окна накладной -->
-            <div class="bg-[#0b0f19] border-b border-slate-800 px-3 py-1.5 flex items-center justify-between gap-2 text-xs shrink-0">
-                <div class="flex items-center gap-1.5">
+            <div class="bg-[#0b0f19] border-b border-slate-800 px-3 py-1.5 flex items-center justify-between gap-2 text-xs shrink-0 flex-wrap">
+                <div class="flex items-center gap-1.5 flex-wrap">
                     <input type="file" id="fileInput" class="hidden" accept=".dbf,.xlsx,.xls,.json,.csv,.xml,.accdb,.mdb">
                     <button id="btnOpenFile" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-200 border border-slate-700 font-semibold flex items-center gap-1 cursor-pointer">
-                        <span>📂</span> Открыть
+                        <span>📂</span> Открыть <span id="kbdOpenHint" class="text-[10px] text-slate-400 font-mono ml-0.5">Ctrl+O</span>
                     </button>
                     <button id="btnOpenCreateWizard" class="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-semibold flex items-center gap-1 cursor-pointer shadow-sm">
                         <span>🚀</span> Создать
@@ -316,9 +441,12 @@
                     <button id="btnAutoRepair" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white font-semibold flex items-center gap-1 cursor-pointer shadow-sm">
                         <span>⚡</span> Авто-Ремонт 99%
                     </button>
+                    <button id="btnLoadDemoInvoice" class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white font-semibold flex items-center gap-1 cursor-pointer shadow-sm" title="Сгенерировать реалистичную фарм-накладную 50 позиций с проверкой ФЛК">
+                        <span>🎲</span> Демо
+                    </button>
                     <div class="h-4 w-px bg-slate-700 mx-1"></div>
-                    <button id="btnSaveDbf" class="px-2.5 py-1.5 bg-teal-600 hover:bg-teal-500 rounded-lg text-white font-semibold cursor-pointer shadow-sm">
-                        💾 DBF (CP866)
+                    <button id="btnSaveDbf" class="px-2.5 py-1.5 bg-teal-600 hover:bg-teal-500 rounded-lg text-white font-semibold cursor-pointer shadow-sm flex items-center gap-1">
+                        <span>💾</span> Сохранить <span id="kbdSaveHint" class="text-[10px] text-teal-200 font-mono ml-0.5">Ctrl+S</span>
                     </button>
                     <button id="btnExportTorg12" class="px-2 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 border border-slate-700 cursor-pointer">
                         📄 ТОРГ-12
@@ -332,7 +460,9 @@
                     <input type="text" id="gridSearchInput" placeholder="🔍 Поиск (название, код)..." class="bg-[#030712] border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 w-44">
                     <button id="btnVat10" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-slate-300 cursor-pointer" title="Установить НДС 10%">10%</button>
                     <button id="btnVat0" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-slate-300 cursor-pointer" title="Установить 0% НДС">0%</button>
-                    <button id="btnCopyTsv" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-slate-200 font-bold cursor-pointer" title="Скопировать для Excel (TSV)">📋 Ctrl+C</button>
+                    <button id="btnCopyTsv" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-slate-200 font-bold cursor-pointer flex items-center gap-1" title="Скопировать для Microsoft Excel, Apple Numbers или LibreOffice Calc">
+                        <span>📋</span> Таблица <span id="kbdCopyHint" class="text-[10px] text-slate-400 font-mono">TSV</span>
+                    </button>
                 </div>
             </div>
 
@@ -657,9 +787,59 @@
                     </label>
                 </div>
 
-                <div class="p-3 bg-[#090d16] rounded-xl border border-slate-800 space-y-2">
-                    <div class="font-bold text-white text-xs">🌐 Настройки кодировок:</div>
-                    <div class="text-slate-400">По умолчанию для всех сетей используется <b>DOS CP866 (0x26)</b>.</div>
+                <div class="p-3 bg-[#090d16] rounded-xl border border-slate-800 space-y-3">
+                    <div class="font-bold text-white text-xs flex items-center justify-between">
+                        <span>🖥️ Кроссплатформенная совместимость (macOS, Windows, Linux):</span>
+                        <span id="detectedHostBadge" class="text-[10px] px-2 py-0.5 rounded bg-blue-950 border border-blue-800 text-blue-300 font-mono">Хост: Auto</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">Стиль интерфейса и окон:</label>
+                            <select id="settingOsPersona" class="w-full bg-[#030712] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500">
+                                <option value="auto">🔄 Авто (по системе пользователя)</option>
+                                <option value="macos">🍎 macOS (Apple: Traffic Lights слева, ⌘ Cmd)</option>
+                                <option value="windows">🪟 Windows 11 (Fluent: Кнопки справа, Ctrl)</option>
+                                <option value="linux">🐧 Linux (GNOME / KDE / Ubuntu)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">Перевод строк (Line Endings):</label>
+                            <select id="settingLineEnding" class="w-full bg-[#030712] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500">
+                                <option value="crlf">CRLF (\r\n) — Windows 1C, EDI, dBase</option>
+                                <option value="lf">LF (\n) — Linux, macOS, Unix, Web</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">Кодировка по умолчанию:</label>
+                            <select id="settingEncoding" class="w-full bg-[#030712] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500">
+                                <option value="cp866">DOS CP866 (0x26) — Фарм-стандарт РФ</option>
+                                <option value="windows-1251">Windows-1251 (0x25) — 1C / ANSI</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">Масштаб отображения:</label>
+                            <div class="flex items-center gap-1.5">
+                                <button id="btnSettingZoomMinus" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-slate-200 font-bold text-xs">-</button>
+                                <span id="settingZoomDisplay" class="px-2 py-1 bg-[#030712] border border-slate-800 rounded font-mono text-center text-xs flex-1">100%</span>
+                                <button id="btnSettingZoomPlus" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-slate-200 font-bold text-xs">+</button>
+                                <button id="btnSettingZoomReset" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-slate-400 text-xs">100%</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-1 flex items-center justify-between border-t border-slate-800/80">
+                        <label class="flex items-center gap-2 text-slate-300 cursor-pointer">
+                            <input type="checkbox" id="settingSoundFx" class="rounded text-blue-600">
+                            <span>🔔 Звуковые эффекты интерфейса (Web Audio API)</span>
+                        </label>
+                        <button id="btnSettingDemo50" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white font-semibold text-xs flex items-center gap-1">
+                            <span>🎲</span> Тест-накладная 50 строк
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -725,14 +905,21 @@
     </div>
 
     <!-- ========================================================================= -->
-    <!-- 3. ПАНЕЛЬ ЗАДАЧ WINDOWS 11 (TASKBAR)                                      -->
+    <!-- 3. ПАНЕЛЬ ЗАДАЧ (CROSS-PLATFORM TASKBAR & DOCK)                            -->
     <!-- ========================================================================= -->
-    <footer id="taskbar" class="h-12 bg-slate-950/95 backdrop-blur-2xl border-t border-slate-800/90 px-4 flex items-center justify-between shrink-0 z-50 shadow-2xl">
+    <footer id="taskbar" class="h-12 bg-slate-950/95 backdrop-blur-2xl border-t border-slate-800/90 px-3 flex items-center justify-between shrink-0 z-50 shadow-2xl transition-all">
         
         <div class="flex items-center gap-2">
-            <!-- Кнопка Пуск -->
-            <button onclick="window.PharmaGate.toggleStartMenu()" class="w-8 h-8 rounded-lg bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center text-sm shadow-md shadow-blue-600/30 transition-all cursor-pointer">
+            <!-- Кнопка Меню (ОС-адаптивная) -->
+            <button onclick="window.PharmaGate.toggleStartMenu()" class="w-8 h-8 rounded-lg bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center text-sm shadow-md shadow-blue-600/30 transition-all cursor-pointer" title="Меню приложений">
                 🪟
+            </button>
+
+            <!-- Кнопка быстрого поиска Spotlight / Command Palette -->
+            <button id="btnOpenSpotlight" class="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#090d16] hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-lg text-xs cursor-pointer transition-colors" title="Открыть Command Palette / Spotlight">
+                <span>🔍</span>
+                <span class="hidden sm:inline text-[11px] text-slate-400">Поиск</span>
+                <span id="kbdSpotlightHint" class="px-1.5 py-0.5 rounded bg-slate-900 text-blue-400 font-mono text-[10px] border border-slate-700">⌘K</span>
             </button>
 
             <!-- Селектор стратегий компоновки окон -->
@@ -743,15 +930,15 @@
                 <option value="focus">🪟 Фокус (Макс)</option>
             </select>
 
-            <div class="h-5 w-px bg-slate-800 mx-1"></div>
+            <div class="h-5 w-px bg-slate-800 mx-0.5 hidden md:block"></div>
 
             <!-- Иконки активных окон на панели задач -->
             <div id="taskbarAppsContainer" class="flex items-center gap-1.5"></div>
         </div>
 
-        <div class="flex items-center gap-4 text-xs font-medium text-slate-400">
+        <div class="flex items-center gap-2.5 text-xs font-medium text-slate-400 flex-wrap">
             <!-- HUD индикатор финансовых итогов -->
-            <div class="flex items-center gap-3 bg-[#090d16] px-3 py-1 rounded-lg border border-slate-800 font-mono text-[11px]">
+            <div class="hidden xl:flex items-center gap-3 bg-[#090d16] px-3 py-1 rounded-lg border border-slate-800 font-mono text-[11px]">
                 <div>Сумма: <b id="hudTotalSum" class="text-emerald-400">0.00 ₽</b></div>
                 <div class="h-3 w-px bg-slate-700"></div>
                 <div>Строк: <b id="hudItemsCount" class="text-slate-300">0</b></div>
@@ -759,8 +946,34 @@
                 <div id="hudReadinessBadge" class="text-emerald-400 font-bold">100% Готов</div>
             </div>
 
+            <!-- Кроссплатформенные селекторы (ОС / Окончания строк / Кодировка) -->
+            <div class="flex items-center gap-1 bg-[#090d16] p-1 rounded-lg border border-slate-800 text-[11px]">
+                <button id="hudOsBadge" class="px-1.5 py-0.5 rounded bg-slate-800/80 hover:bg-slate-700 text-blue-300 font-semibold cursor-pointer" title="Стиль интерфейса (macOS / Windows / Linux)">
+                    🪟 Win
+                </button>
+                <button id="hudLineEndingBadge" class="px-1.5 py-0.5 rounded bg-slate-800/80 hover:bg-slate-700 text-amber-300 font-mono text-[10px] cursor-pointer" title="Окончания строк: CRLF (Windows) / LF (Linux/Mac)">
+                    CRLF
+                </button>
+                <button id="hudEncBadge" class="px-1.5 py-0.5 rounded bg-slate-800/80 hover:bg-slate-700 text-emerald-300 font-mono text-[10px] cursor-pointer" title="Целевая кодировка DBF (CP866 / CP1251)">
+                    CP866
+                </button>
+            </div>
+
+            <!-- Масштаб и Полный экран -->
+            <div class="hidden sm:flex items-center gap-1 bg-[#090d16] px-1.5 py-1 rounded-lg border border-slate-800 text-[11px]">
+                <button id="btnZoomMinus" class="w-5 h-5 flex items-center justify-center rounded hover:bg-slate-800 text-slate-300 font-bold" title="Уменьшить масштаб">-</button>
+                <span id="hudZoomVal" class="font-mono text-[10px] px-1 text-slate-300">100%</span>
+                <button id="btnZoomPlus" class="w-5 h-5 flex items-center justify-center rounded hover:bg-slate-800 text-slate-300 font-bold" title="Увеличить масштаб">+</button>
+                <button id="btnToggleFullscreen" class="px-1.5 py-0.5 rounded hover:bg-slate-800 text-slate-300" title="Полноэкранный режим (F11)">⛶</button>
+            </div>
+
+            <!-- Звуковые эффекты -->
+            <button id="btnToggleSound" class="p-1 rounded-lg bg-[#090d16] border border-slate-800 hover:bg-slate-800 text-xs cursor-pointer" title="Звуковые эффекты">
+                🔔
+            </button>
+
             <!-- Селектор целевого шлюза -->
-            <div class="flex items-center gap-1.5 bg-[#090d16] px-2.5 py-1 rounded-lg border border-slate-800 text-[11px]">
+            <div class="hidden lg:flex items-center gap-1 bg-[#090d16] px-2 py-1 rounded-lg border border-slate-800 text-[11px]">
                 <span>🎯</span>
                 <select id="profileSelect" class="bg-transparent text-emerald-400 font-bold focus:outline-none cursor-pointer">
                     <option value="neofarm" class="bg-slate-900">НЕО-ФАРМ</option>
@@ -773,9 +986,35 @@
             </div>
 
             <!-- Часы -->
-            <div id="systemClock" class="font-mono text-slate-300 font-bold">12:00</div>
+            <div id="systemClock" class="font-mono text-slate-300 font-bold text-xs pl-1">12:00</div>
         </div>
     </footer>
+
+    <!-- ========================================================================= -->
+    <!-- 4. SPOTLIGHT & COMMAND PALETTE (⌘K / Ctrl+K)                              -->
+    <!-- ========================================================================= -->
+    <div id="commandPaletteModal" class="fixed inset-0 z-[100000] bg-slate-950/70 backdrop-blur-md hidden items-start justify-center pt-24 p-4 animate-fadeIn">
+        <div class="w-full max-w-xl bg-[#090d16] border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+            <!-- Поле поиска Command Palette -->
+            <div class="p-3.5 border-b border-slate-800 flex items-center gap-3 bg-[#0c1220]">
+                <span class="text-lg">🔍</span>
+                <input type="text" id="paletteSearchInput" placeholder="Введите команду, имя действия, окна или файла..." class="flex-1 bg-transparent text-white text-sm focus:outline-none placeholder-slate-500 font-medium">
+                <span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px] text-slate-400 font-mono">Esc</span>
+            </div>
+
+            <!-- Список команд и результатов -->
+            <div id="paletteResultsList" class="max-h-96 overflow-y-auto p-2 space-y-1"></div>
+
+            <!-- Нижняя подсказка -->
+            <div class="p-2.5 bg-[#060a12] border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 px-4">
+                <div class="flex items-center gap-3">
+                    <span><kbd class="px-1.5 py-0.5 rounded bg-slate-800 font-mono text-[10px]">↑</kbd> <kbd class="px-1.5 py-0.5 rounded bg-slate-800 font-mono text-[10px]">↓</kbd> Навигация</span>
+                    <span><kbd class="px-1.5 py-0.5 rounded bg-slate-800 font-mono text-[10px]">Enter</kbd> Выбрать</span>
+                </div>
+                <span>PharmaGate EDI Spotlight</span>
+            </div>
+        </div>
+    </div>
 
     <!-- Глобальный защитный оверлей Drag-and-Drop (Предотвращает навигацию браузера на file:///) -->
     <div id="dragDropOverlay" class="fixed inset-0 z-[99999] bg-slate-950/85 backdrop-blur-md flex flex-col items-center justify-center border-4 border-dashed border-blue-500 rounded-2xl m-4 transition-all opacity-0 pointer-events-none duration-150">
