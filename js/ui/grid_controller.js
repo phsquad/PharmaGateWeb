@@ -17,6 +17,8 @@ export class GridController {
         this.schema = null;
         this.records = [];
         this.issuesMap = new Map();
+        this.isBuilt = false;
+        this.pendingData = null;
         
         this.onDataChanged = options.onDataChanged || (() => {});
         this.onSelectionChanged = options.onSelectionChanged || (() => {});
@@ -30,10 +32,11 @@ export class GridController {
         if (!this.container) return;
 
         if (this.tabulator) {
-            this.tabulator.destroy();
+            try { this.tabulator.destroy(); } catch (err) {}
             this.tabulator = null;
         }
 
+        this.isBuilt = false;
         const columns = this._createColumnDefinitions(schema);
 
         this.tabulator = new window.Tabulator(this.container, {
@@ -49,6 +52,17 @@ export class GridController {
             rowSelectionChanged: () => {
                 const selectedRows = this.tabulator ? this.tabulator.getSelectedData() : [];
                 this.onSelectionChanged(selectedRows);
+            }
+        });
+
+        this.tabulator.on("tableBuilt", () => {
+            this.isBuilt = true;
+            if (this.pendingData) {
+                const queued = this.pendingData;
+                this.pendingData = null;
+                this.tabulator.setData(queued).then(() => {
+                    try { this.tabulator.redraw(true); } catch (e) {}
+                }).catch(() => {});
             }
         });
     }
@@ -111,21 +125,28 @@ export class GridController {
                 hozAlign: align,
                 headerSort: true,
                 formatter: (cell) => {
-                    const rowIdx = cell.getRow().getPosition();
+                    let rowIdx = null;
+                    try {
+                        const row = cell.getRow();
+                        rowIdx = (row && typeof row.getPosition === 'function') ? row.getPosition() : null;
+                    } catch (e) {}
                     const val = cell.getValue();
-                    const el = cell.getElement();
-                    const issueKey = `${rowIdx}_${fieldKey}`;
-                    const issue = this.issuesMap.get(issueKey);
+                    let el = null;
+                    try { el = cell.getElement(); } catch (e) {}
+                    const issueKey = rowIdx !== null ? `${rowIdx}_${fieldKey}` : null;
+                    const issue = issueKey ? this.issuesMap.get(issueKey) : null;
 
-                    el.classList.remove('flk-critical', 'flk-warning', 'flk-info');
+                    if (el) {
+                        el.classList.remove('flk-critical', 'flk-warning', 'flk-info');
 
-                    if (issue) {
-                        if (issue.severity === 'CRITICAL') el.classList.add('flk-critical');
-                        else if (issue.severity === 'WARNING') el.classList.add('flk-warning');
-                        else el.classList.add('flk-info');
-                        el.title = `[${issue.severity}] ${issue.userText}`;
-                    } else {
-                        el.title = `${f.userName || f.name} (${fieldKey})`;
+                        if (issue) {
+                            if (issue.severity === 'CRITICAL') el.classList.add('flk-critical');
+                            else if (issue.severity === 'WARNING') el.classList.add('flk-warning');
+                            else el.classList.add('flk-info');
+                            el.title = `[${issue.severity}] ${issue.userText}`;
+                        } else {
+                            el.title = `${f.userName || f.name} (${fieldKey})`;
+                        }
                     }
 
                     if (isDate) {
@@ -215,9 +236,15 @@ export class GridController {
         if (issues) this._buildIssuesMap(issues);
 
         if (this.tabulator) {
-            this.tabulator.setData(this.records).then(() => {
-                this.tabulator.redraw(true);
-            });
+            if (this.isBuilt) {
+                this.tabulator.setData(this.records).then(() => {
+                    try { this.tabulator.redraw(true); } catch (e) {}
+                }).catch(err => {
+                    console.warn("[Tabulator] setData deferred:", err);
+                });
+            } else {
+                this.pendingData = this.records;
+            }
         } else if (this.schema) {
             this.initGrid(this.schema, this.records, issues || []);
         }
@@ -225,8 +252,10 @@ export class GridController {
 
     updateIssues(issues = []) {
         this._buildIssuesMap(issues);
-        if (this.tabulator) {
-            this.tabulator.redraw(true);
+        if (this.tabulator && this.isBuilt) {
+            try {
+                this.tabulator.redraw(true);
+            } catch (e) {}
         }
     }
 

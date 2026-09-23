@@ -200,13 +200,17 @@ export class PharmaGateWebOS {
             };
 
             const onPointerMove = (e) => {
-                if (!isDrag) return;
-                const dx = e.clientX - startX;
-                const dy = e.clientY - startY;
+                if (!isDrag || !icon || !desktop) return;
+                const zoom = this.crossPlatform?.zoomFactor || 1;
+                const dx = (e.clientX - startX) / zoom;
+                const dy = (e.clientY - startY) / zoom;
                 if (Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
 
-                const maxLeft = desktop.clientWidth - icon.offsetWidth - 10;
-                const maxTop = desktop.clientHeight - icon.offsetHeight - 10;
+                if (!icon) return;
+                const iconW = (icon && icon.offsetWidth) || 84;
+                const iconH = (icon && icon.offsetHeight) || 80;
+                const maxLeft = desktop.clientWidth - iconW - 10;
+                const maxTop = desktop.clientHeight - iconH - 10;
 
                 icon.style.left = `${Math.max(10, Math.min(maxLeft, initL + dx))}px`;
                 icon.style.top = `${Math.max(10, Math.min(maxTop, initT + dy))}px`;
@@ -271,8 +275,9 @@ export class PharmaGateWebOS {
                 header.addEventListener('pointermove', (e) => {
                     if (!isDragging || win.classList.contains('maximized')) return;
 
-                    const deltaX = e.clientX - startX;
-                    const deltaY = e.clientY - startY;
+                    const zoom = this.crossPlatform?.zoomFactor || 1;
+                    const deltaX = (e.clientX - startX) / zoom;
+                    const deltaY = (e.clientY - startY) / zoom;
 
                     const maxLeft = window.innerWidth - 120;
                     const maxTop = window.innerHeight - 80;
@@ -374,24 +379,26 @@ export class PharmaGateWebOS {
             let startL = 0, startT = 0;
 
             handle.addEventListener('pointerdown', (e) => {
+                if (!win) return;
                 isResizing = true;
-                handle.setPointerCapture(e.pointerId);
+                try { handle.setPointerCapture(e.pointerId); } catch (err) {}
                 this.focusWindow(win.id);
 
                 startX = e.clientX;
                 startY = e.clientY;
-                startW = win.offsetWidth;
-                startH = win.offsetHeight;
-                startL = win.offsetLeft;
-                startT = win.offsetTop;
+                startW = win.offsetWidth || 340;
+                startH = win.offsetHeight || 220;
+                startL = win.offsetLeft || 10;
+                startT = win.offsetTop || 10;
                 e.stopPropagation();
             });
 
             handle.addEventListener('pointermove', (e) => {
-                if (!isResizing || win.classList.contains('maximized')) return;
+                if (!isResizing || !win || win.classList.contains('maximized')) return;
 
-                const dx = e.clientX - startX;
-                const dy = e.clientY - startY;
+                const zoom = this.crossPlatform?.zoomFactor || 1;
+                const dx = (e.clientX - startX) / zoom;
+                const dy = (e.clientY - startY) / zoom;
 
                 if (dir.includes('r')) {
                     win.style.width = `${Math.max(340, startW + dx)}px`;
@@ -419,7 +426,7 @@ export class PharmaGateWebOS {
                 if (!isResizing) return;
                 isResizing = false;
                 try { handle.releasePointerCapture(e.pointerId); } catch (err) {}
-                this._redrawWindowContents(win.id);
+                if (win) this._redrawWindowContents(win.id);
             };
 
             handle.addEventListener('pointerup', onEnd);
@@ -431,18 +438,30 @@ export class PharmaGateWebOS {
         window.addEventListener('resize', () => {
             const isMobile = window.innerWidth < 768;
             document.querySelectorAll('.os-window:not(.minimized)').forEach(win => {
+                if (!win) return;
                 if (isMobile) {
                     win.classList.add('maximized');
                 } else if (!win.classList.contains('maximized')) {
-                    const maxL = window.innerWidth - win.offsetWidth - 20;
-                    const maxT = window.innerHeight - win.offsetHeight - 80;
+                    const winW = win.offsetWidth || 800;
+                    const winH = win.offsetHeight || 500;
+                    const maxL = window.innerWidth - winW - 20;
+                    const maxT = window.innerHeight - winH - 80;
                     if (win.offsetLeft > maxL && maxL > 0) win.style.left = `${maxL}px`;
                     if (win.offsetTop > maxT && maxT > 0) win.style.top = `${Math.max(10, maxT)}px`;
                 }
             });
-            this.mainGrid?.tabulator?.redraw(true);
-            this.erpGrid?.redraw(true);
-            this.reconcilerGrid?.redraw(true);
+            const isWinEditorOpen = !document.getElementById('winEditor')?.classList.contains('minimized');
+            if (isWinEditorOpen && this.mainGrid?.isBuilt) {
+                try { this.mainGrid.tabulator?.redraw(true); } catch (e) {}
+            }
+            const isWinDbOpen = !document.getElementById('winDb')?.classList.contains('minimized');
+            if (isWinDbOpen && this.erpGrid) {
+                try { this.erpGrid.redraw(true); } catch (e) {}
+            }
+            const isWinReconcileOpen = !document.getElementById('winReconcile')?.classList.contains('minimized');
+            if (isWinReconcileOpen && this.reconcilerGrid) {
+                try { this.reconcilerGrid.redraw(true); } catch (e) {}
+            }
         });
     }
 
@@ -559,12 +578,16 @@ export class PharmaGateWebOS {
     }
 
     _redrawWindowContents(winId) {
-        if (winId === 'winEditor') this.mainGrid?.tabulator?.redraw(true);
+        if (winId === 'winEditor' && this.mainGrid?.isBuilt) {
+            try { this.mainGrid.tabulator?.redraw(true); } catch (e) {}
+        }
         if (winId === 'winDb') this._refreshErpTable();
         if (winId === 'winSchema') this._renderSchemaDesigner();
         if (winId === 'winKb') this._renderKbCards();
         if (winId === 'winInspector') this._renderActionInspector();
-        if (winId === 'winReconcile') this.reconcilerGrid?.redraw(true);
+        if (winId === 'winReconcile' && this.reconcilerGrid) {
+            try { this.reconcilerGrid.redraw(true); } catch (e) {}
+        }
     }
 
     _updateTaskbar() {
@@ -599,11 +622,19 @@ export class PharmaGateWebOS {
     _bindStartMenu() {
         const btnStart = document.getElementById('btnStartMenu');
         const startMenu = document.getElementById('startMenu');
+        const searchInput = document.getElementById('startSearchInput');
+        const clearBtn = document.getElementById('btnStartSearchClear');
 
         this.toggleStartMenu = () => {
             if (!startMenu) return;
             const isVisible = startMenu.style.display === 'flex';
-            startMenu.style.display = isVisible ? 'none' : 'flex';
+            if (isVisible) {
+                startMenu.style.display = 'none';
+            } else {
+                startMenu.style.display = 'flex';
+                this.crossPlatform?.playSound('click');
+                setTimeout(() => searchInput?.focus(), 50);
+            }
         };
 
         btnStart?.addEventListener('click', (e) => {
@@ -612,8 +643,71 @@ export class PharmaGateWebOS {
         });
 
         document.addEventListener('click', (e) => {
-            if (startMenu && !startMenu.contains(e.target) && e.target !== btnStart) {
+            if (startMenu && !startMenu.contains(e.target) && e.target !== btnStart && !btnStart?.contains(e.target)) {
                 startMenu.style.display = 'none';
+            }
+        });
+
+        // 1. Вкладки меню Пуск: Закрепленные, Недавние, Действия
+        const tabPinned = document.getElementById('startTabPinned');
+        const tabRecent = document.getElementById('startTabRecent');
+        const tabActions = document.getElementById('startTabActions');
+
+        const viewPinned = document.getElementById('startViewPinned');
+        const viewRecent = document.getElementById('startViewRecent');
+        const viewActions = document.getElementById('startViewActions');
+
+        const switchStartTab = (activeTab, targetView) => {
+            [tabPinned, tabRecent, tabActions].forEach(t => {
+                if (!t) return;
+                const isActive = t === activeTab;
+                t.className = isActive 
+                    ? 'flex-1 py-1.5 rounded-lg bg-blue-600 text-white font-semibold shadow-sm transition-all text-center'
+                    : 'flex-1 py-1.5 rounded-lg text-slate-400 hover:text-white transition-all text-center';
+            });
+
+            [viewPinned, viewRecent, viewActions].forEach(v => {
+                if (!v) return;
+                v.classList.toggle('hidden', v !== targetView);
+            });
+            this.crossPlatform?.playSound('click');
+        };
+
+        tabPinned?.addEventListener('click', () => switchStartTab(tabPinned, viewPinned));
+        tabRecent?.addEventListener('click', () => switchStartTab(tabRecent, viewRecent));
+        tabActions?.addEventListener('click', () => switchStartTab(tabActions, viewActions));
+
+        // 2. Живой поиск по приложениям и недавним файлам
+        searchInput?.addEventListener('input', (e) => {
+            const query = e.target.value.trim().toLowerCase();
+            if (clearBtn) clearBtn.classList.toggle('hidden', query.length === 0);
+
+            // Если начался поиск, переключаем на вкладку Закрепленные
+            if (query.length > 0 && viewPinned?.classList.contains('hidden')) {
+                switchStartTab(tabPinned, viewPinned);
+            }
+
+            // Фильтрация ярлыков приложений
+            document.querySelectorAll('#startAppsGrid .start-app-item').forEach(item => {
+                const text = item.innerText.toLowerCase();
+                item.style.display = (!query || text.includes(query)) ? 'flex' : 'none';
+            });
+
+            // Фильтрация недавних файлов
+            document.querySelectorAll('#startRecentList > button').forEach(item => {
+                const text = item.innerText.toLowerCase();
+                item.style.display = (!query || text.includes(query)) ? 'flex' : 'none';
+            });
+        });
+
+        clearBtn?.addEventListener('click', () => {
+            if (searchInput) {
+                searchInput.value = '';
+                searchInput.focus();
+                clearBtn.classList.add('hidden');
+                document.querySelectorAll('#startAppsGrid .start-app-item, #startRecentList > button').forEach(item => {
+                    item.style.display = 'flex';
+                });
             }
         });
     }
@@ -815,14 +909,10 @@ export class PharmaGateWebOS {
     // =========================================================================
 
     async _initErpDatabase() {
-        await SQLiteWasmService.initDatabase();
-        if (document.getElementById('erpGridContainer')) {
-            this.erpGrid = new window.Tabulator("#erpGridContainer", {
-                data: [],
-                layout: "fitDataFill",
-                height: "100%",
-                placeholder: "<div class='text-slate-400 py-8 text-center text-xs'>Справочник пуст. Нажмите «Синхронизировать с накладной».</div>"
-            });
+        try {
+            await SQLiteWasmService.initDatabase();
+        } catch (err) {
+            console.warn("[SQLite ERP] Ошибка инициализации базы:", err);
         }
 
         document.getElementById('erpSearchInput')?.addEventListener('input', (e) => this._refreshErpTable(e.target.value));
@@ -845,13 +935,8 @@ export class PharmaGateWebOS {
         });
     }
 
-    _refreshErpTable(query = "") {
-        if (!SQLiteWasmService.db || !this.erpGrid) return;
-        const { records, totalCount } = SQLiteWasmService.searchProductsPaginated(query, 250);
-
-        const badge = document.getElementById('erpRecordsCountBadge');
-        if (badge) badge.innerText = `${totalCount} записей`;
-
+    _initErpTableIfNeeded() {
+        if (this.erpGrid || !document.getElementById('erpGridContainer')) return;
         const cols = [
             { title: "Артикул", field: "codepst", width: 110, hozAlign: "center" },
             { title: "Наименование препарата", field: "name", width: 280 },
@@ -862,9 +947,33 @@ export class PharmaGateWebOS {
             { title: "НДС %", field: "nds", width: 80, hozAlign: "right" },
             { title: "Реестр ЖНВЛП", field: "regprc", width: 120, hozAlign: "right", formatter: (c) => parseFloat(c.getValue() || 0).toFixed(2) }
         ];
+        try {
+            this.erpGrid = new window.Tabulator("#erpGridContainer", {
+                data: [],
+                columns: cols,
+                layout: "fitDataFill",
+                height: "100%",
+                placeholder: "<div class='text-slate-400 py-8 text-center text-xs'>Справочник пуст. Нажмите «Синхронизировать с накладной».</div>"
+            });
+        } catch (e) {
+            console.warn("[ERP Grid] Init error:", e);
+        }
+    }
 
-        this.erpGrid.setColumns(cols);
-        this.erpGrid.setData(records);
+    _refreshErpTable(query = "") {
+        if (!SQLiteWasmService.db) return;
+        this._initErpTableIfNeeded();
+        if (!this.erpGrid) return;
+        const { records, totalCount } = SQLiteWasmService.searchProductsPaginated(query, 250);
+
+        const badge = document.getElementById('erpRecordsCountBadge');
+        if (badge) badge.innerText = `${totalCount} записей`;
+
+        try {
+            this.erpGrid.setData(records);
+        } catch (e) {
+            console.warn("[ERP Grid] setData error:", e);
+        }
     }
 
     // =========================================================================
@@ -1200,6 +1309,39 @@ export class PharmaGateWebOS {
     // =========================================================================
 
     _bindSettingsCenter() {
+        // Навигация по вкладкам Центра Настроек
+        const tabBtns = document.querySelectorAll('.settings-tab-btn');
+        const panels = document.querySelectorAll('.settings-panel');
+
+        const switchTab = (tabId) => {
+            tabBtns.forEach(btn => {
+                const isCurrent = btn.getAttribute('data-tab') === tabId;
+                if (isCurrent) {
+                    btn.className = 'settings-tab-btn w-full px-3 py-2 rounded-xl text-left font-semibold text-xs flex items-center gap-2.5 transition-all bg-blue-600 text-white shadow-md shadow-blue-600/30';
+                } else {
+                    btn.className = 'settings-tab-btn w-full px-3 py-2 rounded-xl text-left font-semibold text-xs flex items-center gap-2.5 transition-all text-slate-300 hover:text-white hover:bg-slate-800/60';
+                }
+            });
+
+            panels.forEach(p => {
+                p.classList.toggle('hidden', p.id !== tabId);
+            });
+            this.crossPlatform?.playSound('click');
+        };
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetTab = btn.getAttribute('data-tab');
+                if (targetTab) switchTab(targetTab);
+            });
+        });
+
+        // Глобальный метод открытия настроек на нужной вкладке
+        this.openSettingsTab = (tabId) => {
+            this.openApp('winSettings');
+            switchTab(tabId);
+        };
+
         // Хост индикатор
         const hostBadge = document.getElementById('detectedHostBadge');
         if (hostBadge && this.crossPlatform) {
@@ -1233,7 +1375,7 @@ export class PharmaGateWebOS {
             });
         }
 
-        // Звуковые эффекты в настройках
+        // Звуковые эффекты и громкость
         const chkSound = document.getElementById('settingSoundFx');
         if (chkSound && this.crossPlatform) {
             chkSound.checked = this.crossPlatform.soundEnabled;
@@ -1241,6 +1383,20 @@ export class PharmaGateWebOS {
                 this.crossPlatform.setSoundEnabled(e.target.checked);
             });
         }
+
+        const volRange = document.getElementById('settingVolumeRange');
+        if (volRange && this.crossPlatform) {
+            volRange.value = String(Math.round((this.crossPlatform.soundVolume || 0.8) * 100));
+            volRange.addEventListener('input', (e) => {
+                const v = parseInt(e.target.value, 10) / 100;
+                this.crossPlatform.soundVolume = v;
+                localStorage.setItem('pharmagate_sound_volume', String(v));
+            });
+        }
+
+        document.getElementById('btnTestSound')?.addEventListener('click', () => {
+            this.crossPlatform?.playSound('success');
+        });
 
         // Масштабирование в настройках
         document.getElementById('btnSettingZoomMinus')?.addEventListener('click', () => {
@@ -1267,6 +1423,42 @@ export class PharmaGateWebOS {
             this.crossPlatform?.generateDemoPharmaInvoice(50);
             this.openApp('winEditor');
         });
+
+        // Резервное копирование и сброс кэша
+        document.getElementById('btnExportFullBackup')?.addEventListener('click', () => {
+            this.crossPlatform?.exportFullSessionBackup();
+        });
+
+        document.getElementById('btnClearAppCache')?.addEventListener('click', () => {
+            this.crossPlatform?.clearAppCache();
+        });
+
+        // Сохранение и загрузка настроек алгоритмов ФЛК
+        const flkCheckboxes = [
+            'chkAutoMath', 'chkZeroVat', 'chkPadZeros', 'chkGtdRu',
+            'chkEan13', 'chkExpDate', 'chkCryptoDataMatrix'
+        ];
+        const savedRules = JSON.parse(localStorage.getItem('pharmagate_flk_rules') || '{}');
+        flkCheckboxes.forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (savedRules[id] !== undefined) el.checked = savedRules[id];
+            el.addEventListener('change', () => {
+                savedRules[id] = el.checked;
+                localStorage.setItem('pharmagate_flk_rules', JSON.stringify(savedRules));
+                this._revalidateDocument();
+                this.crossPlatform?.playSound('click');
+            });
+        });
+
+        // Счетчик Undo/Redo
+        this._updateUndoCounter = () => {
+            const countEl = document.getElementById('storageUndoCount');
+            if (countEl) {
+                countEl.innerText = `${this.undoStack.length} / ${this.maxStackDepth}`;
+            }
+        };
+        this._updateUndoCounter();
 
         // Кнопка Spotlight в таскбаре
         document.getElementById('btnOpenSpotlight')?.addEventListener('click', () => {
@@ -1398,6 +1590,7 @@ export class PharmaGateWebOS {
         this.undoStack.push(JSON.stringify(this.records));
         if (this.undoStack.length > this.maxStackDepth) this.undoStack.shift();
         if (clearRedo) this.redoStack = [];
+        this._updateUndoCounter?.();
     }
 
     undo() {
@@ -1406,6 +1599,7 @@ export class PharmaGateWebOS {
         this.records = JSON.parse(this.undoStack.pop());
         this.mainGrid.updateData(this.records, this.schema, []);
         this._revalidateDocument();
+        this._updateUndoCounter?.();
         this._showToast("⏪ Отмена действия (Undo)");
     }
 
@@ -1415,6 +1609,7 @@ export class PharmaGateWebOS {
         this.records = JSON.parse(this.redoStack.pop());
         this.mainGrid.updateData(this.records, this.schema, []);
         this._revalidateDocument();
+        this._updateUndoCounter?.();
         this._showToast("⏩ Повтор действия (Redo)");
     }
 

@@ -26,8 +26,47 @@ export class CrossPlatformHub {
         this.activeLineEnding = localStorage.getItem('pharmagate_line_ending') || (this.detectedOs === 'windows' ? 'crlf' : 'lf');
         this.activeEncoding = localStorage.getItem('pharmagate_export_encoding') || 'cp866';
         this.audioEnabled = localStorage.getItem('pharmagate_sound_fx') === 'true';
+        this.soundVolume = parseFloat(localStorage.getItem('pharmagate_sound_volume') || '0.8');
         this.zoomLevel = parseFloat(localStorage.getItem('pharmagate_zoom_level') || '1.0');
+        this.activeTheme = localStorage.getItem('pharmagate_theme') || 'fluent-dark';
+        this.accentColor = localStorage.getItem('pharmagate_accent') || 'blue';
+        this.autoDpiEnabled = localStorage.getItem('pharmagate_auto_dpi') === 'true';
+        this.liteModeEnabled = localStorage.getItem('pharmagate_lite_mode') === 'true';
+        this.autoLiteMode = localStorage.getItem('pharmagate_auto_lite_mode') !== 'false';
+        this.customWallpaper = localStorage.getItem('pharmagate_custom_wallpaper') || '';
         this.audioCtx = null;
+    }
+
+    get detectedHost() {
+        return { name: this._getOsDisplayName(this.detectedOs) };
+    }
+
+    get currentPersona() {
+        return this.configuredOs;
+    }
+
+    setPersona(persona) {
+        this.setOsPersona(persona);
+    }
+
+    get lineEnding() {
+        return this.activeLineEnding;
+    }
+
+    get soundEnabled() {
+        return this.audioEnabled;
+    }
+
+    setSoundEnabled(enabled) {
+        this.toggleSound(enabled);
+    }
+
+    get zoomFactor() {
+        return this.zoomLevel;
+    }
+
+    setZoom(level) {
+        this.applyZoom(level);
     }
 
     /**
@@ -40,7 +79,12 @@ export class CrossPlatformHub {
         this._initZoomAndDisplayControls();
         this._updateUiShortcutsBadges();
         this._renderSystemIndicators();
-        console.log(`[CrossPlatformHub] Инициализирован. ОС: ${this.detectedOs} (Режим: ${this.configuredOs}), Перевод строк: ${this.activeLineEnding.toUpperCase()}, Звук: ${this.audioEnabled}`);
+        this._initDesktopCustomization();
+        this._initDesktopContextMenu();
+        this._initThemeAndAccentControls();
+        this._initLiteMode();
+        this._initScaleAndDpiControls();
+        console.log(`[CrossPlatformHub] Инициализирован. ОС: ${this.detectedOs} (Режим: ${this.configuredOs}), Перевод строк: ${this.activeLineEnding.toUpperCase()}, Звук: ${this.audioEnabled}, Тема: ${this.activeTheme}, Lite-Mode: ${this.liteModeEnabled}`);
     }
 
     // =========================================================================
@@ -336,8 +380,6 @@ export class CrossPlatformHub {
     // =========================================================================
 
     _initZoomAndDisplayControls() {
-        this.applyZoom(this.zoomLevel);
-
         // Полноэкранный режим по F11
         window.addEventListener('keydown', (e) => {
             if (e.key === 'F11') {
@@ -347,21 +389,65 @@ export class CrossPlatformHub {
         });
     }
 
-    applyZoom(level) {
-        this.zoomLevel = Math.max(0.75, Math.min(1.5, Math.round(level * 100) / 100));
+    applyZoom(level, showToast = false) {
+        this.zoomLevel = Math.max(0.70, Math.min(1.75, Math.round(level * 100) / 100));
         localStorage.setItem('pharmagate_zoom_level', String(this.zoomLevel));
+
         const desktop = document.getElementById('desktopArea');
         if (desktop) {
             desktop.style.transformOrigin = 'top left';
             desktop.style.zoom = `${this.zoomLevel * 100}%`;
         }
-        const zoomVal = document.getElementById('hudZoomVal');
-        if (zoomVal) zoomVal.innerText = `${Math.round(this.zoomLevel * 100)}%`;
+
+        const pct = Math.round(this.zoomLevel * 100);
+        const str = `${pct}%`;
+
+        // Обновление всех текстовых индикаторов
+        const hudZoomVal = document.getElementById('hudZoomVal');
+        if (hudZoomVal) hudZoomVal.innerText = str;
+
+        const scalePercentageLabel = document.getElementById('scalePercentageLabel');
+        if (scalePercentageLabel) scalePercentageLabel.innerText = str;
+
+        const dropdownScaleVal = document.getElementById('dropdownScaleVal');
+        if (dropdownScaleVal) dropdownScaleVal.innerText = str;
+
+        const settingZoomDisplay = document.getElementById('settingZoomDisplay');
+        if (settingZoomDisplay) settingZoomDisplay.innerText = str;
+
+        // Синхронизация слайдеров
+        const scaleSlider = document.getElementById('scaleSlider');
+        if (scaleSlider && parseInt(scaleSlider.value, 10) !== pct) scaleSlider.value = String(pct);
+
+        const dropdownScaleSlider = document.getElementById('dropdownScaleSlider');
+        if (dropdownScaleSlider && parseInt(dropdownScaleSlider.value, 10) !== pct) dropdownScaleSlider.value = String(pct);
+
+        // Подсветка кнопок пресетов
+        document.querySelectorAll('.btn-scale-preset').forEach(btn => {
+            const btnVal = Math.round(parseFloat(btn.getAttribute('data-scale')) * 100);
+            const active = btnVal === pct;
+            btn.className = active
+                ? 'btn-scale-preset active py-1 px-2 rounded-lg bg-blue-600 text-white font-semibold border border-blue-500 font-mono text-[11px] text-center transition-colors'
+                : 'btn-scale-preset py-1 px-2 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 font-mono text-[11px] text-center transition-colors';
+        });
+
+        document.querySelectorAll('.btn-quick-scale').forEach(btn => {
+            const btnVal = Math.round(parseFloat(btn.getAttribute('data-quickscale')) * 100);
+            const active = btnVal === pct;
+            btn.className = active
+                ? 'btn-quick-scale py-0.5 rounded bg-blue-600 text-white font-mono text-[10px] text-center font-bold transition-colors'
+                : 'btn-quick-scale py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-[10px] text-center transition-colors';
+        });
+
+        if (showToast) {
+            this.playSound('click');
+            this.app._showToast(`🔍 Масштаб экрана: ${pct}%`);
+        }
     }
 
-    zoomIn() { this.applyZoom(this.zoomLevel + 0.1); this.playSound('click'); }
-    zoomOut() { this.applyZoom(this.zoomLevel - 0.1); this.playSound('click'); }
-    zoomReset() { this.applyZoom(1.0); this.playSound('click'); }
+    zoomIn() { this.applyZoom(this.zoomLevel + 0.1, true); }
+    zoomOut() { this.applyZoom(this.zoomLevel - 0.1, true); }
+    zoomReset() { this.applyZoom(1.0, true); }
 
     toggleFullscreen() {
         if (!document.fullscreenElement) {
@@ -507,40 +593,45 @@ export class CrossPlatformHub {
     // 8. SPOTLIGHT & COMMAND PALETTE (⌘K / Ctrl+K)
     // =========================================================================
 
+    openCommandPalette() {
+        const palette = document.getElementById('commandPaletteModal');
+        const input = document.getElementById('paletteSearchInput');
+        if (!palette || !input) return;
+        palette.classList.remove('hidden');
+        palette.classList.add('flex');
+        input.value = '';
+        input.focus();
+        this._renderPaletteItems('');
+        this.playSound('click');
+    }
+
+    closeCommandPalette() {
+        const palette = document.getElementById('commandPaletteModal');
+        if (!palette) return;
+        palette.classList.add('hidden');
+        palette.classList.remove('flex');
+    }
+
     _initSpotlightPalette() {
         const palette = document.getElementById('commandPaletteModal');
         const input = document.getElementById('paletteSearchInput');
         const results = document.getElementById('paletteResultsList');
         if (!palette || !input || !results) return;
 
-        const openPalette = () => {
-            palette.classList.remove('hidden');
-            palette.classList.add('flex');
-            input.value = '';
-            input.focus();
-            this._renderPaletteItems('');
-            this.playSound('click');
-        };
-
-        const closePalette = () => {
-            palette.classList.add('hidden');
-            palette.classList.remove('flex');
-        };
-
         // Горячая клавиша ⌘K / Ctrl+K
         window.addEventListener('keydown', (e) => {
             const isMod = e.metaKey || e.ctrlKey;
             if (isMod && e.key.toLowerCase() === 'k') {
                 e.preventDefault();
-                if (palette.classList.contains('hidden')) openPalette();
-                else closePalette();
+                if (palette.classList.contains('hidden')) this.openCommandPalette();
+                else this.closeCommandPalette();
             } else if (e.key === 'Escape' && !palette.classList.contains('hidden')) {
-                closePalette();
+                this.closeCommandPalette();
             }
         });
 
         palette.addEventListener('click', (e) => {
-            if (e.target === palette) closePalette();
+            if (e.target === palette) this.closeCommandPalette();
         });
 
         input.addEventListener('input', (e) => {
@@ -572,7 +663,7 @@ export class CrossPlatformHub {
         });
 
         // Кнопка поиска в Taskbar
-        document.getElementById('btnOpenSpotlight')?.addEventListener('click', openPalette);
+        document.getElementById('btnOpenSpotlight')?.addEventListener('click', () => this.openCommandPalette());
     }
 
     _highlightPaletteItem(items, idx) {
@@ -782,6 +873,49 @@ export class CrossPlatformHub {
                 icon: '⏩',
                 category: 'Правка',
                 action: () => this.app.redo()
+            },
+            {
+                id: 'custom_wallpaper',
+                title: 'Персонализация: Сменить тему и обои рабочего стола',
+                shortcut: '',
+                icon: '🎨',
+                category: 'Рабочий стол',
+                action: () => this.app.openSettingsTab('tabPersonalization')
+            },
+            {
+                id: 'arrange_grid',
+                title: 'Выровнять значки рабочего стола по сетке',
+                shortcut: '',
+                icon: '📐',
+                category: 'Рабочий стол',
+                action: () => this.arrangeIconsGrid()
+            },
+            {
+                id: 'toggle_desktop_icons',
+                title: 'Показать / скрыть значки на рабочем столе',
+                shortcut: '',
+                icon: '📱',
+                category: 'Рабочий стол',
+                action: () => {
+                    const isHidden = document.body.classList.contains('desktop-icons-hidden');
+                    this.toggleDesktopIcons(isHidden);
+                }
+            },
+            {
+                id: 'backup_export',
+                title: 'Экспорт полной резервной копии сессии (JSON)',
+                shortcut: '',
+                icon: '💾',
+                category: 'Хранилище',
+                action: () => this.exportFullSessionBackup()
+            },
+            {
+                id: 'cache_clear',
+                title: 'Очистить кэш приложения и сбросить сессию',
+                shortcut: '',
+                icon: '🧹',
+                category: 'Система',
+                action: () => this.clearAppCache()
             }
         ];
     }
@@ -843,5 +977,821 @@ export class CrossPlatformHub {
             encBadge.innerText = this.activeEncoding.includes('866') ? 'CP866' : (this.activeEncoding.includes('1251') ? 'CP1251' : 'UTF-8');
             encBadge.title = `Кодировка DBF: ${encBadge.innerText}. Нажмите для переключения.`;
         }
+    }
+
+    // =========================================================================
+    // 10. КАСТОМИЗАЦИЯ РАБОЧЕГО СТОЛА, ОБОИ, ЗНАЧКИ И СЕТКА
+    // =========================================================================
+
+    _initDesktopCustomization() {
+        if (this.customWallpaper) {
+            this.setCustomWallpaper(this.customWallpaper, false);
+        } else {
+            const storedWp = localStorage.getItem('pharmagate_wallpaper') || 'deep-space';
+            this.setWallpaper(storedWp, false);
+        }
+
+        const storedSize = localStorage.getItem('pharmagate_icon_size') || 'md';
+        this.setIconSize(storedSize, false);
+
+        const storedVis = localStorage.getItem('pharmagate_icons_visible') !== 'false';
+        this.toggleDesktopIcons(storedVis, false);
+
+        const storedBlur = localStorage.getItem('pharmagate_blur_mode') || 'strong';
+        this.setWindowBlur(storedBlur, false);
+
+        // Привязка кликов по карточкам обоев в Настройках
+        document.querySelectorAll('.wp-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const wp = card.getAttribute('data-wp');
+                if (wp) {
+                    this.customWallpaper = '';
+                    localStorage.removeItem('pharmagate_custom_wallpaper');
+                    document.body.style.backgroundImage = '';
+                    this.setWallpaper(wp, true);
+                }
+            });
+        });
+
+        // Привязка кастомных обоев (URL)
+        const btnApplyWp = document.getElementById('btnApplyWallpaperUrl');
+        const inputWpUrl = document.getElementById('inputCustomWallpaperUrl');
+        if (btnApplyWp && inputWpUrl) {
+            if (this.customWallpaper && !this.customWallpaper.startsWith('data:')) {
+                inputWpUrl.value = this.customWallpaper;
+            }
+            btnApplyWp.addEventListener('click', () => {
+                const url = inputWpUrl.value.trim();
+                if (url) {
+                    this.setCustomWallpaper(url, true);
+                }
+            });
+        }
+
+        // Привязка кастомных обоев (Загрузка файла)
+        const inputFile = document.getElementById('inputCustomWallpaperFile');
+        if (inputFile) {
+            inputFile.addEventListener('change', (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    const dataUrl = evt.target?.result;
+                    if (dataUrl) {
+                        this.setCustomWallpaper(String(dataUrl), true);
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Привязка кнопок размера значков
+        document.getElementById('btnIconSizeSm')?.addEventListener('click', () => this.setIconSize('sm', true));
+        document.getElementById('btnIconSizeMd')?.addEventListener('click', () => this.setIconSize('md', true));
+        document.getElementById('btnIconSizeLg')?.addEventListener('click', () => this.setIconSize('lg', true));
+
+        // Привязка чекбокса отображения значков
+        document.getElementById('chkShowDesktopIcons')?.addEventListener('change', (e) => {
+            this.toggleDesktopIcons(e.target.checked, true);
+        });
+
+        // Кнопка упорядочивания по сетке и сброса
+        document.getElementById('btnArrangeGrid')?.addEventListener('click', () => this.arrangeIconsGrid());
+        document.getElementById('btnResetIconPos')?.addEventListener('click', () => this.resetIconsPosition());
+
+        // Привязка кнопок прозрачности окон (Акриловый блюр)
+        document.querySelectorAll('.btn-blur-mode').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const blur = btn.getAttribute('data-blur');
+                if (blur) this.setWindowBlur(blur, true);
+            });
+        });
+    }
+
+    setCustomWallpaper(urlOrData, showToast = true) {
+        if (!urlOrData) return;
+        this.customWallpaper = urlOrData;
+        localStorage.setItem('pharmagate_custom_wallpaper', urlOrData);
+
+        const validWps = ['deep-space', 'emerald', 'slate', 'aurora', 'amethyst', 'obsidian', 'light-minimal', 'cyber-grid', 'nebula'];
+        validWps.forEach(w => document.body.classList.remove(`wp-${w}`));
+
+        document.body.style.backgroundImage = `url("${urlOrData}")`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        document.body.style.backgroundRepeat = 'no-repeat';
+
+        // Снятие подсветки с пресетов
+        document.querySelectorAll('.wp-card').forEach(c => {
+            c.classList.remove('border-blue-500', 'ring-2', 'ring-blue-500/50');
+            c.classList.add('border-slate-800');
+            const badge = c.querySelector('.wp-badge');
+            if (badge) badge.classList.add('hidden');
+        });
+
+        if (showToast) {
+            this.playSound('success');
+            this.app._showToast('🖼️ Собственные обои рабочего стола успешно установлены!');
+        }
+    }
+
+    setWallpaper(wpId, showToast = true) {
+        const validWps = ['deep-space', 'emerald', 'slate', 'aurora', 'amethyst', 'obsidian', 'light-minimal', 'cyber-grid', 'nebula'];
+        if (!validWps.includes(wpId)) wpId = 'deep-space';
+
+        this.customWallpaper = '';
+        localStorage.removeItem('pharmagate_custom_wallpaper');
+        document.body.style.backgroundImage = '';
+
+        validWps.forEach(w => document.body.classList.remove(`wp-${w}`));
+        document.body.classList.add(`wp-${wpId}`);
+        localStorage.setItem('pharmagate_wallpaper', wpId);
+
+        // Обновление бейджей и рамок карточек обоев
+        document.querySelectorAll('.wp-card').forEach(card => {
+            const match = card.getAttribute('data-wp') === wpId;
+            card.classList.toggle('border-blue-500', match);
+            card.classList.toggle('ring-2', match);
+            card.classList.toggle('ring-blue-500/50', match);
+            card.classList.toggle('border-slate-800', !match);
+            const badge = card.querySelector('.wp-badge');
+            if (badge) badge.classList.toggle('hidden', !match);
+        });
+
+        if (showToast) {
+            this.playSound('click');
+            const names = {
+                'deep-space': 'Глубокий Космос',
+                'emerald': 'Изумрудный Фарм',
+                'slate': 'Кибер-Агат',
+                'aurora': 'Северное Сияние',
+                'amethyst': 'Аметистовая Ночь',
+                'obsidian': 'Чистый Обсидиан',
+                'light-minimal': 'Светлый Минимал',
+                'cyber-grid': 'Кибер-Сетка',
+                'nebula': 'Туманность'
+            };
+            this.app._showToast(`🎨 Обои рабочего стола: ${names[wpId] || wpId}`);
+        }
+    }
+
+    setIconSize(size, showToast = true) {
+        const valid = ['sm', 'md', 'lg'];
+        if (!valid.includes(size)) size = 'md';
+
+        valid.forEach(s => document.body.classList.remove(`desktop-icons-${s}`));
+        document.body.classList.add(`desktop-icons-${size}`);
+        localStorage.setItem('pharmagate_icon_size', size);
+
+        const btnSm = document.getElementById('btnIconSizeSm');
+        const btnMd = document.getElementById('btnIconSizeMd');
+        const btnLg = document.getElementById('btnIconSizeLg');
+        const activeCls = 'flex-1 py-1 text-center rounded bg-blue-600 text-white font-semibold transition-colors';
+        const normCls = 'flex-1 py-1 text-center rounded text-slate-300 hover:text-white transition-colors';
+
+        if (btnSm) btnSm.className = size === 'sm' ? activeCls : normCls;
+        if (btnMd) btnMd.className = size === 'md' ? activeCls : normCls;
+        if (btnLg) btnLg.className = size === 'lg' ? activeCls : normCls;
+
+        if (showToast) {
+            this.playSound('click');
+            const map = { sm: 'Маленькие', md: 'Средние', lg: 'Крупные' };
+            this.app._showToast(`📱 Размер значков: ${map[size]}`);
+        }
+    }
+
+    toggleDesktopIcons(visible, showToast = true) {
+        const isVis = visible !== undefined ? Boolean(visible) : document.body.classList.contains('desktop-icons-hidden');
+        if (isVis) {
+            document.body.classList.remove('desktop-icons-hidden');
+            localStorage.setItem('pharmagate_icons_visible', 'true');
+        } else {
+            document.body.classList.add('desktop-icons-hidden');
+            localStorage.setItem('pharmagate_icons_visible', 'false');
+        }
+
+        const chk = document.getElementById('chkShowDesktopIcons');
+        if (chk) chk.checked = isVis;
+
+        if (showToast) {
+            this.playSound('click');
+            this.app._showToast(isVis ? '👁️ Значки рабочего стола включены' : '🙈 Значки рабочего стола скрыты');
+        }
+    }
+
+    setWindowBlur(mode, showToast = true) {
+        document.body.classList.remove('win-blur-strong', 'win-blur-none');
+        if (mode === 'strong') document.body.classList.add('win-blur-strong');
+        else if (mode === 'none') document.body.classList.add('win-blur-none');
+        localStorage.setItem('pharmagate_blur_mode', mode);
+
+        document.querySelectorAll('.btn-blur-mode').forEach(btn => {
+            const match = btn.getAttribute('data-blur') === mode;
+            if (match) {
+                btn.className = 'btn-blur-mode py-1.5 px-2 rounded-lg bg-blue-600 text-white font-semibold border border-blue-500 text-center text-xs';
+            } else {
+                btn.className = 'btn-blur-mode py-1.5 px-2 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 text-center text-xs';
+            }
+        });
+
+        if (showToast) {
+            this.playSound('click');
+            const map = { strong: 'Высокая (36px)', standard: 'Стандарт (28px)', none: 'Без размытия (Solid)' };
+            this.app._showToast(`🪟 Прозрачность окон: ${map[mode] || mode}`);
+        }
+    }
+
+    arrangeIconsGrid() {
+        const desktop = document.getElementById('desktopArea');
+        const icons = document.querySelectorAll('.desktop-icon');
+        if (!desktop || !icons.length) return;
+
+        const iconWidth = 104;
+        const iconHeight = 100;
+        const startX = 20;
+        const startY = 20;
+        const maxRows = Math.max(1, Math.floor((desktop.clientHeight - 80) / iconHeight));
+        const savedPositions = {};
+
+        icons.forEach((icon, index) => {
+            const col = Math.floor(index / maxRows);
+            const row = index % maxRows;
+            const x = startX + col * iconWidth;
+            const y = startY + row * iconHeight;
+
+            icon.style.transition = 'left 0.25s cubic-bezier(0.16, 1, 0.3, 1), top 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
+            icon.style.left = `${x}px`;
+            icon.style.top = `${y}px`;
+
+            const appTarget = icon.getAttribute('data-app');
+            if (appTarget) savedPositions[appTarget] = { x, y };
+
+            setTimeout(() => {
+                icon.style.transition = '';
+            }, 300);
+        });
+
+        localStorage.setItem('pharmagate_icons_pos', JSON.stringify(savedPositions));
+        this.playSound('click');
+        this.app._showToast('📐 Значки рабочего стола упорядочены по сетке!');
+    }
+
+    resetIconsPosition() {
+        localStorage.removeItem('pharmagate_icons_pos');
+        this.arrangeIconsGrid();
+        this.app._showToast('🔄 Расположение значков сброшено по умолчанию');
+    }
+
+    // =========================================================================
+    // 11. КОНТЕКСТНОЕ МЕНЮ РАБОЧЕГО СТОЛА (DESKTOP CONTEXT MENU)
+    // =========================================================================
+
+    _initDesktopContextMenu() {
+        const ctxMenu = document.getElementById('desktopContextMenu');
+        const desktopArea = document.getElementById('desktopArea');
+        if (!ctxMenu || !desktopArea) return;
+
+        const hideMenu = () => {
+            ctxMenu.classList.add('hidden');
+        };
+
+        // Слушатель клика правой кнопкой мыши по рабочему столу
+        desktopArea.addEventListener('contextmenu', (e) => {
+            // Если клик внутри открытого окна или таскбара - не перехватывать
+            if (e.target.closest('.os-window') || e.target.closest('#taskbar') || e.target.closest('#startMenu')) {
+                return;
+            }
+
+            e.preventDefault();
+            this.playSound('click');
+
+            const menuWidth = 230;
+            const menuHeight = 310;
+            const maxLeft = window.innerWidth - menuWidth - 10;
+            const maxTop = window.innerHeight - menuHeight - 50;
+
+            const left = Math.max(10, Math.min(maxLeft, e.clientX));
+            const top = Math.max(10, Math.min(maxTop, e.clientY));
+
+            ctxMenu.style.left = `${left}px`;
+            ctxMenu.style.top = `${top}px`;
+            ctxMenu.classList.remove('hidden');
+        });
+
+        // Закрытие при клике мимо меню
+        document.addEventListener('click', (e) => {
+            if (!ctxMenu.contains(e.target)) hideMenu();
+        });
+
+        // Закрытие при нажатии Escape
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !ctxMenu.classList.contains('hidden')) {
+                hideMenu();
+            }
+        });
+
+        // Привязка обработчиков пунктов меню
+        document.getElementById('ctxRefreshDesktop')?.addEventListener('click', () => {
+            hideMenu();
+            this.playSound('click');
+            this.app._showToast('🔄 Рабочий стол обновлен');
+        });
+
+        document.getElementById('ctxArrangeGrid')?.addEventListener('click', () => {
+            hideMenu();
+            this.arrangeIconsGrid();
+        });
+
+        document.getElementById('ctxToggleIcons')?.addEventListener('click', () => {
+            hideMenu();
+            const isHidden = document.body.classList.contains('desktop-icons-hidden');
+            this.toggleDesktopIcons(isHidden);
+        });
+
+        document.getElementById('ctxDemoInvoice')?.addEventListener('click', () => {
+            hideMenu();
+            this.generateDemoPharmaInvoice(50);
+        });
+
+        document.getElementById('ctxNewInvoice')?.addEventListener('click', () => {
+            hideMenu();
+            this.app.openApp('winWizard');
+        });
+
+        document.getElementById('ctxAutoRepair')?.addEventListener('click', () => {
+            hideMenu();
+            this.app._autoRepairAllErrors?.();
+        });
+
+        document.getElementById('ctxScaleMenu')?.addEventListener('click', () => {
+            hideMenu();
+            this.app.openSettingsTab('tabPersonalization');
+            this.playSound('click');
+        });
+
+        document.getElementById('ctxLiteMode')?.addEventListener('click', () => {
+            hideMenu();
+            this.setLiteMode(!this.liteModeEnabled, true);
+        });
+
+        document.getElementById('ctxPersonalization')?.addEventListener('click', () => {
+            hideMenu();
+            this.app.openSettingsTab('tabPersonalization');
+        });
+
+        document.getElementById('ctxOpenSettings')?.addEventListener('click', () => {
+            hideMenu();
+            this.app.openApp('winSettings');
+        });
+
+        document.getElementById('ctxFullscreen')?.addEventListener('click', () => {
+            hideMenu();
+            this.toggleFullscreen();
+        });
+    }
+
+    // =========================================================================
+    // 12. ЭКСПОРТ РЕЗЕРВНОЙ КОПИИ И СБРОС КЭША
+    // =========================================================================
+
+    exportFullSessionBackup() {
+        const backup = {
+            app_id: 'pharmagate_webos_2026',
+            version: '2026.4 LTS Pro',
+            exported_at: new Date().toISOString(),
+            platform: {
+                detectedOs: this.detectedOs,
+                osPersona: this.configuredOs,
+                lineEnding: this.activeLineEnding,
+                encoding: this.activeEncoding,
+                wallpaper: localStorage.getItem('pharmagate_wallpaper') || 'deep-space',
+                iconSize: localStorage.getItem('pharmagate_icon_size') || 'md',
+                blurMode: localStorage.getItem('pharmagate_blur_mode') || 'strong'
+            },
+            dataset: {
+                fileName: this.app.activeFileName,
+                metaHeader: this.app.metaHeader,
+                recordsCount: this.app.records?.length || 0,
+                records: this.app.records,
+                schema: this.app.schema
+            },
+            desktopIconsPositions: JSON.parse(localStorage.getItem('pharmagate_icons_pos') || '{}')
+        };
+
+        const str = JSON.stringify(backup, null, 2);
+        const blob = new Blob([str], { type: 'application/json' });
+        const dateStr = new Date().toISOString().slice(0, 10);
+        const filename = `PharmaGate_Session_Backup_${dateStr}.json`;
+
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        this.playSound('success');
+        this.app._showToast(`💾 Полная резервная копия экспортирована: ${filename}`);
+    }
+
+    // =========================================================================
+    // 13. ТЕМЫ ОФОРМЛЕНИЯ И АКЦЕНТНЫЕ ЦВЕТА
+    // =========================================================================
+
+    _initThemeAndAccentControls() {
+        this.setTheme(this.activeTheme, false);
+        this.setAccentColor(this.accentColor, false);
+
+        // Привязка карточек тем в Центре Настроек
+        document.querySelectorAll('.theme-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const theme = card.getAttribute('data-theme');
+                if (theme) this.setTheme(theme, true);
+            });
+        });
+
+        // Привязка кнопок акцентных цветов
+        document.querySelectorAll('.btn-accent-color').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const accent = btn.getAttribute('data-accent');
+                if (accent) this.setAccentColor(accent, true);
+            });
+        });
+    }
+
+    setTheme(themeId, showToast = true) {
+        const validThemes = ['fluent-dark', 'macos', 'pharma-light', 'cyber-matrix', 'retro-win95', 'midnight-nebula'];
+        if (!validThemes.includes(themeId)) themeId = 'fluent-dark';
+
+        this.activeTheme = themeId;
+        localStorage.setItem('pharmagate_theme', themeId);
+
+        validThemes.forEach(t => document.documentElement.classList.remove(`theme-${t}`));
+        document.documentElement.classList.add(`theme-${themeId}`);
+
+        // Обновление карточек тем в интерфейсе
+        document.querySelectorAll('.theme-card').forEach(card => {
+            const match = card.getAttribute('data-theme') === themeId;
+            card.classList.toggle('border-blue-500', match);
+            card.classList.toggle('border-2', match);
+            card.classList.toggle('ring-2', match);
+            card.classList.toggle('ring-blue-500/40', match);
+            card.classList.toggle('border-slate-800', !match);
+            const badge = card.querySelector('.theme-badge');
+            if (badge) badge.classList.toggle('hidden', !match);
+        });
+
+        const activeBadge = document.getElementById('activeThemeBadge');
+        const themeNames = {
+            'fluent-dark': 'Fluent Dark',
+            'macos': 'macOS Glass',
+            'pharma-light': 'Pharma Light',
+            'cyber-matrix': 'Matrix Terminal',
+            'retro-win95': 'Win95 / 2000',
+            'midnight-nebula': 'Midnight Nebula'
+        };
+        if (activeBadge) activeBadge.innerText = themeNames[themeId] || themeId;
+
+        // Если выбрана macOS тема - включаем macOS стиль кнопок окон
+        if (themeId === 'macos' && this.configuredOs !== 'macos') {
+            this.setOsPersona('macos');
+        } else if (themeId === 'retro-win95' && this.configuredOs !== 'windows') {
+            this.setOsPersona('windows');
+        }
+
+        if (showToast) {
+            this.playSound('click');
+            this.app._showToast(`🎨 Тема оформления: ${themeNames[themeId] || themeId}`);
+        }
+    }
+
+    setAccentColor(accentId, showToast = true) {
+        const accents = {
+            blue: { hex: '#2563eb', hover: '#1d4ed8', rgb: '37, 99, 235', name: 'Сапфировый Синий' },
+            emerald: { hex: '#059669', hover: '#047857', rgb: '5, 150, 105', name: 'Изумрудный' },
+            violet: { hex: '#7c3aed', hover: '#6d28d9', rgb: '124, 58, 237', name: 'Аметистовый Фиолет' },
+            amber: { hex: '#d97706', hover: '#b45309', rgb: '217, 119, 6', name: 'Янтарный' },
+            rose: { hex: '#e11d48', hover: '#be123c', rgb: '225, 29, 72', name: 'Рубиновый' },
+            cyan: { hex: '#0891b2', hover: '#0e7490', rgb: '8, 145, 178', name: 'Морская Бирюза' }
+        };
+
+        const acc = accents[accentId] || accents.blue;
+        this.accentColor = accentId;
+        localStorage.setItem('pharmagate_accent', accentId);
+
+        document.documentElement.style.setProperty('--color-accent', acc.hex);
+        document.documentElement.style.setProperty('--color-accent-hover', acc.hover);
+        document.documentElement.style.setProperty('--color-accent-rgb', acc.rgb);
+
+        document.querySelectorAll('.btn-accent-color').forEach(btn => {
+            const match = btn.getAttribute('data-accent') === accentId;
+            btn.classList.toggle('border-blue-500', match);
+            btn.classList.toggle('border-2', match);
+            btn.classList.toggle('scale-105', match);
+            btn.classList.toggle('border-slate-800', !match);
+        });
+
+        if (showToast) {
+            this.playSound('click');
+            this.app._showToast(`🎨 Акцентный цвет: ${acc.name}`);
+        }
+    }
+
+    // =========================================================================
+    // 14. УПРОЩЕННЫЙ РЕЖИМ ДЛЯ МЕДЛЕННОГО ПОДКЛЮЧЕНИЯ (LITE SPEED MODE)
+    // =========================================================================
+
+    _initLiteMode() {
+        this.setLiteMode(this.liteModeEnabled, false);
+
+        // Чекбокс включения Lite-mode в Настройках
+        const chkLiteMode = document.getElementById('chkLiteMode');
+        if (chkLiteMode) {
+            chkLiteMode.checked = this.liteModeEnabled;
+            chkLiteMode.addEventListener('change', (e) => {
+                localStorage.setItem('pharmagate_lite_mode_user_forced', 'true');
+                this.setLiteMode(e.target.checked, true);
+            });
+        }
+
+        // Чекбокс автоматического включения при медленной сети
+        const chkAutoLiteMode = document.getElementById('chkAutoLiteMode');
+        if (chkAutoLiteMode) {
+            chkAutoLiteMode.checked = this.autoLiteMode;
+            chkAutoLiteMode.addEventListener('change', (e) => {
+                this.autoLiteMode = e.target.checked;
+                localStorage.setItem('pharmagate_auto_lite_mode', String(this.autoLiteMode));
+                this._checkNetworkConnectionSpeed();
+            });
+        }
+
+        // Кнопка быстрого переключения в трее панели задач
+        const btnTaskbarLite = document.getElementById('btnTaskbarLiteMode');
+        if (btnTaskbarLite) {
+            btnTaskbarLite.addEventListener('click', () => {
+                localStorage.setItem('pharmagate_lite_mode_user_forced', 'true');
+                this.setLiteMode(!this.liteModeEnabled, true);
+            });
+        }
+
+        this._checkNetworkConnectionSpeed();
+    }
+
+    setLiteMode(enabled, showToast = true) {
+        this.liteModeEnabled = Boolean(enabled);
+        localStorage.setItem('pharmagate_lite_mode', String(this.liteModeEnabled));
+
+        document.documentElement.classList.toggle('lite-mode', this.liteModeEnabled);
+        document.body.classList.toggle('lite-mode', this.liteModeEnabled);
+
+        // Обновление чекбокса в настройках
+        const chkLiteMode = document.getElementById('chkLiteMode');
+        if (chkLiteMode) chkLiteMode.checked = this.liteModeEnabled;
+
+        // Обновление бейджа статуса
+        const badge = document.getElementById('liteModeBadge');
+        if (badge) {
+            badge.innerText = this.liteModeEnabled ? '⚡ Активен (Lite Speed)' : 'Отключен';
+            badge.className = this.liteModeEnabled
+                ? 'px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono text-[10px]'
+                : 'px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-mono text-[10px]';
+        }
+
+        // Обновление кнопки в трее таскбара
+        const taskbarIcon = document.getElementById('taskbarLiteIcon');
+        const taskbarLabel = document.getElementById('taskbarLiteLabel');
+        const btnTaskbarLite = document.getElementById('btnTaskbarLiteMode');
+
+        if (taskbarIcon) taskbarIcon.innerText = this.liteModeEnabled ? '⚡' : '💎';
+        if (taskbarLabel) taskbarLabel.innerText = this.liteModeEnabled ? 'Lite' : 'Full';
+        if (btnTaskbarLite) {
+            if (this.liteModeEnabled) {
+                btnTaskbarLite.className = 'flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-950/60 hover:bg-amber-900/60 text-amber-300 border border-amber-500/60 text-[11px] cursor-pointer transition-colors shadow-sm shadow-amber-500/20';
+            } else {
+                btnTaskbarLite.className = 'flex items-center gap-1.5 px-2 py-1 rounded-lg bg-[#090d16] hover:bg-slate-800 text-slate-300 border border-slate-800 text-[11px] cursor-pointer transition-colors';
+            }
+        }
+
+        // Тюнинг буфера таблицы при активном Lite режиме
+        if (this.app?.mainGrid?.tabulatorInstance) {
+            try {
+                if (this.liteModeEnabled) {
+                    this.app.mainGrid.tabulatorInstance.setRenderMode('virtual');
+                }
+            } catch (err) {}
+        }
+
+        if (showToast) {
+            this.playSound(this.liteModeEnabled ? 'warning' : 'success');
+            if (this.liteModeEnabled) {
+                this.app._showToast('⚡ Упрощенный режим (Lite Speed) включен: блюр и тяжелые анимации отключены!');
+            } else {
+                this.app._showToast('💎 Полный графический режим включен (Acrylic Glass, тени и сглаживание)');
+            }
+        }
+    }
+
+    _checkNetworkConnectionSpeed() {
+        const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        const speedBadge = document.getElementById('detectedConnectionSpeedBadge');
+
+        if (!conn) {
+            if (speedBadge) speedBadge.innerText = 'Сеть: Стандарт (Ethernet/WiFi)';
+            return;
+        }
+
+        const isSlow = conn.saveData || ['slow-2g', '2g', '3g'].includes(conn.effectiveType) || (conn.rtt && conn.rtt > 400);
+        const netType = conn.effectiveType ? conn.effectiveType.toUpperCase() : '4G';
+        const downlink = conn.downlink ? `${conn.downlink} Mbps` : '';
+
+        if (speedBadge) {
+            speedBadge.innerText = `Сеть: ${netType} ${downlink ? `(${downlink})` : ''} · ${isSlow ? '⚠️ Медленная' : 'Быстрая'}`;
+            speedBadge.className = isSlow
+                ? 'font-mono text-[10px] text-amber-400 font-semibold'
+                : 'font-mono text-[10px] text-emerald-400';
+        }
+
+        const userForced = localStorage.getItem('pharmagate_lite_mode_user_forced');
+        if (isSlow && this.autoLiteMode && !userForced && !this.liteModeEnabled) {
+            this.setLiteMode(true, true);
+            this.app._showToast(`⚡ Обнаружена медленная сеть (${netType}). Автоматически активирован упрощенный режим (Lite Mode).`);
+        }
+
+        conn.addEventListener?.('change', () => this._checkNetworkConnectionSpeed());
+    }
+
+    // =========================================================================
+    // 15. МАСШТАБИРОВАНИЕ ЭКРАНА, ПРОЦЕНТНЫЙ МАСШТАБ И AUTO-DPI
+    // =========================================================================
+
+    _initScaleAndDpiControls() {
+        // Слайдер масштаба в Настройках
+        const slider = document.getElementById('scaleSlider');
+        if (slider) {
+            slider.value = String(Math.round(this.zoomLevel * 100));
+            slider.addEventListener('input', (e) => {
+                const val = parseInt(e.target.value, 10) / 100;
+                this.applyZoom(val, false);
+            });
+            slider.addEventListener('change', () => {
+                this.playSound('click');
+                this.app._showToast(`🔍 Масштаб экрана: ${Math.round(this.zoomLevel * 100)}%`);
+            });
+        }
+
+        // Слайдер в выпадающем меню таскбара
+        const dropdownSlider = document.getElementById('dropdownScaleSlider');
+        if (dropdownSlider) {
+            dropdownSlider.value = String(Math.round(this.zoomLevel * 100));
+            dropdownSlider.addEventListener('input', (e) => {
+                const val = parseInt(e.target.value, 10) / 100;
+                this.applyZoom(val, false);
+            });
+        }
+
+        // Кнопки пресетов масштаба в Настройках
+        document.querySelectorAll('.btn-scale-preset').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const s = parseFloat(btn.getAttribute('data-scale'));
+                if (!isNaN(s)) {
+                    this.applyZoom(s, true);
+                }
+            });
+        });
+
+        // Кнопки быстрого масштаба в выпадающем меню таскбара
+        document.querySelectorAll('.btn-quick-scale').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const s = parseFloat(btn.getAttribute('data-quickscale'));
+                if (!isNaN(s)) {
+                    this.applyZoom(s, true);
+                }
+            });
+        });
+
+        // Чекбоксы Auto-DPI
+        const chkAutoDpi = document.getElementById('chkAutoDpi');
+        const dropdownChkAutoDpi = document.getElementById('dropdownChkAutoDpi');
+        if (chkAutoDpi) {
+            chkAutoDpi.checked = this.autoDpiEnabled;
+            chkAutoDpi.addEventListener('change', (e) => {
+                this.setAutoDpi(e.target.checked, true);
+            });
+        }
+        if (dropdownChkAutoDpi) {
+            dropdownChkAutoDpi.checked = this.autoDpiEnabled;
+            dropdownChkAutoDpi.addEventListener('change', (e) => {
+                this.setAutoDpi(e.target.checked, true);
+            });
+        }
+
+        // Открытие/закрытие мини-меню масштабирования
+        const trigger = document.getElementById('btnScaleMenuTrigger');
+        const dropdown = document.getElementById('quickScaleDropdown');
+        if (trigger && dropdown) {
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.classList.toggle('hidden');
+                this.playSound('click');
+            });
+            document.addEventListener('click', (e) => {
+                if (!dropdown.contains(e.target) && e.target !== trigger) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+        }
+
+        // Слушатель изменения размера окна браузера
+        window.addEventListener('resize', () => {
+            this._updateResolutionIndicators();
+            if (this.autoDpiEnabled) {
+                this._checkAutoDpiScale(false);
+            }
+        });
+
+        this._updateResolutionIndicators();
+        if (this.autoDpiEnabled) {
+            this._checkAutoDpiScale(false);
+        } else {
+            this.applyZoom(this.zoomLevel, false);
+        }
+    }
+
+    _updateResolutionIndicators() {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        const dpr = window.devicePixelRatio || 1;
+        const str = `${w}×${h} (${dpr.toFixed(1)}x)`;
+
+        const currentDpiIndicator = document.getElementById('currentDpiIndicator');
+        if (currentDpiIndicator) currentDpiIndicator.innerText = str;
+
+        const dropdownDpiBadge = document.getElementById('dropdownDpiBadge');
+        if (dropdownDpiBadge) dropdownDpiBadge.innerText = str;
+    }
+
+    setAutoDpi(enabled, showToast = true) {
+        this.autoDpiEnabled = Boolean(enabled);
+        localStorage.setItem('pharmagate_auto_dpi', String(this.autoDpiEnabled));
+
+        const chkAutoDpi = document.getElementById('chkAutoDpi');
+        const dropdownChkAutoDpi = document.getElementById('dropdownChkAutoDpi');
+        if (chkAutoDpi) chkAutoDpi.checked = this.autoDpiEnabled;
+        if (dropdownChkAutoDpi) dropdownChkAutoDpi.checked = this.autoDpiEnabled;
+
+        const badge = document.getElementById('autoDpiStatusBadge');
+        if (badge) {
+            badge.innerText = this.autoDpiEnabled ? 'Вкл (Авто)' : 'Выкл';
+            badge.className = this.autoDpiEnabled
+                ? 'text-[10px] px-2 py-0.5 rounded bg-blue-600/30 text-blue-300 font-mono border border-blue-500/40'
+                : 'text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-mono';
+        }
+
+        if (this.autoDpiEnabled) {
+            this._checkAutoDpiScale(showToast);
+        } else {
+            if (showToast) {
+                this.playSound('click');
+                this.app._showToast('🔍 Авто-масштабирование Auto-DPI отключено');
+            }
+        }
+    }
+
+    _checkAutoDpiScale(showToast = false) {
+        const w = window.innerWidth;
+        const dpr = window.devicePixelRatio || 1;
+        let recommendedScale = 1.0;
+
+        if (w >= 2560 || dpr >= 2.0) {
+            recommendedScale = 1.25; // 4K / Ultra-wide / Retina
+        } else if (w >= 1920) {
+            recommendedScale = 1.0;  // Full HD
+        } else if (w >= 1440) {
+            recommendedScale = 0.95; // 1440x900 laptops
+        } else if (w >= 1280) {
+            recommendedScale = 0.90; // 1366x768 classic laptops
+        } else if (w >= 1024) {
+            recommendedScale = 0.85; // tablets / small screens
+        } else {
+            recommendedScale = 0.75; // mobile / small viewports
+        }
+
+        this.applyZoom(recommendedScale, false);
+
+        if (showToast) {
+            this.playSound('success');
+            this.app._showToast(`🔍 Auto-DPI: подобран масштаб ${Math.round(recommendedScale * 100)}% под экран ${w}px`);
+        }
+    }
+
+    clearAppCache() {
+        if (!confirm('Вы уверены, что хотите очистить кэш приложения, сбросить настройки и перезагрузить PharmaGate WebOS?')) {
+            return;
+        }
+        localStorage.clear();
+        sessionStorage.clear();
+        this.playSound('error');
+        this.app._showToast('🧹 Кэш очищен. Перезагрузка...');
+        setTimeout(() => location.reload(), 600);
     }
 }
