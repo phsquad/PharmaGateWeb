@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="ru" class="h-full overflow-hidden">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PharmaGate AccessForge Studio — WebOS 2026</title>
+    
+    <!-- PWA Manifest & Meta -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#030712">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="Промышленный фармацевтический EDI/DBF шлюз, конструктор MS Access и валидатор ФЛК">
+
+    <!-- Внешние библиотеки (CDN с fallback защитой) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/tabulator-tables@5.5.2/dist/css/tabulator_midnight.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/tabulator-tables@5.5.2/dist/js/tabulator.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        pharma: {
+                            50: '#f0fdf4',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --win-bg: rgba(11, 15, 25, 0.96);
+            --win-border: rgba(51, 65, 85, 0.85);
+            --win-header: linear-gradient(180deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
+            --accent-glow: rgba(59, 130, 246, 0.25);
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace !important;
+        }
+
+        /* 🌌 Обои рабочего стола WebOS */
+        .desktop-canvas {
+            background: radial-gradient(circle at 50% 15%, #1e1b4b 0%, #0f172a 45%, #020617 100%);
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* 🪟 Оконная система WebOS (Acrylic / Glassmorphism) */
+        .os-window {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            background: var(--win-bg);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border: 1px solid var(--win-border);
+            border-radius: 12px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.07);
+            min-width: 340px;
+            min-height: 220px;
+            touch-action: none;
+        }
+
+        .os-window.active-window {
+            border-color: rgba(59, 130, 246, 0.85);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9), 0 0 20px var(--accent-glow);
+        }
+
+        .os-window.minimized {
+            display: none !important;
+        }
+
+        .os-window.maximized {
+            top: 6px !important;
+            left: 6px !important;
+            width: calc(100vw - 12px) !important;
+            height: calc(100vh - 60px) !important;
+            border-radius: 8px;
+        }
+
+        /* 🖱️ Заголовок окна */
+        .win-header {
+            cursor: move;
+            background: var(--win-header);
+            border-bottom: 1px solid rgba(51, 65, 85, 0.7);
+            touch-action: none;
+        }
+
+        /* 8-Позиционные ручки изменения размера */
+        .win-resizer {
+            position: absolute;
+            z-index: 50;
+        }
+        .resizer-r { top: 0; right: 0; width: 6px; height: 100%; cursor: ew-resize; }
+        .resizer-l { top: 0; left: 0; width: 6px; height: 100%; cursor: ew-resize; }
+        .resizer-b { bottom: 0; left: 0; width: 100%; height: 6px; cursor: ns-resize; }
+        .resizer-t { top: 0; left: 0; width: 100%; height: 6px; cursor: ns-resize; }
+        .resizer-rb { bottom: 0; right: 0; width: 14px; height: 14px; cursor: nwse-resize; z-index: 51; }
+        .resizer-lb { bottom: 0; left: 0; width: 14px; height: 14px; cursor: nesw-resize; z-index: 51; }
+        .resizer-rt { top: 0; right: 0; width: 14px; height: 14px; cursor: nesw-resize; z-index: 51; }
+        .resizer-lt { top: 0; left: 0; width: 14px; height: 14px; cursor: nwse-resize; z-index: 51; }
+
+        /* 👻 Силуэт Aero Snap */
+        #snapGhost {
+            position: absolute;
+            background: rgba(59, 130, 246, 0.15);
+            border: 2px dashed rgba(59, 130, 246, 0.65);
+            backdrop-filter: blur(4px);
+            border-radius: 12px;
+            pointer-events: none;
+            z-index: 999;
+            transition: all 0.12s ease-out;
+            display: none;
+        }
+
+        /* Меню Пуск (Windows 11 Fluent) */
+        #startMenu {
+            position: absolute;
+            bottom: 56px;
+            left: 12px;
+            width: 520px;
+            max-height: 580px;
+            background: rgba(15, 23, 42, 0.97);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(51, 65, 85, 0.8);
+            border-radius: 16px;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            animation: startMenuIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes startMenuIn {
+            from { opacity: 0; transform: translateY(12px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* 📊 Стилизация Tabulator под Cyber-Slate */
+        .tabulator {
+            background-color: #030712 !important;
+            border: 1px solid #1e293b !important;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #f1f5f9;
+        }
+        .tabulator .tabulator-header {
+            background-color: #0f172a !important;
+            color: #94a3b8 !important;
+            border-bottom: 2px solid #334155 !important;
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .tabulator .tabulator-header .tabulator-col {
+            background-color: #0f172a !important;
+            border-right: 1px solid #1e293b !important;
+        }
+        .tabulator .tabulator-row {
+            background-color: #030712 !important;
+            border-bottom: 1px solid #1e293b !important;
+        }
+        .tabulator .tabulator-row:nth-child(even) { 
+            background-color: #080d1a !important; 
+        }
+        .tabulator .tabulator-row:hover { 
+            background-color: #1e293b !important; 
+        }
+        .tabulator .tabulator-row.tabulator-selected { 
+            background-color: #1e3a8a !important; 
+            color: #ffffff !important;
+        }
+        .tabulator .tabulator-cell {
+            padding: 7px 9px !important;
+            border-right: 1px solid #1e293b !important;
+        }
+
+        /* 🚨 Статусные подсветки ячеек ФЛК */
+        .flk-critical { 
+            background-color: rgba(220, 38, 38, 0.3) !important; 
+            color: #fca5a5 !important; 
+            font-weight: bold; 
+            border-left: 3px solid #ef4444 !important;
+        }
+        .flk-warning { 
+            background-color: rgba(217, 119, 6, 0.3) !important; 
+            color: #fcd34d !important; 
+            border-left: 3px solid #f59e0b !important;
+        }
+        .flk-info { 
+            background-color: rgba(2, 132, 199, 0.25) !important; 
+            color: #7dd3fc !important; 
+        }
+
+        /* Тонкие полосы прокрутки */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        /* Пульсирующий индикатор готовности */
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.75; transform: scale(1.04); }
+        }
+        .pulse-led { animation: pulse-glow 2s infinite ease-in-out; }
+    </style>
+</head>
+<body class="h-full w-full overflow-hidden text-slate-100 flex flex-col desktop-canvas">
+
+    <!-- ========================================================================= -->
+    <!-- 1. ПОВЕРХНОСТЬ РАБОЧЕГО СТОЛА (DESKTOP AREA С ПЕРЕТАСКИВАЕМЫМИ ЯРЛЫКАМИ)   -->
+    <!-- ========================================================================= -->
+    <main id="desktopArea" class="flex-1 relative overflow-hidden p-6">
+        
+        <!-- Силуэт Aero Snap -->
+        <div id="snapGhost"></div>
+
+        <!-- Ярлыки рабочего стола (Свободно перемещаются мышью и пальцем) -->
+        <div id="desktopIconsLayer" class="relative w-full h-full pointer-events-none z-0">
+            
+            <div data-app="winEditor" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer" style="left: 16px; top: 16px;">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 flex items-center justify-center text-2xl shadow-lg shadow-blue-500/30">📄</div>
+                <span class="text-xs font-semibold text-white drop-shadow">Накладная</span>
+            </div>
+
+            <div data-app="winSchema" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer" style="left: 16px; top: 112px;">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-teal-400 flex items-center justify-center text-2xl shadow-lg shadow-emerald-500/30">📐</div>
+                <span class="text-xs font-semibold text-white drop-shadow">Конструктор</span>
+            </div>
+
+            <div data-app="winDb" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer" style="left: 16px; top: 208px;">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-600 via-pink-600 to-rose-500 flex items-center justify-center text-2xl shadow-lg shadow-purple-500/30">🗄️</div>
+                <span class="text-xs font-semibold text-white drop-shadow">СУБД ERP</span>
+            </div>
+
+            <div data-app="winReconcile" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer" style="left: 16px; top: 304px;">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-600 via-orange-600 to-yellow-500 flex items-center justify-center text-2xl shadow-lg shadow-amber-500/30">⚖️</div>
+                <span class="text-xs font-semibold text-white drop-shadow">Сверка</span>
+            </div>
+
+            <div data-app="winKb" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer" style="left: 16px; top: 400px;">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center text-2xl shadow-lg shadow-cyan-500/30">📚</div>
+                <span class="text-xs font-semibold text-white drop-shadow">База Знаний</span>
+            </div>
+
+            <div data-app="winWizard" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer" style="left: 120px; top: 16px;">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-500 to-emerald-500 flex items-center justify-center text-2xl shadow-lg shadow-blue-500/30">🚀</div>
+                <span class="text-xs font-semibold text-white drop-shadow">Мастер 2.0</span>
+            </div>
+
+            <div data-app="winInspector" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer" style="left: 120px; top: 112px;">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-violet-600 to-purple-600 flex items-center justify-center text-2xl shadow-lg shadow-purple-500/30">🛠️</div>
+                <span class="text-xs font-semibold text-white drop-shadow">Инспектор</span>
+            </div>
+
+            <div data-app="winSettings" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer" style="left: 120px; top: 208px;">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-slate-600 to-slate-800 flex items-center justify-center text-2xl shadow-lg shadow-slate-500/30">⚙️</div>
+                <span class="text-xs font-semibold text-white drop-shadow">Настройки</span>
+            </div>
+
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- ОКНО 1: РЕДАКТОР НАКЛАДНОЙ (MAIN EDI GRID VIEW)                       -->
+        <!-- ===================================================================== -->
+        <div id="winEditor" class="os-window" style="top: 16px; left: 240px; width: 1120px; height: 640px; z-index: 10;">
+            <div class="win-header px-4 py-2.5 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <span class="text-sm">📄</span>
+                    <span class="font-bold text-xs text-white">Редактор Накладной — PharmaGate EDI Grid</span>
+                    <span id="winEditorFileBadge" class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 font-mono text-[10px] border border-blue-500/30">Накладная_№407.dbf</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button class="win-btn-min w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">_</button>
+                    <button class="win-btn-max w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">□</button>
+                    <button class="win-btn-close w-6 h-6 rounded hover:bg-red-600 flex items-center justify-center text-slate-400 hover:text-white text-xs font-bold">✕</button>
+                </div>
+            </div>
+
+            <!-- Тулбар окна накладной -->
+            <div class="bg-[#0b0f19] border-b border-slate-800 px-3 py-1.5 flex items-center justify-between gap-2 text-xs shrink-0">
+                <div class="flex items-center gap-1.5">
+                    <input type="file" id="fileInput" class="hidden" accept=".dbf,.xlsx,.xls,.json,.csv,.xml,.accdb,.mdb">
+                    <button id="btnOpenFile" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-200 border border-slate-700 font-semibold flex items-center gap-1 cursor-pointer">
+                        <span>📂</span> Открыть
+                    </button>
+                    <button id="btnOpenCreateWizard" class="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-semibold flex items-center gap-1 cursor-pointer shadow-sm">
+                        <span>🚀</span> Создать
+                    </button>
+                    <button id="btnAutoRepair" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white font-semibold flex items-center gap-1 cursor-pointer shadow-sm">
+                        <span>⚡</span> Авто-Ремонт 99%
+                    </button>
+                    <div class="h-4 w-px bg-slate-700 mx-1"></div>
+                    <button id="btnSaveDbf" class="px-2.5 py-1.5 bg-teal-600 hover:bg-teal-500 rounded-lg text-white font-semibold cursor-pointer shadow-sm">
+                        💾 DBF (CP866)
+                    </button>
+                    <button id="btnExportTorg12" class="px-2 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 border border-slate-700 cursor-pointer">
+                        📄 ТОРГ-12
+                    </button>
+                    <button id="btnExportUpd" class="px-2 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 border border-slate-700 cursor-pointer">
+                        📑 УПД 970@
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <input type="text" id="gridSearchInput" placeholder="🔍 Поиск (название, код)..." class="bg-[#030712] border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 w-44">
+                    <button id="btnVat10" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-slate-300 cursor-pointer" title="Установить НДС 10%">10%</button>
+                    <button id="btnVat0" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-slate-300 cursor-pointer" title="Установить 0% НДС">0%</button>
+                    <button id="btnCopyTsv" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-slate-200 font-bold cursor-pointer" title="Скопировать для Excel (TSV)">📋 Ctrl+C</button>
+                </div>
+            </div>
+
+            <!-- Рабочее тело таблицы + сайдбар советника -->
+            <div class="flex-1 flex overflow-hidden">
+                <div class="flex-1 p-2.5 flex flex-col bg-[#030712] min-w-0">
+                    <div id="tabulatorGridContainer" class="flex-1 w-full rounded-lg overflow-hidden border border-slate-800/80"></div>
+                </div>
+
+                <!-- Сайдбар Советника ФЛК -->
+                <div class="w-76 bg-[#0b0f19] border-l border-slate-800 p-3.5 flex flex-col gap-3 text-xs overflow-y-auto shrink-0 shadow-inner">
+                    <div class="p-3 rounded-xl bg-[#030712] border border-slate-800 space-y-2">
+                        <div class="flex justify-between font-bold text-slate-300 text-[11px]">
+                            <span>Индекс приёмки сети:</span>
+                            <span id="readinessProgressPercent" class="text-emerald-400 font-mono font-bold">100%</span>
+                        </div>
+                        <div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-800">
+                            <div id="readinessProgressBar" class="bg-emerald-500 h-full w-full transition-all"></div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <div class="font-bold text-slate-300 text-[11px]">Рекомендации советника:</div>
+                        <div id="advisorRecommendations" class="bg-[#030712] border border-slate-800 p-2.5 rounded-lg text-slate-400 text-[11px] leading-relaxed">
+                            Загрузите документ для аудита.
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <div class="font-bold text-slate-300 text-[11px]">Журнал замечаний:</div>
+                        <div id="issuesListContainer" class="space-y-1.5 max-h-64 overflow-y-auto pr-1"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- ОКНО 2: КОНСТРУКТОР СХЕМЫ (ACCESS TABLE DESIGN VIEW)                  -->
+        <!-- ===================================================================== -->
+        <div id="winSchema" class="os-window minimized" style="top: 36px; left: 260px; width: 980px; height: 580px; z-index: 11;">
+            <div class="win-header px-4 py-2.5 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm">📐</span>
+                    <span class="font-bold text-xs text-white">Конструктор Структуры — MS Access Table Designer & DBF Doctor</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button class="win-btn-min w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">_</button>
+                    <button class="win-btn-max w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">□</button>
+                    <button class="win-btn-close w-6 h-6 rounded hover:bg-red-600 flex items-center justify-center text-slate-400 hover:text-white text-xs font-bold">✕</button>
+                </div>
+            </div>
+
+            <div class="bg-[#0b0f19] border-b border-slate-800 px-3 py-1.5 flex items-center justify-between text-xs shrink-0">
+                <div class="flex items-center gap-2">
+                    <button id="btnSchemaAddRow" class="px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-bold cursor-pointer">➕ Добавить поле</button>
+                    <button id="btnSchemaApplyToDoc" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white font-bold cursor-pointer">✅ Применить к накладной</button>
+                </div>
+                <div class="flex items-center gap-2 font-mono text-[11px]">
+                    <span id="dbfDoctorSizeCalc" class="text-emerald-400 font-bold px-2 py-0.5 rounded bg-emerald-950/60 border border-emerald-900">Размер: ~0.0 КБ</span>
+                    <button id="btnDbfDoctorAutoFix" class="px-2.5 py-1 bg-red-950/80 text-red-300 border border-red-800 rounded-lg font-bold cursor-pointer">🚑 Расширить OVERFLOW</button>
+                    <button id="btnDbfDoctorCompact" class="px-2.5 py-1 bg-amber-950/80 text-amber-300 border border-amber-800 rounded-lg font-bold cursor-pointer">✂️ Сжать WASTE</button>
+                </div>
+            </div>
+
+            <div class="flex-1 p-3 overflow-y-auto bg-[#030712]">
+                <table class="w-full text-left text-xs text-slate-200">
+                    <thead class="bg-[#0f172a] text-slate-400 font-bold uppercase text-[10px] border-b border-slate-800 sticky top-0">
+                        <tr>
+                            <th class="p-2">Поле dBase</th>
+                            <th class="p-2">Тип данных</th>
+                            <th class="p-2">Длина (байт)</th>
+                            <th class="p-2">Точность</th>
+                            <th class="p-2 text-center">Обязательно</th>
+                            <th class="p-2">Понятное наименование</th>
+                            <th class="p-2 text-center">Удалить</th>
+                        </tr>
+                    </thead>
+                    <tbody id="schemaDesignerTableBody" class="divide-y divide-slate-800 font-mono"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- ОКНО 3: СУБД MINI-ERP (SQLITE & ACCESS WASM EXPLORER)                  -->
+        <!-- ===================================================================== -->
+        <div id="winDb" class="os-window minimized" style="top: 56px; left: 280px; width: 1000px; height: 580px; z-index: 12;">
+            <div class="win-header px-4 py-2.5 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm">🗄️</span>
+                    <span class="font-bold text-xs text-white">СУБД Mini-ERP — Реляционный проводник SQLite WASM</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button class="win-btn-min w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">_</button>
+                    <button class="win-btn-max w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">□</button>
+                    <button class="win-btn-close w-6 h-6 rounded hover:bg-red-600 flex items-center justify-center text-slate-400 hover:text-white text-xs font-bold">✕</button>
+                </div>
+            </div>
+
+            <div class="bg-[#0b0f19] border-b border-slate-800 px-3 py-1.5 flex items-center justify-between text-xs shrink-0">
+                <div class="flex items-center gap-2">
+                    <input type="text" id="erpSearchInput" placeholder="🔍 Поиск номенклатуры..." class="bg-[#030712] border border-slate-800 rounded-lg px-3 py-1 text-xs text-white w-72 focus:outline-none focus:border-blue-500">
+                    <span id="erpRecordsCountBadge" class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-mono text-[10px]">0 записей</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="btnSyncDbWithInvoice" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white font-bold cursor-pointer">🔄 Синхронизировать с накладной</button>
+                    <button id="btnExportDbExcel" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white font-bold cursor-pointer">📄 Экспорт в Excel</button>
+                </div>
+            </div>
+
+            <div class="flex-1 p-2 bg-[#030712]">
+                <div id="erpGridContainer" class="w-full h-full rounded overflow-hidden"></div>
+            </div>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- ОКНО 4: СВЕРКА ЗАКАЗА (RECONCILER STUDIO)                             -->
+        <!-- ===================================================================== -->
+        <div id="winReconcile" class="os-window minimized" style="top: 76px; left: 300px; width: 1000px; height: 580px; z-index: 13;">
+            <div class="win-header px-4 py-2.5 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm">⚖️</span>
+                    <span class="font-bold text-xs text-white">Каскадная Сверка: Заказ ↔ Накладная (5-Уровневый алгоритм)</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button class="win-btn-min w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">_</button>
+                    <button class="win-btn-max w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">□</button>
+                    <button class="win-btn-close w-6 h-6 rounded hover:bg-red-600 flex items-center justify-center text-slate-400 hover:text-white text-xs font-bold">✕</button>
+                </div>
+            </div>
+
+            <div class="bg-[#0b0f19] border-b border-slate-800 px-3 py-1.5 flex items-center justify-between text-xs shrink-0">
+                <div class="flex items-center gap-2">
+                    <input type="file" id="orderFileInput" class="hidden" accept=".dbf,.xlsx,.json,.csv">
+                    <button id="btnLoadOrderFile" class="px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-bold cursor-pointer">📁 Загрузить Заказ (ORDER)</button>
+                    <button id="btnSaveOtkazDbf" class="px-2.5 py-1 bg-red-600 hover:bg-red-500 rounded-lg text-white font-bold disabled:opacity-30 cursor-pointer" disabled>💾 otkaz.dbf</button>
+                    <button id="btnSaveReconcileActExcel" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white font-bold disabled:opacity-30 cursor-pointer" disabled>📄 Акт Excel</button>
+                </div>
+                <div class="flex items-center gap-4 font-mono text-[11px]">
+                    <div>Исполнение: <b id="recFulfillmentRate" class="text-emerald-400">100%</b></div>
+                    <div>Отказ: <b id="recTotalRefusedSum" class="text-red-400">0.00 ₽</b></div>
+                </div>
+            </div>
+
+            <div class="flex-1 p-2 bg-[#030712]">
+                <div id="reconcilerGridContainer" class="w-full h-full rounded overflow-hidden"></div>
+            </div>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- ОКНО 5: БАЗА ЗНАНИЙ (KNOWLEDGE BASE 2.0)                              -->
+        <!-- ========================================================================= -->
+        <div id="winKb" class="os-window minimized" style="top: 96px; left: 320px; width: 920px; height: 580px; z-index: 14;">
+            <div class="win-header px-4 py-2.5 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm">📚</span>
+                    <span class="font-bold text-xs text-white">База Знаний Стандартов Фарм-EDI в РФ (25+ НПА)</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button class="win-btn-min w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">_</button>
+                    <button class="win-btn-max w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">□</button>
+                    <button class="win-btn-close w-6 h-6 rounded hover:bg-red-600 flex items-center justify-center text-slate-400 hover:text-white text-xs font-bold">✕</button>
+                </div>
+            </div>
+
+            <div class="bg-[#0b0f19] border-b border-slate-800 p-2.5 flex flex-col gap-2 shrink-0">
+                <input type="text" id="kbSearchInput" placeholder="🔍 Поиск регламентов (subjid, гтд, катрен, 1990, ндс 0%)..." class="w-full bg-[#030712] border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500">
+                <div class="kb-category-chips flex items-center gap-1.5 overflow-x-auto pb-1"></div>
+            </div>
+
+            <div class="flex-1 p-4 overflow-y-auto bg-[#030712]">
+                <div id="kbCardsGrid" class="grid grid-cols-2 gap-3.5"></div>
+            </div>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- ОКНО 6: МАСТЕР СОЗДАНИЯ НАКЛАДНОЙ 2.0 (2D DATA MATRIX)                 -->
+        <!-- ===================================================================== -->
+        <div id="winWizard" class="os-window minimized" style="top: 50px; left: 240px; width: 920px; height: 580px; z-index: 15;">
+            <div class="win-header px-4 py-2.5 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm">🚀</span>
+                    <span class="font-bold text-xs text-white">Мастер создания накладной 2.0 (2D DataMatrix Сканер + ЖНВЛП)</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button class="win-btn-min w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">_</button>
+                    <button class="win-btn-max w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">□</button>
+                    <button class="win-btn-close w-6 h-6 rounded hover:bg-red-600 flex items-center justify-center text-slate-400 hover:text-white text-xs font-bold">✕</button>
+                </div>
+            </div>
+
+            <div class="flex-1 p-4 overflow-y-auto space-y-4 text-xs bg-[#030712]">
+                <div class="p-3 bg-[#090d16] rounded-xl border border-blue-600/50 space-y-2">
+                    <label class="font-bold text-blue-400 flex items-center gap-1.5">
+                        <span>📟</span> Терминал 2D-сканирования DataMatrix (Честный ЗНАК / МДЛП):
+                    </label>
+                    <input type="text" id="wizardScannerInput" placeholder="Отсканируйте 2D DataMatrix или введите штрихкод..." class="w-full bg-[#030712] border border-blue-500 rounded-lg px-3 py-2 text-white font-mono text-xs focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="text-slate-400 font-semibold">Наименование препарата:</label>
+                        <input type="text" id="wzName" value="АртроМовиа суприм р-р 2,2% 2,2мл №1" class="w-full bg-[#090d16] border border-slate-800 rounded-lg p-2 text-white mt-1">
+                    </div>
+                    <div>
+                        <label class="text-slate-400 font-semibold">Штрихкод EAN-13:</label>
+                        <input type="text" id="wzEan13" value="4657786240081" class="w-full bg-[#090d16] border border-slate-800 rounded-lg p-2 text-white font-mono mt-1">
+                    </div>
+                    <div>
+                        <label class="text-slate-400 font-semibold">Артикул (CODEPST):</label>
+                        <input type="text" id="wzCodepst" value="000006" class="w-full bg-[#090d16] border border-slate-800 rounded-lg p-2 text-white font-mono mt-1">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-4 gap-3">
+                    <div>
+                        <label class="text-slate-400 font-semibold">Серия партии:</label>
+                        <input type="text" id="wzSer" value="Е621125" class="w-full bg-[#090d16] border border-slate-800 rounded-lg p-2 text-white mt-1">
+                    </div>
+                    <div>
+                        <label class="text-slate-400 font-semibold">Срок годности:</label>
+                        <input type="date" id="wzGdate" value="2028-05-31" class="w-full bg-[#090d16] border border-slate-800 rounded-lg p-2 text-white mt-1">
+                    </div>
+                    <div>
+                        <label class="text-slate-400 font-semibold">Количество (шт):</label>
+                        <input type="number" id="wzQnt" value="2" min="1" class="w-full bg-[#090d16] border border-slate-800 rounded-lg p-2 text-white font-mono mt-1">
+                    </div>
+                    <div>
+                        <label class="text-slate-400 font-semibold">Цена с НДС:</label>
+                        <input type="number" id="wzPrice2" value="17000.00" step="0.01" class="w-full bg-[#090d16] border border-slate-800 rounded-lg p-2 text-emerald-400 font-bold font-mono mt-1">
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-3 border-t border-slate-800 flex justify-end gap-2 bg-[#0b0f19]">
+                <button id="btnWizardAddRow" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg text-xs cursor-pointer">
+                    ➕ Добавить в накладную
+                </button>
+            </div>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- ОКНО 7: ИНСПЕКТОР ПРАВОК (ACTION INSPECTOR DIFF STUDIO)               -->
+        <!-- ===================================================================== -->
+        <div id="winInspector" class="os-window minimized" style="top: 60px; left: 210px; width: 960px; height: 580px; z-index: 16;">
+            <div class="win-header px-4 py-2.5 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm">🛠️</span>
+                    <span class="font-bold text-xs text-white">Инспектор Правочных Действий — Live Diff Studio</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button class="win-btn-min w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">_</button>
+                    <button class="win-btn-max w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">□</button>
+                    <button class="win-btn-close w-6 h-6 rounded hover:bg-red-600 flex items-center justify-center text-slate-400 hover:text-white text-xs font-bold">✕</button>
+                </div>
+            </div>
+
+            <div class="flex-1 p-3 flex gap-3 bg-[#030712] overflow-hidden text-xs">
+                <div class="w-72 bg-[#090d16] border border-slate-800 rounded-xl p-3 flex flex-col gap-2 overflow-y-auto shrink-0">
+                    <div class="font-bold text-slate-300 text-xs">Чеклист задач ФЛК:</div>
+                    <div id="inspectorActionsList" class="space-y-1.5"></div>
+                </div>
+
+                <div class="flex-1 rounded-xl border border-slate-800 overflow-hidden bg-[#090d16] flex flex-col">
+                    <div class="p-2.5 bg-[#0b0f19] border-b border-slate-800 font-bold text-slate-300 text-xs flex justify-between items-center">
+                        <span>Предпросмотр точечных изменений (Diff Preview)</span>
+                        <button id="btnInspectorApplyChecked" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg cursor-pointer">
+                            🚀 Применить выбранные
+                        </button>
+                    </div>
+                    <div class="flex-1 overflow-y-auto p-2">
+                        <table class="w-full text-left text-xs font-mono">
+                            <thead class="text-slate-400 border-b border-slate-800 text-[10px]">
+                                <tr>
+                                    <th class="p-2">Стр.</th>
+                                    <th class="p-2">Поле</th>
+                                    <th class="p-2">Было</th>
+                                    <th class="p-2">Станет</th>
+                                    <th class="p-2">Обоснование</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inspectorDiffTableBody" class="divide-y divide-slate-800"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- ОКНО 8: ЦЕНТР НАСТРОЕК (SETTINGS CENTER)                              -->
+        <!-- ===================================================================== -->
+        <div id="winSettings" class="os-window minimized" style="top: 80px; left: 280px; width: 720px; height: 500px; z-index: 17;">
+            <div class="win-header px-4 py-2.5 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm">⚙️</span>
+                    <span class="font-bold text-xs text-white">Центр Настроек — PharmaGate EDI Settings</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button class="win-btn-min w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">_</button>
+                    <button class="win-btn-max w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">□</button>
+                    <button class="win-btn-close w-6 h-6 rounded hover:bg-red-600 flex items-center justify-center text-slate-400 hover:text-white text-xs font-bold">✕</button>
+                </div>
+            </div>
+
+            <div class="flex-1 p-4 overflow-y-auto space-y-4 text-xs bg-[#030712]">
+                <div class="p-3 bg-[#090d16] rounded-xl border border-slate-800 space-y-2">
+                    <div class="font-bold text-white text-xs">🛡️ Правила Авторемонта ФЛК:</div>
+                    <label class="flex items-center gap-2 text-slate-300">
+                        <input type="checkbox" id="chkAutoMath" checked class="rounded text-blue-600">
+                        Балансировка сумм (SUMSTR = round(QNT * PRICE2, 2))
+                    </label>
+                    <label class="flex items-center gap-2 text-slate-300">
+                        <input type="checkbox" id="chkZeroVat" checked class="rounded text-blue-600">
+                        Автоопределение 0% НДС для медицинских изделий
+                    </label>
+                    <label class="flex items-center gap-2 text-slate-300">
+                        <input type="checkbox" id="chkPadZeros" checked class="rounded text-blue-600">
+                        Восстановление ведущих нулей артикулов (zfill 6)
+                    </label>
+                    <label class="flex items-center gap-2 text-slate-300">
+                        <input type="checkbox" id="chkGtdRu" checked class="rounded text-blue-600">
+                        Авто-перенос номеров РУ из ГТД в сертификаты
+                    </label>
+                </div>
+
+                <div class="p-3 bg-[#090d16] rounded-xl border border-slate-800 space-y-2">
+                    <div class="font-bold text-white text-xs">🌐 Настройки кодировок:</div>
+                    <div class="text-slate-400">По умолчанию для всех сетей используется <b>DOS CP866 (0x26)</b>.</div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ========================================================================= -->
+    <!-- 2. МЕНЮ ПУСК (WINDOWS 11 FLUENT FLYOUT)                                   -->
+    <!-- ========================================================================= -->
+    <div id="startMenu">
+        <!-- Поиск в меню Пуск -->
+        <div class="p-4 border-b border-slate-800">
+            <input type="text" id="startSearchInput" placeholder="🔍 Поиск приложений, настроек и документов..." class="w-full bg-[#090d16] border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+        </div>
+
+        <!-- Закрепленные приложения -->
+        <div class="p-4 flex-1 overflow-y-auto">
+            <div class="text-[11px] font-bold text-slate-400 mb-3 uppercase tracking-wider">Закрепленные приложения</div>
+            <div class="grid grid-cols-4 gap-3 text-center text-xs">
+                <button onclick="window.PharmaGate.openApp('winEditor'); window.PharmaGate.toggleStartMenu();" class="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-slate-800/80 transition-colors">
+                    <div class="w-10 h-10 rounded-xl bg-blue-600/20 text-blue-400 border border-blue-500/30 flex items-center justify-center text-xl">📄</div>
+                    <span class="text-[11px] text-slate-200">Накладная</span>
+                </button>
+                <button onclick="window.PharmaGate.openApp('winSchema'); window.PharmaGate.toggleStartMenu();" class="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-slate-800/80 transition-colors">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-xl">📐</div>
+                    <span class="text-[11px] text-slate-200">Конструктор</span>
+                </button>
+                <button onclick="window.PharmaGate.openApp('winDb'); window.PharmaGate.toggleStartMenu();" class="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-slate-800/80 transition-colors">
+                    <div class="w-10 h-10 rounded-xl bg-purple-600/20 text-purple-400 border border-purple-500/30 flex items-center justify-center text-xl">🗄️</div>
+                    <span class="text-[11px] text-slate-200">СУБД ERP</span>
+                </button>
+                <button onclick="window.PharmaGate.openApp('winReconcile'); window.PharmaGate.toggleStartMenu();" class="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-slate-800/80 transition-colors">
+                    <div class="w-10 h-10 rounded-xl bg-amber-600/20 text-amber-400 border border-amber-500/30 flex items-center justify-center text-xl">⚖️</div>
+                    <span class="text-[11px] text-slate-200">Сверка</span>
+                </button>
+                <button onclick="window.PharmaGate.openApp('winKb'); window.PharmaGate.toggleStartMenu();" class="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-slate-800/80 transition-colors">
+                    <div class="w-10 h-10 rounded-xl bg-cyan-600/20 text-cyan-400 border border-cyan-500/30 flex items-center justify-center text-xl">📚</div>
+                    <span class="text-[11px] text-slate-200">База Знаний</span>
+                </button>
+                <button onclick="window.PharmaGate.openApp('winWizard'); window.PharmaGate.toggleStartMenu();" class="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-slate-800/80 transition-colors">
+                    <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-300 border border-blue-400/30 flex items-center justify-center text-xl">🚀</div>
+                    <span class="text-[11px] text-slate-200">Мастер 2.0</span>
+                </button>
+                <button onclick="window.PharmaGate.openApp('winInspector'); window.PharmaGate.toggleStartMenu();" class="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-slate-800/80 transition-colors">
+                    <div class="w-10 h-10 rounded-xl bg-violet-600/20 text-violet-300 border border-violet-400/30 flex items-center justify-center text-xl">🛠️</div>
+                    <span class="text-[11px] text-slate-200">Инспектор</span>
+                </button>
+                <button onclick="window.PharmaGate.openApp('winSettings'); window.PharmaGate.toggleStartMenu();" class="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-slate-800/80 transition-colors">
+                    <div class="w-10 h-10 rounded-xl bg-slate-600/20 text-slate-300 border border-slate-500/30 flex items-center justify-center text-xl">⚙️</div>
+                    <span class="text-[11px] text-slate-200">Настройки</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Нижняя панель пользователя в меню Пуск -->
+        <div class="p-3 bg-[#090d16] border-t border-slate-800 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-[11px]">AT</div>
+                <div class="font-bold text-white">Alexander Talents Agency</div>
+            </div>
+            <button onclick="location.reload()" class="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white" title="Перезагрузить систему">🔄</button>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- 3. ПАНЕЛЬ ЗАДАЧ WINDOWS 11 (TASKBAR)                                      -->
+    <!-- ========================================================================= -->
+    <footer id="taskbar" class="h-12 bg-slate-950/95 backdrop-blur-2xl border-t border-slate-800/90 px-4 flex items-center justify-between shrink-0 z-50 shadow-2xl">
+        
+        <div class="flex items-center gap-2">
+            <!-- Кнопка Пуск -->
+            <button onclick="window.PharmaGate.toggleStartMenu()" class="w-8 h-8 rounded-lg bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center text-sm shadow-md shadow-blue-600/30 transition-all cursor-pointer">
+                🪟
+            </button>
+
+            <!-- Селектор стратегий компоновки окон -->
+            <select id="strategySelect" class="bg-[#090d16] text-slate-300 border border-slate-800 rounded-lg px-2 py-1 text-xs font-semibold focus:outline-none cursor-pointer">
+                <option value="cascade">🪟 Каскад</option>
+                <option value="split_lr">🪟 Сплит 50/50</option>
+                <option value="grid_2x2">🪟 Сетка 2x2</option>
+                <option value="focus">🪟 Фокус (Макс)</option>
+            </select>
+
+            <div class="h-5 w-px bg-slate-800 mx-1"></div>
+
+            <!-- Иконки активных окон на панели задач -->
+            <div id="taskbarAppsContainer" class="flex items-center gap-1.5"></div>
+        </div>
+
+        <div class="flex items-center gap-4 text-xs font-medium text-slate-400">
+            <!-- HUD индикатор финансовых итогов -->
+            <div class="flex items-center gap-3 bg-[#090d16] px-3 py-1 rounded-lg border border-slate-800 font-mono text-[11px]">
+                <div>Сумма: <b id="hudTotalSum" class="text-emerald-400">0.00 ₽</b></div>
+                <div class="h-3 w-px bg-slate-700"></div>
+                <div>Строк: <b id="hudItemsCount" class="text-slate-300">0</b></div>
+                <div class="h-3 w-px bg-slate-700"></div>
+                <div id="hudReadinessBadge" class="text-emerald-400 font-bold">100% Готов</div>
+            </div>
+
+            <!-- Селектор целевого шлюза -->
+            <div class="flex items-center gap-1.5 bg-[#090d16] px-2.5 py-1 rounded-lg border border-slate-800 text-[11px]">
+                <span>🎯</span>
+                <select id="profileSelect" class="bg-transparent text-emerald-400 font-bold focus:outline-none cursor-pointer">
+                    <option value="neofarm" class="bg-slate-900">НЕО-ФАРМ</option>
+                    <option value="rigla" class="bg-slate-900">Ригла</option>
+                    <option value="katren" class="bg-slate-900">Катрен</option>
+                    <option value="pharm366" class="bg-slate-900">36.6</option>
+                    <option value="april" class="bg-slate-900">Апрель</option>
+                    <option value="universal_1251" class="bg-slate-900">Win-1251</option>
+                </select>
+            </div>
+
+            <!-- Часы -->
+            <div id="systemClock" class="font-mono text-slate-300 font-bold">12:00</div>
+        </div>
+    </footer>
+
+    <!-- Подключение контроллера WebOS -->
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>

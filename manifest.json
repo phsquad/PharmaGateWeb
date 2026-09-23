@@ -1,0 +1,22 @@
+{
+  "short_name": "PharmaGate",
+  "name": "PharmaGate EDI Pro 2026 — Web PWA Studio",
+  "description": "Автономный фармацевтический EDI/DBF шлюз, валидатор ФЛК и генератор УПД 970@",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#0f172a",
+  "theme_color": "#1e40af",
+  "display": "standalone",
+  "orientation": "any"
+}

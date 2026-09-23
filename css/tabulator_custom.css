@@ -1,0 +1,54 @@
+/* css/tabulator_custom.css - Стилизация виртуальной таблицы Tabulator и бейджей ФЛК */
+.tabulator {
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    font-size: 13px;
+}
+
+.tabulator .tabulator-header {
+    background-color: #f1f5f9;
+    color: #1e293b;
+    font-weight: 700;
+    border-bottom: 2px solid #cbd5e1;
+}
+
+.tabulator .tabulator-header .tabulator-col {
+    background-color: #f1f5f9;
+    border-right: 1px solid #cbd5e1;
+}
+
+.tabulator .tabulator-row {
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.tabulator .tabulator-row.tabulator-row-even {
+    background-color: #f8fafc;
+}
+
+.tabulator .tabulator-row:hover {
+    background-color: #f1f5f9 !important;
+}
+
+.tabulator .tabulator-row.tabulator-selected {
+    background-color: #dbeafe !important;
+    color: #1e3a8a !important;
+}
+
+/* Статусные подсветки ячеек ФЛК */
+.flk-critical {
+    background-color: #fee2e2 !important;
+    color: #991b1b !important;
+    font-weight: bold;
+}
+
+.flk-warning {
+    background-color: #fef3c7 !important;
+    color: #92400e !important;
+}
+
+.flk-info {
+    background-color: #e0f2fe !important;
+    color: #0369a1 !important;
+}
