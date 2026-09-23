@@ -574,8 +574,8 @@ export class PharmaGateWebOS {
                     const deltaX = (e.clientX - startX) / zoom;
                     const deltaY = (e.clientY - startY) / zoom;
 
-                    const maxLeft = window.innerWidth - 120;
-                    const maxTop = window.innerHeight - 80;
+                    const maxLeft = (window.innerWidth / zoom) - 120;
+                    const maxTop = ((window.innerHeight - 50) / zoom) - 80;
 
                     const newLeft = Math.max(0, Math.min(maxLeft, initLeft + deltaX));
                     const newTop = Math.max(0, Math.min(maxTop, initTop + deltaY));
@@ -590,22 +590,22 @@ export class PharmaGateWebOS {
                             snapGhost.style.display = 'block';
                             snapGhost.style.top = '6px';
                             snapGhost.style.left = '6px';
-                            snapGhost.style.width = 'calc(100vw - 12px)';
-                            snapGhost.style.height = 'calc(100vh - 60px)';
+                            snapGhost.style.width = 'calc(100% - 12px)';
+                            snapGhost.style.height = 'calc(100% - 12px)';
                         } else if (e.clientX <= 10) {
                             snapAction = 'left';
                             snapGhost.style.display = 'block';
                             snapGhost.style.top = '6px';
                             snapGhost.style.left = '6px';
-                            snapGhost.style.width = 'calc(50vw - 8px)';
-                            snapGhost.style.height = 'calc(100vh - 60px)';
+                            snapGhost.style.width = 'calc(50% - 8px)';
+                            snapGhost.style.height = 'calc(100% - 12px)';
                         } else if (e.clientX >= window.innerWidth - 10) {
                             snapAction = 'right';
                             snapGhost.style.display = 'block';
                             snapGhost.style.top = '6px';
-                            snapGhost.style.left = 'calc(50vw + 2px)';
-                            snapGhost.style.width = 'calc(50vw - 8px)';
-                            snapGhost.style.height = 'calc(100vh - 60px)';
+                            snapGhost.style.left = 'calc(50% + 2px)';
+                            snapGhost.style.width = 'calc(50% - 8px)';
+                            snapGhost.style.height = 'calc(100% - 12px)';
                         } else {
                             snapAction = null;
                             snapGhost.style.display = 'none';
@@ -626,15 +626,15 @@ export class PharmaGateWebOS {
                         win.classList.remove('maximized');
                         win.style.left = '6px';
                         win.style.top = '6px';
-                        win.style.width = 'calc(50vw - 8px)';
-                        win.style.height = 'calc(100vh - 60px)';
+                        win.style.width = 'calc(50% - 8px)';
+                        win.style.height = 'calc(100% - 12px)';
                         this._redrawWindowContents(win.id);
                     } else if (snapAction === 'right') {
                         win.classList.remove('maximized');
-                        win.style.left = 'calc(50vw + 2px)';
+                        win.style.left = 'calc(50% + 2px)';
                         win.style.top = '6px';
-                        win.style.width = 'calc(50vw - 8px)';
-                        win.style.height = 'calc(100vh - 60px)';
+                        win.style.width = 'calc(50% - 8px)';
+                        win.style.height = 'calc(100% - 12px)';
                         this._redrawWindowContents(win.id);
                     }
                     snapAction = null;
@@ -1052,6 +1052,10 @@ export class PharmaGateWebOS {
                     : 'px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-mono text-[10px]';
             }
             if (autoDpiChk) autoDpiChk.checked = autoDpi;
+
+            // Синхронизация плотности UI
+            this.crossPlatform?._syncDensityUi();
+            this.crossPlatform?._syncStartMenuCompactUi(this.crossPlatform.startMenuCompact);
         };
 
         this.toggleStartMenu = () => {
@@ -1089,6 +1093,20 @@ export class PharmaGateWebOS {
             const isMax = startMenu.classList.toggle('start-menu-fullscreen');
             btnMax.title = isMax ? 'Восстановить размер' : 'Развернуть на весь экран';
             btnMax.textContent = isMax ? '❐' : '⛶';
+        });
+
+        const btnCompact = document.getElementById('btnStartMenuCompact');
+        btnCompact?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.crossPlatform?.toggleStartMenuCompact();
+            syncStartMenuState();
+        });
+
+        const btnDensityToggle = document.getElementById('btnStartMenuDensityToggle');
+        btnDensityToggle?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.crossPlatform?.toggleUiDensity(true);
+            syncStartMenuState();
         });
 
         // Перетаскивание мини-окна за заголовок (Draggable Windows Mini-Window)

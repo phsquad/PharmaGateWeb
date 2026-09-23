@@ -33,6 +33,9 @@ export class CrossPlatformHub {
         this.autoDpiEnabled = localStorage.getItem('pharmagate_auto_dpi') === 'true';
         this.liteModeEnabled = localStorage.getItem('pharmagate_lite_mode') === 'true';
         this.autoLiteMode = localStorage.getItem('pharmagate_auto_lite_mode') !== 'false';
+        this.uiDensity = localStorage.getItem('pharmagate_ui_density') || 'standard';
+        this.startMenuCompact = localStorage.getItem('pharmagate_start_menu_compact') === 'true';
+        this.startMenuScaleSync = localStorage.getItem('pharmagate_start_menu_sync') !== 'false';
         this.customWallpaper = localStorage.getItem('pharmagate_custom_wallpaper') || '';
         this.audioCtx = null;
     }
@@ -77,6 +80,7 @@ export class CrossPlatformHub {
         this._initSpotlightPalette();
         this._initClipboardPasteListener();
         this._initZoomAndDisplayControls();
+        this._initUiDensityControls();
         this._updateUiShortcutsBadges();
         this._renderSystemIndicators();
         this._initDesktopCustomization();
@@ -400,6 +404,24 @@ export class CrossPlatformHub {
             desktop.style.zoom = `${this.zoomLevel * 100}%`;
         }
 
+        document.documentElement.style.setProperty('--os-zoom', String(this.zoomLevel));
+
+        // Пропорциональное масштабирование Меню Пуск при включенной синхронизации
+        const startMenu = document.getElementById('startMenu');
+        if (startMenu && !startMenu.classList.contains('start-menu-fullscreen')) {
+            if (this.startMenuScaleSync) {
+                const s = Math.min(1.25, Math.max(0.75, this.zoomLevel));
+                startMenu.style.transform = s !== 1 ? `scale(${s})` : '';
+                if (!startMenu.style.top || startMenu.style.top === 'auto') {
+                    startMenu.style.transformOrigin = 'bottom left';
+                } else {
+                    startMenu.style.transformOrigin = 'top left';
+                }
+            } else {
+                startMenu.style.transform = '';
+            }
+        }
+
         const pct = Math.round(this.zoomLevel * 100);
         const str = `${pct}%`;
 
@@ -452,9 +474,203 @@ export class CrossPlatformHub {
                 : 'btn-quick-scale py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-[10px] text-center transition-colors';
         });
 
+        document.querySelectorAll('.btn-start-scale-preset').forEach(btn => {
+            const btnVal = Math.round(parseFloat(btn.getAttribute('data-scale')) * 100);
+            const active = btnVal === pct;
+            btn.className = active
+                ? 'btn-start-scale-preset py-1 rounded bg-blue-600 text-white font-bold transition-colors text-center'
+                : 'btn-start-scale-preset py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors text-center';
+        });
+
         if (showToast) {
             this.playSound('click');
             this.app._showToast(`🔍 Масштаб экрана: ${pct}%`);
+        }
+    }
+
+    // =========================================================================
+    // 5.1 ПЛОТНОСТЬ ИНТЕРФЕЙСА (UI DENSITY) И КОМПАКТНЫЙ РЕЖИМ
+    // =========================================================================
+
+    _initUiDensityControls() {
+        // Применяем сохраненный класс плотности к корню документа
+        document.documentElement.classList.remove('density-compact', 'density-spacious');
+        if (this.uiDensity === 'compact') {
+            document.documentElement.classList.add('density-compact');
+        } else if (this.uiDensity === 'spacious') {
+            document.documentElement.classList.add('density-spacious');
+        }
+
+        // Применяем компактное меню пуск
+        const startMenu = document.getElementById('startMenu');
+        if (startMenu && this.startMenuCompact) {
+            startMenu.classList.add('start-menu-compact');
+        }
+
+        // Кнопки плотности в меню «Пуск» (Вкладка Масштаб)
+        document.getElementById('btnStartDensityCompact')?.addEventListener('click', () => this.setUiDensity('compact', true));
+        document.getElementById('btnStartDensityStandard')?.addEventListener('click', () => this.setUiDensity('standard', true));
+        document.getElementById('btnStartDensitySpacious')?.addEventListener('click', () => this.setUiDensity('spacious', true));
+
+        // Кнопка переключения плотности в заголовке меню Пуск
+        document.getElementById('btnStartMenuDensityToggle')?.addEventListener('click', () => this.toggleUiDensity(true));
+
+        // Кнопка компактного вида меню Пуск в заголовке
+        document.getElementById('btnStartMenuCompact')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggleStartMenuCompact();
+        });
+
+        // Кнопка переключения компактного вида меню в табе Масштаб
+        document.getElementById('btnStartToggleCompactMenu')?.addEventListener('click', () => this.toggleStartMenuCompact());
+
+        // Чекбокс синхронизации масштаба меню Пуск
+        const chkSync = document.getElementById('chkStartSyncScale');
+        if (chkSync) {
+            chkSync.checked = this.startMenuScaleSync;
+            chkSync.addEventListener('change', (e) => this.setStartMenuSync(e.target.checked));
+        }
+
+        // Кнопки плотности в выпадающем меню панели задач
+        document.querySelectorAll('.btn-dropdown-density').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const density = btn.getAttribute('data-density');
+                if (density) this.setUiDensity(density, true);
+            });
+        });
+
+        // Кнопки плотности в Окне Настроек
+        document.querySelectorAll('.btn-settings-density').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const density = btn.getAttribute('data-density');
+                if (density) this.setUiDensity(density, true);
+            });
+        });
+
+        // Синхронизация всех индикаторов
+        this._syncDensityUi();
+        this._syncStartMenuCompactUi(this.startMenuCompact);
+    }
+
+    setUiDensity(density, showToast = true) {
+        this.uiDensity = ['compact', 'standard', 'spacious'].includes(density) ? density : 'standard';
+        localStorage.setItem('pharmagate_ui_density', this.uiDensity);
+
+        document.documentElement.classList.remove('density-compact', 'density-spacious');
+        if (this.uiDensity === 'compact') {
+            document.documentElement.classList.add('density-compact');
+        } else if (this.uiDensity === 'spacious') {
+            document.documentElement.classList.add('density-spacious');
+        }
+
+        this._syncDensityUi();
+
+        if (showToast) {
+            const names = {
+                compact: '📦 Компактный (ERP плотность, +50% строк)',
+                standard: '⚖️ Стандартный (Сбалансированный)',
+                spacious: '🖥️ Просторный (Touch / 4K)'
+            };
+            this.playSound('click');
+            this.app._showToast(`Плотность интерфейса: ${names[this.uiDensity] || this.uiDensity}`);
+        }
+    }
+
+    toggleUiDensity(showToast = true) {
+        const next = this.uiDensity === 'compact' ? 'standard' : 'compact';
+        this.setUiDensity(next, showToast);
+    }
+
+    toggleStartMenuCompact(compact) {
+        const startMenu = document.getElementById('startMenu');
+        if (!startMenu) return;
+        const isNow = compact !== undefined ? compact : !startMenu.classList.contains('start-menu-compact');
+        startMenu.classList.toggle('start-menu-compact', isNow);
+        this.startMenuCompact = isNow;
+        localStorage.setItem('pharmagate_start_menu_compact', String(isNow));
+        this._syncStartMenuCompactUi(isNow);
+        this.playSound('click');
+        this.app._showToast(isNow ? "🪟 Меню «Пуск»: Компактный режим" : "🪟 Меню «Пуск»: Обычный размер");
+    }
+
+    setStartMenuSync(enabled) {
+        this.startMenuScaleSync = Boolean(enabled);
+        localStorage.setItem('pharmagate_start_menu_sync', String(this.startMenuScaleSync));
+        this.applyZoom(this.zoomLevel, false);
+    }
+
+    _syncDensityUi() {
+        // 1. Бейдж в Меню Пуск
+        const btnStartMenuDensityToggle = document.getElementById('btnStartMenuDensityToggle');
+        if (btnStartMenuDensityToggle) {
+            btnStartMenuDensityToggle.textContent = this.uiDensity === 'compact' ? '📦 Компакт' : (this.uiDensity === 'spacious' ? '🖥️ Просторный' : '⚖️ Стандарт');
+            btnStartMenuDensityToggle.className = this.uiDensity === 'compact'
+                ? 'px-2 py-0.5 rounded-full bg-blue-600/30 text-blue-300 border border-blue-500/40 font-mono text-[10px] cursor-pointer'
+                : 'px-2 py-0.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-[10px] cursor-pointer';
+        }
+
+        // 2. Вкладка Масштаб в Меню Пуск
+        const startMenuDensityStatus = document.getElementById('startMenuDensityStatus');
+        if (startMenuDensityStatus) {
+            startMenuDensityStatus.textContent = this.uiDensity === 'compact' ? 'Компактный ERP' : (this.uiDensity === 'spacious' ? 'Просторный' : 'Стандартный');
+        }
+        document.querySelectorAll('.btn-start-density').forEach(btn => {
+            const isTarget = (btn.id === 'btnStartDensityCompact' && this.uiDensity === 'compact') ||
+                             (btn.id === 'btnStartDensityStandard' && this.uiDensity === 'standard') ||
+                             (btn.id === 'btnStartDensitySpacious' && this.uiDensity === 'spacious');
+            if (isTarget) {
+                btn.className = 'btn-start-density active p-2 rounded-lg bg-blue-600 text-white border border-blue-500 text-left transition-all';
+                const f = btn.querySelector('.font-bold');
+                if (f) f.className = 'font-bold text-white text-[11px] flex items-center gap-1';
+            } else {
+                btn.className = 'btn-start-density p-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-left transition-all';
+                const f = btn.querySelector('.font-bold');
+                if (f) f.className = 'font-bold text-blue-400 text-[11px] flex items-center gap-1';
+            }
+        });
+
+        // 3. Выпадающее меню панели задач
+        document.querySelectorAll('.btn-dropdown-density').forEach(btn => {
+            const d = btn.getAttribute('data-density');
+            const active = d === this.uiDensity;
+            btn.className = active
+                ? 'btn-dropdown-density px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-600 text-white transition-colors'
+                : 'btn-dropdown-density px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-300 hover:text-white transition-colors';
+        });
+
+        // 4. Виджет рабочего стола
+        const quickWidgetDensityLabel = document.getElementById('quickWidgetDensityLabel');
+        if (quickWidgetDensityLabel) {
+            quickWidgetDensityLabel.textContent = this.uiDensity === 'compact' ? 'Компактный вид: Вкл 📦' : 'Компактный вид: Выкл';
+        }
+
+        // 5. Окно настроек
+        const settingsDensityBadge = document.getElementById('settingsDensityBadge');
+        if (settingsDensityBadge) {
+            settingsDensityBadge.textContent = this.uiDensity === 'compact' ? 'Компактный ERP' : (this.uiDensity === 'spacious' ? 'Просторный' : 'Стандартный');
+        }
+        document.querySelectorAll('.btn-settings-density').forEach(btn => {
+            const d = btn.getAttribute('data-density');
+            const active = d === this.uiDensity;
+            btn.className = active
+                ? 'btn-settings-density p-2 rounded-lg bg-blue-600 text-white border border-blue-500 text-left transition-all'
+                : 'btn-settings-density p-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-left transition-all';
+            const f = btn.querySelector('.font-bold');
+            if (f) {
+                f.className = active ? 'font-bold text-white text-xs flex items-center gap-1' : 'font-bold text-blue-400 text-xs flex items-center gap-1';
+            }
+        });
+    }
+
+    _syncStartMenuCompactUi(isCompact) {
+        const btnCompact = document.getElementById('btnStartMenuCompact');
+        if (btnCompact) {
+            btnCompact.title = isCompact ? "Обычный размер меню" : "Компактный вид меню";
+            btnCompact.textContent = isCompact ? "⊞" : "⊟";
+        }
+        const btnToggleCompact = document.getElementById('btnStartToggleCompactMenu');
+        if (btnToggleCompact) {
+            btnToggleCompact.innerHTML = isCompact ? '<span>⊞</span><span>Обычный вид меню «Пуск»</span>' : '<span>⊟</span><span>Переключить компактный вид меню «Пуск»</span>';
         }
     }
 
@@ -1868,6 +2084,9 @@ export class CrossPlatformHub {
 
         // Сброс на 100%
         document.getElementById('btnQuickWidgetScaleReset')?.addEventListener('click', () => this.applyZoom(1.0, true));
+
+        // Переключение компактности интерфейса
+        document.getElementById('btnQuickWidgetToggleDensity')?.addEventListener('click', () => this.toggleUiDensity(true));
 
         // Кнопка Lite Mode
         document.getElementById('btnQuickWidgetToggleLite')?.addEventListener('click', () => {

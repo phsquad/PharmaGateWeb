@@ -96,8 +96,8 @@
         .os-window.maximized {
             top: 6px !important;
             left: 6px !important;
-            width: calc(100vw - 12px) !important;
-            height: calc(100vh - 60px) !important;
+            width: calc(100% - 12px) !important;
+            height: calc(100% - 12px) !important;
             border-radius: 8px;
         }
 
@@ -763,6 +763,146 @@
             height: auto !important;
             max-height: none !important;
             border-radius: 16px !important;
+            transform: none !important;
+        }
+
+        /* ⊟ КОМПАКТНЫЙ РЕЖИМ МЕНЮ ПУСК */
+        #startMenu.start-menu-compact {
+            width: 580px !important;
+            max-width: 94vw !important;
+            height: 440px !important;
+            max-height: calc(100vh - 60px) !important;
+            border-radius: 14px !important;
+        }
+        #startMenu.start-menu-compact #startMenuHeader {
+            padding: 6px 12px !important;
+        }
+        #startMenu.start-menu-compact aside {
+            width: 140px !important;
+            padding: 6px !important;
+        }
+        #startMenu.start-menu-compact aside button {
+            padding: 3px 6px !important;
+            font-size: 11px !important;
+        }
+        #startMenu.start-menu-compact .start-app-item {
+            padding: 4px 6px !important;
+            gap: 4px !important;
+        }
+        #startMenu.start-menu-compact .start-app-item > div:first-child {
+            width: 36px !important;
+            height: 36px !important;
+            font-size: 18px !important;
+            border-radius: 10px !important;
+        }
+        #startMenu.start-menu-compact .start-app-item .font-semibold {
+            font-size: 10px !important;
+        }
+        #startMenu.start-menu-compact #startSearchInput {
+            padding-top: 4px !important;
+            padding-bottom: 4px !important;
+            font-size: 11px !important;
+        }
+        #startMenu.start-menu-compact #startMenuBody {
+            padding: 8px 12px !important;
+        }
+        #startMenu.start-menu-compact #startAppsGrid {
+            gap: 6px !important;
+        }
+        #startMenu.start-menu-compact #startRecentList > div {
+            padding: 5px 8px !important;
+        }
+
+        /* 📦 ПЛОТНЫЙ / КОМПАКТНЫЙ РЕЖИМ ИНТЕРФЕЙСА (ERP COMPACT DENSITY) */
+        html.density-compact .os-window {
+            border-radius: 8px !important;
+        }
+        html.density-compact .os-window .win-header {
+            height: 32px !important;
+            padding: 2px 10px !important;
+        }
+        html.density-compact .os-window .win-title {
+            font-size: 11px !important;
+        }
+        html.density-compact .os-window .win-btn-close,
+        html.density-compact .os-window .win-btn-max,
+        html.density-compact .os-window .win-btn-min {
+            width: 20px !important;
+            height: 20px !important;
+            font-size: 9px !important;
+        }
+        /* Уплотнение строк таблиц для вывода максимума позиций накладной */
+        html.density-compact .os-window table th,
+        html.density-compact .os-window table td {
+            padding: 3px 6px !important;
+            font-size: 11px !important;
+            line-height: 1.25 !important;
+        }
+        html.density-compact .os-window table tr {
+            height: 24px !important;
+        }
+        html.density-compact .os-window .win-toolbar {
+            padding: 4px 8px !important;
+            min-height: 32px !important;
+            gap: 4px !important;
+        }
+        html.density-compact .os-window button,
+        html.density-compact .os-window input,
+        html.density-compact .os-window select {
+            font-size: 11px !important;
+        }
+        /* Компактная панель задач */
+        html.density-compact footer#taskbar {
+            height: 38px !important;
+            padding-left: 8px !important;
+            padding-right: 8px !important;
+        }
+        html.density-compact #taskbarAppsContainer button {
+            height: 26px !important;
+            padding: 2px 8px !important;
+            font-size: 11px !important;
+        }
+        html.density-compact #btnStartMenu {
+            width: 28px !important;
+            height: 28px !important;
+            font-size: 12px !important;
+        }
+        /* Компактные значки на рабочем столе */
+        html.density-compact .desktop-icon {
+            width: 74px !important;
+            padding: 4px !important;
+        }
+        html.density-compact .desktop-icon > div:first-child {
+            width: 38px !important;
+            height: 38px !important;
+            font-size: 18px !important;
+            border-radius: 10px !important;
+        }
+        html.density-compact .desktop-icon span {
+            font-size: 10px !important;
+        }
+        /* Компактное меню Пуск при активной плотности */
+        html.density-compact #startMenu:not(.start-menu-fullscreen) {
+            width: 600px !important;
+            height: 460px !important;
+        }
+
+        /* 🖥️ ПРОСТОРНЫЙ РЕЖИМ (TOUCH / 4K SPACING) */
+        html.density-spacious .os-window table th,
+        html.density-spacious .os-window table td {
+            padding: 8px 12px !important;
+            font-size: 13px !important;
+        }
+        html.density-spacious footer#taskbar {
+            height: 48px !important;
+        }
+        html.density-spacious .desktop-icon {
+            width: 108px !important;
+        }
+        html.density-spacious .desktop-icon > div:first-child {
+            width: 52px !important;
+            height: 52px !important;
+            font-size: 26px !important;
         }
 
         /* Визуальное оформление ярлыков в меню Пуск */
@@ -779,11 +919,11 @@
         }
 
         /* Аккуратная подсветка кнопок масштабирования */
-        .btn-quick-scale, .btn-start-scale-preset {
+        .btn-quick-scale, .btn-start-scale-preset, .btn-scale-preset, .btn-start-density {
             transition: all 0.15s ease !important;
         }
-        .btn-quick-scale:hover, .btn-start-scale-preset:hover {
-            transform: scale(1.04);
+        .btn-quick-scale:hover, .btn-start-scale-preset:hover, .btn-scale-preset:hover, .btn-start-density:hover {
+            transform: scale(1.03);
         }
     </style>
 </head>
@@ -997,6 +1137,13 @@
                                 data-tooltip-title="🔍 Сброс масштаба"
                                 data-tooltip-desc="Возврат базового масштаба 100% (1:1)."
                                 class="text-slate-400 hover:text-white underline">100% (сброс)</button>
+                    </div>
+                    <div class="flex items-center justify-between text-[10px] pt-1.5 border-t border-white/10">
+                        <button id="btnQuickWidgetToggleDensity" class="text-blue-400 hover:text-blue-300 flex items-center gap-1 font-semibold" title="Переключить компактный/обычный вид интерфейса">
+                            <span>📦</span>
+                            <span id="quickWidgetDensityLabel">Компактный вид: Выкл</span>
+                        </button>
+                        <span class="text-[9px] text-slate-400">ERP плотность</span>
                     </div>
                 </div>
 
@@ -1526,6 +1673,30 @@
                                 <span id="autoDpiStatusBadge" class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-mono">Выкл</span>
                             </div>
 
+                            <!-- Режим плотности интерфейса (Компактный ERP / Стандартный / Просторный) -->
+                            <div class="p-3 rounded-lg bg-[#040711] border border-slate-800 space-y-2">
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="font-semibold text-white flex items-center gap-1.5">
+                                        <span>📦</span> Плотность интерфейса (UI Density):
+                                    </span>
+                                    <span id="settingsDensityBadge" class="text-[10px] text-blue-400 font-mono">Стандартный</span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 text-xs">
+                                    <button class="btn-settings-density p-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-left transition-all" data-density="compact">
+                                        <div class="font-bold text-blue-400 text-xs flex items-center gap-1">📦 Компактный</div>
+                                        <div class="text-[10px] text-slate-400 mt-0.5 leading-tight">Плотные таблицы, +50% строк, тонкий таскбар</div>
+                                    </button>
+                                    <button class="btn-settings-density p-2 rounded-lg bg-blue-600 text-white border border-blue-500 text-left transition-all" data-density="standard">
+                                        <div class="font-bold text-white text-xs flex items-center gap-1">⚖️ Стандартный</div>
+                                        <div class="text-[10px] text-blue-100 mt-0.5 leading-tight">Сбалансированные отступы под мышь и тачпад</div>
+                                    </button>
+                                    <button class="btn-settings-density p-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-left transition-all" data-density="spacious">
+                                        <div class="font-bold text-cyan-400 text-xs flex items-center gap-1">🖥️ Просторный</div>
+                                        <div class="text-[10px] text-slate-400 mt-0.5 leading-tight">Увеличенные кнопки для больших мониторов</div>
+                                    </button>
+                                </div>
+                            </div>
+
                             <!-- Процентное масштабирование со слайдером и кнопками -->
                             <div class="space-y-2">
                                 <div class="flex items-center justify-between">
@@ -2023,6 +2194,7 @@
                 <button id="btnStartMenuClose" class="w-3.5 h-3.5 rounded-full bg-red-500 hover:bg-red-600 transition-colors flex items-center justify-center text-[8px] font-bold text-slate-950 shadow-sm" title="Закрыть">✕</button>
                 <button id="btnStartMenuMinimize" class="w-3.5 h-3.5 rounded-full bg-amber-500 hover:bg-amber-600 transition-colors flex items-center justify-center text-[8px] font-bold text-slate-950 shadow-sm" title="Свернуть">_</button>
                 <button id="btnStartMenuMaximize" class="w-3.5 h-3.5 rounded-full bg-emerald-500 hover:bg-emerald-600 transition-colors flex items-center justify-center text-[8px] font-bold text-slate-950 shadow-sm" title="Развернуть на весь экран">⛶</button>
+                <button id="btnStartMenuCompact" class="w-3.5 h-3.5 rounded-full bg-sky-500 hover:bg-sky-400 transition-colors flex items-center justify-center text-[8px] font-bold text-slate-950 shadow-sm" title="Компактный / Обычный вид меню">⊟</button>
                 <span class="ml-2 font-bold text-xs text-slate-200 flex items-center gap-1.5">
                     <span>🪟</span>
                     <span>PharmaGate Mini-Window & macOS Finder</span>
@@ -2030,7 +2202,8 @@
             </div>
 
             <!-- Бейджи профиля и системы -->
-            <div class="flex items-center gap-2 text-[11px]">
+            <div class="flex items-center gap-1.5 text-[11px]">
+                <button id="btnStartMenuDensityToggle" class="px-2 py-0.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-[10px] cursor-pointer" title="Переключить плотность интерфейса (ERP / Стандарт)">📦 Стандарт</button>
                 <span id="startMenuAutoDpiBadge" class="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 font-mono text-[10px]">Auto-DPI</span>
                 <span id="startMenuLiteBadge" class="px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-mono text-[10px]">Lite: Выкл</span>
             </div>
@@ -2337,35 +2510,71 @@
                         <div>
                             <div class="text-xs font-bold text-white flex items-center gap-1.5">
                                 <span>🔍</span>
-                                <span>Масштабирование Экрана</span>
+                                <span>Масштабирование и Плотность Интерфейса</span>
                             </div>
-                            <div class="text-[10px] text-slate-400">Плавный зум интерфейса и авто-адаптация под монитор</div>
+                            <div class="text-[10px] text-slate-400">Плавный зум интерфейса, компактный ERP-режим и авто-DPI</div>
                         </div>
                         <span id="startMenuScaleValueBadge" class="font-mono font-bold text-blue-400 text-xs px-2 py-0.5 rounded bg-blue-500/20 border border-blue-500/40">100%</span>
                     </div>
 
+                    <!-- Блок плотности интерфейса (Компактный / Стандартный / Просторный) -->
+                    <div class="bg-slate-950/60 p-3 rounded-xl border border-white/10 space-y-2">
+                        <div class="text-[11px] font-bold text-slate-300 flex items-center justify-between">
+                            <span>📦 Плотность интерфейса (UI Density):</span>
+                            <span id="startMenuDensityStatus" class="text-blue-400 font-mono text-[10px]">Стандартный</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-1.5 text-xs">
+                            <button id="btnStartDensityCompact" class="btn-start-density p-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-left transition-all">
+                                <div class="font-bold text-blue-400 text-[11px] flex items-center gap-1">📦 Компактный</div>
+                                <div class="text-[9px] text-slate-400 mt-0.5 leading-tight">Плотные таблицы, +50% строк на экране</div>
+                            </button>
+                            <button id="btnStartDensityStandard" class="btn-start-density active p-2 rounded-lg bg-blue-600 text-white border border-blue-500 text-left transition-all">
+                                <div class="font-bold text-white text-[11px] flex items-center gap-1">⚖️ Стандартный</div>
+                                <div class="text-[9px] text-blue-100 mt-0.5 leading-tight">Сбалансированные отступы и шрифты</div>
+                            </button>
+                            <button id="btnStartDensitySpacious" class="btn-start-density p-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-left transition-all">
+                                <div class="font-bold text-cyan-400 text-[11px] flex items-center gap-1">🖥️ Просторный</div>
+                                <div class="text-[9px] text-slate-400 mt-0.5 leading-tight">Крупные элементы для 4K и Touch</div>
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="bg-slate-950/60 p-3 rounded-xl border border-white/10 space-y-3">
+                        <div class="text-[11px] font-bold text-slate-300 flex items-center justify-between">
+                            <span>🔍 Масштаб рабочей области:</span>
+                            <span class="text-[10px] text-slate-400 font-mono">от 70% до 150%</span>
+                        </div>
                         <div class="flex items-center gap-2.5">
                             <button id="btnStartScaleMinus" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm font-bold transition-colors">-</button>
-                            <input id="startScaleSlider" type="range" min="75" max="150" step="5" value="100" class="flex-1 accent-blue-500 h-2 bg-slate-800 rounded-lg cursor-pointer">
+                            <input id="startScaleSlider" type="range" min="70" max="150" step="5" value="100" class="flex-1 accent-blue-500 h-2 bg-slate-800 rounded-lg cursor-pointer">
                             <button id="btnStartScalePlus" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm font-bold transition-colors">+</button>
                         </div>
 
                         <!-- Пресеты -->
                         <div class="grid grid-cols-6 gap-1 text-[11px] font-mono">
                             <button class="btn-start-scale-preset py-1 rounded bg-slate-800 hover:bg-blue-600 transition-colors text-center" data-scale="0.75">75%</button>
+                            <button class="btn-start-scale-preset py-1 rounded bg-slate-800 hover:bg-blue-600 transition-colors text-center" data-scale="0.85">85%</button>
                             <button class="btn-start-scale-preset py-1 rounded bg-slate-800 hover:bg-blue-600 transition-colors text-center" data-scale="0.90">90%</button>
                             <button class="btn-start-scale-preset py-1 rounded bg-slate-800 hover:bg-blue-600 transition-colors text-center" data-scale="1.00">100%</button>
-                            <button class="btn-start-scale-preset py-1 rounded bg-slate-800 hover:bg-blue-600 transition-colors text-center" data-scale="1.10">110%</button>
+                            <button class="btn-start-scale-preset py-1 rounded bg-slate-800 hover:bg-blue-600 transition-colors text-center" data-scale="1.15">115%</button>
                             <button class="btn-start-scale-preset py-1 rounded bg-slate-800 hover:bg-blue-600 transition-colors text-center" data-scale="1.25">125%</button>
-                            <button class="btn-start-scale-preset py-1 rounded bg-slate-800 hover:bg-blue-600 transition-colors text-center" data-scale="1.50">150%</button>
                         </div>
 
-                        <div class="flex items-center justify-between pt-1 border-t border-white/5 text-xs">
+                        <div class="grid grid-cols-2 gap-2 pt-1 border-t border-white/5 text-xs">
                             <label class="flex items-center gap-1.5 cursor-pointer text-slate-300 hover:text-white">
                                 <input id="chkStartAutoDpi" type="checkbox" class="rounded accent-blue-600 cursor-pointer">
-                                <span>Auto-DPI (авто-подбор под разрешение)</span>
+                                <span>Auto-DPI под экран</span>
                             </label>
+                            <label class="flex items-center gap-1.5 cursor-pointer text-slate-300 hover:text-white">
+                                <input id="chkStartSyncScale" type="checkbox" checked class="rounded accent-blue-600 cursor-pointer">
+                                <span>Масштабировать меню «Пуск»</span>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between pt-1 border-t border-white/5 text-xs">
+                            <button id="btnStartToggleCompactMenu" class="text-blue-400 hover:text-blue-300 text-[11px] flex items-center gap-1 font-semibold">
+                                <span>⊟</span>
+                                <span>Переключить компактный вид меню «Пуск»</span>
+                            </button>
                             <button id="btnStartResetZoom" class="text-slate-400 hover:text-white underline text-[11px]">Сброс на 100%</button>
                         </div>
                     </div>
@@ -2594,12 +2803,21 @@
                 </div>
 
                 <!-- Всплывающее мини-окно масштабирования -->
-                <div id="quickScaleDropdown" class="hidden absolute right-0 bottom-full mb-2.5 w-64 bg-[#090d16]/98 backdrop-blur-2xl border border-slate-700/90 rounded-2xl shadow-2xl p-3 z-50 text-xs space-y-2.5">
+                <div id="quickScaleDropdown" class="hidden absolute right-0 bottom-full mb-2.5 w-72 bg-[#090d16]/98 backdrop-blur-2xl border border-slate-700/90 rounded-2xl shadow-2xl p-3 z-50 text-xs space-y-2.5">
                     <div class="flex items-center justify-between pb-1.5 border-b border-slate-800">
                         <span class="font-bold text-white text-xs flex items-center gap-1.5">
-                            <span>🔍</span> Масштаб экрана
+                            <span>🔍</span> Масштаб & Плотность
                         </span>
                         <span id="dropdownDpiBadge" class="text-[9px] font-mono text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">100%</span>
+                    </div>
+
+                    <!-- Быстрый выбор плотности интерфейса -->
+                    <div class="flex items-center justify-between p-1.5 rounded-lg bg-[#040711] border border-slate-800 text-[11px]">
+                        <span class="text-slate-300 font-medium">Плотность UI:</span>
+                        <div class="flex items-center gap-1">
+                            <button id="btnDropdownDensityCompact" class="btn-dropdown-density px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-300 hover:text-white transition-colors" data-density="compact">📦 Компакт</button>
+                            <button id="btnDropdownDensityStandard" class="btn-dropdown-density px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-600 text-white transition-colors" data-density="standard">⚖️ Норма</button>
+                        </div>
                     </div>
 
                     <label class="flex items-center justify-between p-1.5 rounded-lg bg-[#040711] border border-slate-800 text-[11px] cursor-pointer">
@@ -2609,14 +2827,15 @@
 
                     <div class="space-y-1">
                         <div class="flex items-center justify-between text-[10px] text-slate-400">
-                            <span>Процентный масштаб:</span>
+                            <span>Масштаб рабочей области:</span>
                             <span id="dropdownScaleVal" class="font-mono font-bold text-blue-400">100%</span>
                         </div>
-                        <input type="range" id="dropdownScaleSlider" min="75" max="175" step="5" value="100" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                        <input type="range" id="dropdownScaleSlider" min="70" max="150" step="5" value="100" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500">
                     </div>
 
-                    <div class="grid grid-cols-5 gap-1 pt-1 border-t border-slate-800/80">
+                    <div class="grid grid-cols-6 gap-1 pt-1 border-t border-slate-800/80">
                         <button data-quickscale="0.75" class="btn-quick-scale py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-[10px] text-center transition-colors">75%</button>
+                        <button data-quickscale="0.85" class="btn-quick-scale py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-[10px] text-center transition-colors">85%</button>
                         <button data-quickscale="0.90" class="btn-quick-scale py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-[10px] text-center transition-colors">90%</button>
                         <button data-quickscale="1.00" class="btn-quick-scale py-0.5 rounded bg-blue-600 text-white font-mono text-[10px] text-center font-bold transition-colors">100%</button>
                         <button data-quickscale="1.15" class="btn-quick-scale py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-[10px] text-center transition-colors">115%</button>
