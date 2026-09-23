@@ -10,7 +10,6 @@ const ASSETS_TO_CACHE = [
     './',
     './index.html',
     './manifest.json',
-    './css/tailwind.min.css',
     './css/tabulator_custom.css',
     './js/app.js',
     './js/engine/app_config.js',
@@ -27,17 +26,16 @@ const ASSETS_TO_CACHE = [
     './js/services/universal_importer.js',
     './js/services/reconciler_service.js',
     './js/services/export_service.js',
-    './js/ui/grid_controller.js',
-    './vendor/tabulator/tabulator.min.js',
-    './vendor/sheetjs/xlsx.full.min.js',
-    './vendor/pako/pako.min.js'
+    './js/ui/grid_controller.js'
 ];
 
 self.addEventListener('install', event => {
     event.waitUntil(
-        caches.open(CACHE_NAME).then(cache => {
-            console.log('[PWA] Кэширование всех модулей для автономной работы...');
-            return cache.addAll(ASSETS_TO_CACHE);
+        caches.open(CACHE_NAME).then(async cache => {
+            console.log('[PWA] Кэширование модулей для автономной работы...');
+            await Promise.allSettled(
+                ASSETS_TO_CACHE.map(url => cache.add(url).catch(err => console.warn(`[PWA] Пропущен кэш ${url}:`, err)))
+            );
         }).then(() => self.skipWaiting())
     );
 });

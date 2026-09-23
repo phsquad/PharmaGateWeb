@@ -649,13 +649,13 @@ export class PharmaGateWebOS {
         });
 
         document.getElementById('btnExportTorg12')?.addEventListener('click', () => {
-            if (!this.records.length) return alert("Накладная пуста!");
+            if (!this.records.length) return this._showToast("⚠️ Накладная пуста!");
             Torg12ExcelGenerator.generate(this.records, { ndoc: this.records[0]?.NDOC, datedoc: this.records[0]?.DATEDOC });
             this._showToast("📄 Накладная ТОРГ-12 выгружена в Excel!");
         });
 
         document.getElementById('btnExportUpd')?.addEventListener('click', () => {
-            if (!this.records.length) return alert("Накладная пуста!");
+            if (!this.records.length) return this._showToast("⚠️ Накладная пуста!");
             UpdFns970Generator.downloadXml(this.records, this.metaHeader);
             this._showToast("📑 Титул продавца XML УПД 970@ (Windows-1251) успешно сформирован!");
         });
@@ -791,7 +791,7 @@ export class PharmaGateWebOS {
     _updateFieldReq(idx, val) { this.schema.fields[idx].required = val; }
     _updateFieldUser(idx, val) { this.schema.fields[idx].userName = val; }
     _deleteField(idx) {
-        if (this.schema.fields.length <= 1) return alert("Схема обязана содержать хотя бы одно поле!");
+        if (this.schema.fields.length <= 1) return this._showToast("⚠️ Схема обязана содержать хотя бы одно поле!");
         this.schema.fields.splice(idx, 1);
         this._renderSchemaDesigner();
     }
@@ -814,7 +814,7 @@ export class PharmaGateWebOS {
         document.getElementById('erpSearchInput')?.addEventListener('input', (e) => this._refreshErpTable(e.target.value));
 
         document.getElementById('btnSyncDbWithInvoice')?.addEventListener('click', () => {
-            if (!this.records || this.records.length === 0) return alert("Накладная пуста: откройте файл перед синхронизацией!");
+            if (!this.records || this.records.length === 0) return this._showToast("⚠️ Накладная пуста: откройте файл перед синхронизацией!");
             const count = SQLiteWasmService.bulkInsertProducts(this.records);
             this._refreshErpTable();
             this._showToast(`✅ СУБД Mini-ERP пополнена на ${count} номенклатурных позиций!`);
@@ -822,7 +822,7 @@ export class PharmaGateWebOS {
 
         document.getElementById('btnExportDbExcel')?.addEventListener('click', () => {
             const { records } = SQLiteWasmService.searchProductsPaginated("", 5000);
-            if (!records || records.length === 0) return alert("Справочник номенклатуры пуст!");
+            if (!records || records.length === 0) return this._showToast("⚠️ Справочник номенклатуры пуст!");
             const ws = window.XLSX.utils.json_to_sheet(records);
             const wb = window.XLSX.utils.book_new();
             window.XLSX.utils.book_append_sheet(wb, ws, "Номенклатура");
@@ -902,7 +902,7 @@ export class PharmaGateWebOS {
     }
 
     _runReconciliation() {
-        if (!this.orderRecords || this.orderRecords.length === 0) return alert("Загрузите файл заказа!");
+        if (!this.orderRecords || this.orderRecords.length === 0) return this._showToast("⚠️ Загрузите файл заказа!");
 
         const rep = ReconcilerService.reconcile(this.orderRecords, this.records);
         this.currentReconciliation = rep;
@@ -1017,7 +1017,7 @@ export class PharmaGateWebOS {
     }
 
     _executeKbAction(actionType, title) {
-        if (!this.records || this.records.length === 0) return alert("Накладная пуста!");
+        if (!this.records || this.records.length === 0) return this._showToast("⚠️ Накладная пуста!");
 
         this._saveSnapshot();
         let fixed = 0;

@@ -1,0 +1,7 @@
+{
+  "name": "PharmaGate AccessForge Studio",
+  "description": "Промышленный фармацевтический EDI/DBF шлюз, конструктор MS Access и валидатор ФЛК",
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
