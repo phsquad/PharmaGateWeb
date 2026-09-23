@@ -1253,7 +1253,7 @@ export class PharmaGateWebOS {
             this._showToast(`✅ Документ '${file.name}' (${this.records.length} строк) успешно загружен!`);
         } catch (e) {
             console.error(e);
-            alert(`Ошибка чтения файла:\n${e.message}`);
+            this._showToast(`❌ Ошибка чтения файла: ${e.message}`);
         }
     }
 
@@ -1302,12 +1302,84 @@ export class PharmaGateWebOS {
     }
 
     _bindDragAndDrop() {
-        window.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; });
-        window.addEventListener('drop', async (e) => {
+        const overlay = document.getElementById('dragDropOverlay');
+        let dragCounter = 0;
+
+        const preventAll = (e) => {
             e.preventDefault();
-            const files = e.dataTransfer.files;
-            if (files && files.length > 0) await this.loadFile(files[0]);
+            e.stopPropagation();
+        };
+
+        // Захват всех фаз drag-and-drop в capture phase для предотвращения навигации браузера на file:///
+        const events = ['dragenter', 'dragover', 'dragleave', 'drop'];
+        events.forEach(eventName => {
+            window.addEventListener(eventName, preventAll, { capture: true, passive: false });
+            document.addEventListener(eventName, preventAll, { capture: true, passive: false });
         });
+
+        const showOverlay = () => {
+            if (overlay) {
+                overlay.classList.remove('opacity-0', 'pointer-events-none');
+                overlay.classList.add('opacity-100', 'pointer-events-auto');
+            }
+        };
+
+        const hideOverlay = () => {
+            if (overlay) {
+                overlay.classList.remove('opacity-100', 'pointer-events-auto');
+                overlay.classList.add('opacity-0', 'pointer-events-none');
+            }
+        };
+
+        window.addEventListener('dragenter', (e) => {
+            preventAll(e);
+            dragCounter++;
+            if (e.dataTransfer) {
+                e.dataTransfer.dropEffect = 'copy';
+                showOverlay();
+            }
+        }, { capture: true, passive: false });
+
+        window.addEventListener('dragover', (e) => {
+            preventAll(e);
+            if (e.dataTransfer) {
+                e.dataTransfer.dropEffect = 'copy';
+            }
+        }, { capture: true, passive: false });
+
+        window.addEventListener('dragleave', (e) => {
+            preventAll(e);
+            dragCounter--;
+            if (dragCounter <= 0) {
+                dragCounter = 0;
+                hideOverlay();
+            }
+        }, { capture: true, passive: false });
+
+        window.addEventListener('drop', async (e) => {
+            preventAll(e);
+            dragCounter = 0;
+            hideOverlay();
+
+            const files = e.dataTransfer?.files;
+            if (files && files.length > 0) {
+                const file = files[0];
+                const activeWin = document.querySelector('.os-window.active-window');
+                if (activeWin && activeWin.id === 'winReconcile' && /заказ|order/i.test(file.name)) {
+                    try {
+                        const rep = await UniversalImporter.importFile(file, file.name);
+                        this.orderRecords = rep.mappedRecords;
+                        this._runReconciliation();
+                        this._showToast(`⚖️ Файл заказа '${file.name}' обработан!`);
+                    } catch (err) {
+                        this._showToast(`❌ Ошибка загрузки заказа: ${err.message}`);
+                    }
+                } else {
+                    this.openApp('winEditor');
+                    await this.loadFile(file);
+                }
+            }
+        }, { capture: true, passive: false });
     }
 
     _startSessionAutoSaver() {

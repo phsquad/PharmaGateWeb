@@ -464,11 +464,12 @@ export class UpdFns970Generator {
         const { arrayBuffer, fileId } = this.generateXml(records, metaHeader);
         const blob = new Blob([arrayBuffer], { type: 'application/xml;charset=windows-1251' });
         const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
+        const blobUrl = URL.createObjectURL(blob);
+        link.href = blobUrl;
         link.download = `${fileId}.xml`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        URL.revokeObjectURL(link.href);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
     }
 }

@@ -281,11 +281,12 @@ export class WebDBFEngine {
     static downloadAsFile(arrayBuffer, filename = "document.dbf") {
         const blob = new Blob([arrayBuffer], { type: "application/x-dbf" });
         const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
+        const blobUrl = URL.createObjectURL(blob);
+        link.href = blobUrl;
         link.download = filename;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        URL.revokeObjectURL(link.href);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
     }
 }
