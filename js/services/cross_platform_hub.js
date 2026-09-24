@@ -37,6 +37,26 @@ export class CrossPlatformHub {
         this.startMenuCompact = localStorage.getItem('pharmagate_start_menu_compact') === 'true';
         this.startMenuScaleSync = localStorage.getItem('pharmagate_start_menu_sync') !== 'false';
         this.customWallpaper = localStorage.getItem('pharmagate_custom_wallpaper') || '';
+        this.taskbarPos = localStorage.getItem('pharmagate_taskbar_pos') || 'bottom';
+        this.timeFormat = localStorage.getItem('pharmagate_time_format') || '24';
+        this.timeZone = localStorage.getItem('pharmagate_timezone') || 'msk';
+        this.timeSeconds = localStorage.getItem('pharmagate_time_seconds') === 'true';
+        this.timeShowDate = localStorage.getItem('pharmagate_time_show_date') !== 'false';
+        this.timeShowDow = localStorage.getItem('pharmagate_time_show_dow') !== 'false';
+        this.optimizationProfile = localStorage.getItem('pharmagate_opt_profile') || 'laptop';
+        this.optAnimations = localStorage.getItem('pharmagate_opt_animations') !== 'false';
+        this.optBackdropBlur = localStorage.getItem('pharmagate_opt_blur') !== 'false';
+        this.optBoxShadows = localStorage.getItem('pharmagate_opt_shadows') !== 'false';
+        this.optTurboGrid = localStorage.getItem('pharmagate_opt_turbogrid') === 'true';
+        this.optFlkAuditMode = localStorage.getItem('pharmagate_opt_flk_mode') || 'debounce';
+        this.optBatterySaver = localStorage.getItem('pharmagate_opt_battery') === 'true';
+        this.optTouchMode = localStorage.getItem('pharmagate_opt_touch') === 'true';
+        this.optGzipCache = localStorage.getItem('pharmagate_opt_gzip') !== 'false';
+        this.calCurrentYear = new Date().getFullYear();
+        this.calCurrentMonth = new Date().getMonth();
+        this.pharmaTimerSeconds = 15 * 60;
+        this.pharmaTimerRunning = false;
+        this.pharmaTimerInterval = null;
         this.audioCtx = null;
     }
 
@@ -89,6 +109,10 @@ export class CrossPlatformHub {
         this._initLiteMode();
         this._initScaleAndDpiControls();
         this._initDesktopQuickWidget();
+        this._initTimeAndClock();
+        this._initHardwareOptimization();
+        this._initDesktopGadgets();
+        this._initTaskbarPositionAndStyle();
         console.log(`[CrossPlatformHub] Инициализирован. ОС: ${this.detectedOs} (Режим: ${this.configuredOs}), Перевод строк: ${this.activeLineEnding.toUpperCase()}, Звук: ${this.audioEnabled}, Тема: ${this.activeTheme}, Lite-Mode: ${this.liteModeEnabled}`);
     }
 
@@ -1295,6 +1319,60 @@ export class CrossPlatformHub {
                 if (blur) this.setWindowBlur(blur, true);
             });
         });
+
+        // Фильтры обоев (Размытие и Затемнение)
+        this.setWallpaperFilters(undefined, undefined, false);
+        const sliderBlur = document.getElementById('sliderWpBlur');
+        const sliderDim = document.getElementById('sliderWpDim');
+        if (sliderBlur) {
+            sliderBlur.addEventListener('input', (e) => {
+                this.setWallpaperFilters(e.target.value, undefined, false);
+            });
+            sliderBlur.addEventListener('change', (e) => {
+                this.setWallpaperFilters(e.target.value, undefined, true);
+            });
+        }
+        if (sliderDim) {
+            sliderDim.addEventListener('input', (e) => {
+                this.setWallpaperFilters(undefined, e.target.value, false);
+            });
+            sliderDim.addEventListener('change', (e) => {
+                this.setWallpaperFilters(undefined, e.target.value, true);
+            });
+        }
+        document.getElementById('btnResetWallpaperFilters')?.addEventListener('click', () => {
+            this.setWallpaperFilters(0, 100, true);
+        });
+
+        // Сортировка значков
+        document.getElementById('btnSortIconsName')?.addEventListener('click', () => this.sortIcons('name'));
+        document.getElementById('btnSortIconsType')?.addEventListener('click', () => this.sortIcons('type'));
+        document.getElementById('btnSortIconsUsage')?.addEventListener('click', () => this.sortIcons('usage'));
+    }
+
+    setWallpaperFilters(blur, dim, showToast = false) {
+        this.wallpaperBlur = blur !== undefined ? parseInt(blur, 10) : parseInt(localStorage.getItem('pharmagate_wp_blur') || '0', 10);
+        this.wallpaperDim = dim !== undefined ? parseInt(dim, 10) : parseInt(localStorage.getItem('pharmagate_wp_dim') || '100', 10);
+
+        document.documentElement.style.setProperty('--wp-blur', `${this.wallpaperBlur}px`);
+        document.documentElement.style.setProperty('--wp-dim', `${this.wallpaperDim}%`);
+
+        localStorage.setItem('pharmagate_wp_blur', String(this.wallpaperBlur));
+        localStorage.setItem('pharmagate_wp_dim', String(this.wallpaperDim));
+
+        const blurLabel = document.getElementById('wpBlurVal');
+        const dimLabel = document.getElementById('wpDimVal');
+        const sliderBlur = document.getElementById('sliderWpBlur');
+        const sliderDim = document.getElementById('sliderWpDim');
+        if (blurLabel) blurLabel.innerText = `${this.wallpaperBlur}px`;
+        if (dimLabel) dimLabel.innerText = `${this.wallpaperDim}%`;
+        if (sliderBlur) sliderBlur.value = String(this.wallpaperBlur);
+        if (sliderDim) sliderDim.value = String(this.wallpaperDim);
+
+        if (showToast) {
+            this.playSound('click');
+            this.app._showToast(`✨ Эффекты обоев: Размытие ${this.wallpaperBlur}px, Яркость ${this.wallpaperDim}%`);
+        }
     }
 
     setCustomWallpaper(urlOrData, showToast = true) {
@@ -1302,7 +1380,7 @@ export class CrossPlatformHub {
         this.customWallpaper = urlOrData;
         localStorage.setItem('pharmagate_custom_wallpaper', urlOrData);
 
-        const validWps = ['deep-space', 'emerald', 'slate', 'aurora', 'amethyst', 'obsidian', 'light-minimal', 'cyber-grid', 'nebula'];
+        const validWps = ['deep-space', 'emerald', 'slate', 'aurora', 'amethyst', 'obsidian', 'light-minimal', 'cyber-grid', 'nebula', 'win11-bloom', 'win-xp', 'win7-aero', 'macos-sonoma', 'macos-monterey', 'ubuntu-noble', 'matrix-rain'];
         validWps.forEach(w => document.body.classList.remove(`wp-${w}`));
 
         document.body.style.backgroundImage = `url("${urlOrData}")`;
@@ -1325,7 +1403,7 @@ export class CrossPlatformHub {
     }
 
     setWallpaper(wpId, showToast = true) {
-        const validWps = ['deep-space', 'emerald', 'slate', 'aurora', 'amethyst', 'obsidian', 'light-minimal', 'cyber-grid', 'nebula'];
+        const validWps = ['deep-space', 'emerald', 'slate', 'aurora', 'amethyst', 'obsidian', 'light-minimal', 'cyber-grid', 'nebula', 'win11-bloom', 'win-xp', 'win7-aero', 'macos-sonoma', 'macos-monterey', 'ubuntu-noble', 'matrix-rain'];
         if (!validWps.includes(wpId)) wpId = 'deep-space';
 
         this.customWallpaper = '';
@@ -1358,7 +1436,14 @@ export class CrossPlatformHub {
                 'obsidian': 'Чистый Обсидиан',
                 'light-minimal': 'Светлый Минимал',
                 'cyber-grid': 'Кибер-Сетка',
-                'nebula': 'Туманность'
+                'nebula': 'Туманность',
+                'win11-bloom': 'Windows 11 Bloom',
+                'win-xp': 'Windows XP Bliss',
+                'win7-aero': 'Windows 7 Aero',
+                'macos-sonoma': 'macOS Sonoma Horizon',
+                'macos-monterey': 'macOS Monterey Wave',
+                'ubuntu-noble': 'Ubuntu 24.04 Noble',
+                'matrix-rain': 'Matrix Rain Terminal'
             };
             this.app._showToast(`🎨 Обои рабочего стола: ${names[wpId] || wpId}`);
         }
@@ -2141,4 +2226,849 @@ export class CrossPlatformHub {
                 : 'px-3 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[10px] transition-colors shadow';
         }
     }
+
+    // =========================================================================
+    // 17. ПОЛОЖЕНИЕ И СТИЛЬ ПАНЕЛИ ЗАДАЧ / DOCK (WINDOWS / LINUX / MACOS)
+    // =========================================================================
+
+    _initTaskbarPositionAndStyle() {
+        this.setTaskbarPosition(this.taskbarPos, false);
+
+        document.querySelectorAll('.btn-setting-tb-pos').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const pos = btn.getAttribute('data-set-tb');
+                if (pos) this.setTaskbarPosition(pos, true);
+            });
+        });
+
+        document.querySelectorAll('.btn-quick-tb-pos').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const pos = btn.getAttribute('data-tb-pos');
+                if (pos) this.setTaskbarPosition(pos, true);
+            });
+        });
+    }
+
+    setTaskbarPosition(pos, showToast = true) {
+        const valid = ['bottom', 'top', 'left', 'macos-dock'];
+        if (!valid.includes(pos)) pos = 'bottom';
+
+        this.taskbarPos = pos;
+        localStorage.setItem('pharmagate_taskbar_pos', pos);
+
+        document.body.classList.remove('taskbar-pos-top', 'taskbar-pos-left', 'taskbar-pos-right', 'dock-style-macos');
+
+        if (pos === 'top') {
+            document.body.classList.add('taskbar-pos-top');
+        } else if (pos === 'left') {
+            document.body.classList.add('taskbar-pos-left');
+        } else if (pos === 'macos-dock') {
+            document.body.classList.add('dock-style-macos');
+        }
+
+        // Синхронизация активных кнопок в настройках
+        document.querySelectorAll('.btn-setting-tb-pos').forEach(btn => {
+            const match = btn.getAttribute('data-set-tb') === pos;
+            btn.classList.toggle('border-blue-500', match);
+            btn.classList.toggle('border-2', match);
+            btn.classList.toggle('border-slate-800', !match);
+        });
+
+        // Синхронизация кнопок в быстром виджете
+        document.querySelectorAll('.btn-quick-tb-pos').forEach(btn => {
+            const match = btn.getAttribute('data-tb-pos') === pos;
+            if (match) {
+                btn.className = 'btn-quick-tb-pos py-1 rounded bg-blue-600 text-white font-semibold text-center hover:bg-blue-500 transition-colors';
+            } else {
+                btn.className = 'btn-quick-tb-pos py-1 rounded bg-slate-800 text-slate-300 text-center hover:bg-slate-700 transition-colors';
+            }
+        });
+
+        const label = document.getElementById('quickTaskbarPosLabel');
+        const posNames = {
+            'bottom': 'Снизу (Win)',
+            'top': 'Сверху (macOS/GNOME)',
+            'left': 'Слева (Ubuntu)',
+            'macos-dock': 'macOS Dock'
+        };
+        if (label) label.innerText = posNames[pos] || pos;
+
+        if (showToast) {
+            this.playSound('click');
+            this.app?._showToast?.(`🪟 Положение панели: ${posNames[pos] || pos}`);
+        }
+    }
+
+    // =========================================================================
+    // 18. ВРЕМЯ, ЧАСОВОЙ ПОЯС, КАЛЕНДАРЬ И РЕГЛАМЕНТНЫЙ ТАЙМЕР
+    // =========================================================================
+
+    _initTimeAndClock() {
+        const selFormat = document.getElementById('settingTimeFormat');
+        const selTimezone = document.getElementById('settingTimezone');
+        const chkSeconds = document.getElementById('chkTimeSeconds');
+        const chkDate = document.getElementById('chkTimeShowDate');
+        const chkDow = document.getElementById('chkTimeShowDow');
+
+        if (selFormat) {
+            selFormat.value = this.timeFormat;
+            selFormat.addEventListener('change', (e) => {
+                this.timeFormat = e.target.value;
+                localStorage.setItem('pharmagate_time_format', this.timeFormat);
+                this._updateClockTick();
+                this.playSound('click');
+            });
+        }
+
+        if (selTimezone) {
+            selTimezone.value = this.timeZone;
+            selTimezone.addEventListener('change', (e) => {
+                this.timeZone = e.target.value;
+                localStorage.setItem('pharmagate_timezone', this.timeZone);
+                this._updateClockTick();
+                this.playSound('click');
+            });
+        }
+
+        if (chkSeconds) {
+            chkSeconds.checked = this.timeSeconds;
+            chkSeconds.addEventListener('change', (e) => {
+                this.timeSeconds = e.target.checked;
+                localStorage.setItem('pharmagate_time_seconds', String(this.timeSeconds));
+                this._updateClockTick();
+            });
+        }
+
+        if (chkDate) {
+            chkDate.checked = this.timeShowDate;
+            chkDate.addEventListener('change', (e) => {
+                this.timeShowDate = e.target.checked;
+                localStorage.setItem('pharmagate_time_show_date', String(this.timeShowDate));
+                this._updateClockTick();
+            });
+        }
+
+        if (chkDow) {
+            chkDow.checked = this.timeShowDow;
+            chkDow.addEventListener('change', (e) => {
+                this.timeShowDow = e.target.checked;
+                localStorage.setItem('pharmagate_time_show_dow', String(this.timeShowDow));
+                this._updateClockTick();
+            });
+        }
+
+        // Клик по часам в таскбаре открывает календарь
+        const systemClock = document.getElementById('systemClock');
+        if (systemClock) {
+            systemClock.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggleTimeFlyout();
+            });
+        }
+
+        const btnFlyoutClose = document.getElementById('btnTimeFlyoutClose');
+        if (btnFlyoutClose) {
+            btnFlyoutClose.addEventListener('click', () => this.toggleTimeFlyout(false));
+        }
+
+        const btnGadgetFlyout = document.getElementById('btnGadgetOpenFlyout');
+        if (btnGadgetFlyout) {
+            btnGadgetFlyout.addEventListener('click', () => this.toggleTimeFlyout(true));
+        }
+
+        // Закрытие при клике мимо всплывающего окна времени
+        document.addEventListener('click', (e) => {
+            const flyout = document.getElementById('timeFlyoutModal');
+            if (flyout && !flyout.classList.contains('hidden')) {
+                if (!flyout.contains(e.target) && e.target !== systemClock && !systemClock?.contains(e.target)) {
+                    this.toggleTimeFlyout(false);
+                }
+            }
+        });
+
+        // Навигация по интерактивному календарю
+        document.getElementById('btnCalPrevMonth')?.addEventListener('click', () => {
+            this.calCurrentMonth--;
+            if (this.calCurrentMonth < 0) {
+                this.calCurrentMonth = 11;
+                this.calCurrentYear--;
+            }
+            this._renderFlyoutCalendar(this.calCurrentYear, this.calCurrentMonth);
+            this.playSound('click');
+        });
+
+        document.getElementById('btnCalNextMonth')?.addEventListener('click', () => {
+            this.calCurrentMonth++;
+            if (this.calCurrentMonth > 11) {
+                this.calCurrentMonth = 0;
+                this.calCurrentYear++;
+            }
+            this._renderFlyoutCalendar(this.calCurrentYear, this.calCurrentMonth);
+            this.playSound('click');
+        });
+
+        document.getElementById('btnCalToday')?.addEventListener('click', () => {
+            const now = new Date();
+            this.calCurrentYear = now.getFullYear();
+            this.calCurrentMonth = now.getMonth();
+            this._renderFlyoutCalendar(this.calCurrentYear, this.calCurrentMonth);
+            this.playSound('click');
+        });
+
+        // Инициализация регламентного таймера
+        this._initPharmaTimer();
+
+        // Запуск тикающего интервала времени
+        this._renderFlyoutCalendar(this.calCurrentYear, this.calCurrentMonth);
+        this._updateClockTick();
+        setInterval(() => this._updateClockTick(), 1000);
+    }
+
+    _getTimeForTimezone(tz) {
+        const now = new Date();
+        if (tz === 'utc') {
+            return new Date(now.getTime() + now.getTimezoneOffset() * 60000);
+        }
+        if (tz === 'msk') {
+            const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+            return new Date(utc + 3 * 3600000);
+        }
+        if (tz === 'ekb') {
+            const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+            return new Date(utc + 5 * 3600000);
+        }
+        if (tz === 'nsk') {
+            const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+            return new Date(utc + 7 * 3600000);
+        }
+        if (tz === 'vvo') {
+            const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+            return new Date(utc + 10 * 3600000);
+        }
+        return now;
+    }
+
+    _updateClockTick() {
+        const d = this._getTimeForTimezone(this.timeZone);
+
+        let hours = d.getHours();
+        const minutes = String(d.getMinutes()).padStart(2, '0');
+        const seconds = String(d.getSeconds()).padStart(2, '0');
+        let ampm = '';
+
+        if (this.timeFormat === '12') {
+            ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12 || 12;
+        }
+
+        const hoursStr = String(hours).padStart(2, '0');
+        const timeWithoutSec = `${hoursStr}:${minutes}`;
+        const timeWithSec = `${hoursStr}:${minutes}:${seconds}`;
+        const mainClockTime = this.timeSeconds ? timeWithSec : timeWithoutSec;
+
+        const pad = (n) => String(n).padStart(2, '0');
+        const day = pad(d.getDate());
+        const month = pad(d.getMonth() + 1);
+        const year = d.getFullYear();
+
+        const dowNamesShort = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+        const dowNamesLong = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+        const monthNamesLong = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+
+        let dateStr = `${day}.${month}.${year}`;
+        if (this.timeShowDow) {
+            dateStr = `${dowNamesShort[d.getDay()]}, ${dateStr}`;
+        }
+
+        const dateLongStr = `${dowNamesLong[d.getDay()]}, ${d.getDate()} ${monthNamesLong[d.getMonth()]} ${year} г.`;
+
+        // 1. Часы в системном трее / таскбаре
+        const elTime = document.getElementById('systemClockTime');
+        const elDate = document.getElementById('systemClockDate');
+        if (elTime) elTime.innerText = mainClockTime + (ampm ? ` ${ampm}` : '');
+        if (elDate) {
+            elDate.innerText = this.timeShowDate ? dateStr : '';
+            elDate.style.display = this.timeShowDate ? 'block' : 'none';
+        }
+
+        // 2. Всплывающее окно времени (Flyout)
+        const elFlyTime = document.getElementById('flyoutClockTime');
+        const elFlyDate = document.getElementById('flyoutClockDate');
+        const elFlyAmPm = document.getElementById('flyoutAmPm');
+        const elFlyTzBadge = document.getElementById('flyoutTimezoneBadge');
+
+        if (elFlyTime) elFlyTime.innerText = `${hoursStr}:${minutes}:${seconds}`;
+        if (elFlyDate) elFlyDate.innerText = dateLongStr;
+        if (elFlyAmPm) elFlyAmPm.innerText = ampm || '24H';
+
+        const tzLabels = {
+            'auto': 'Системный часовой пояс',
+            'msk': 'Москва (MSK UTC+3)',
+            'utc': 'Всемирное время (UTC)',
+            'ekb': 'Екатеринбург (YEKT UTC+5)',
+            'nsk': 'Новосибирск (NOVT UTC+7)',
+            'vvo': 'Владивосток (VLAT UTC+10)'
+        };
+        if (elFlyTzBadge) elFlyTzBadge.innerText = tzLabels[this.timeZone] || this.timeZone;
+
+        // 3. Плавающий виджет времени на рабочем столе
+        const elGdgDigits = document.getElementById('gadgetClockDigits');
+        const elGdgDate = document.getElementById('gadgetClockDateFull');
+        const elGdgAmPm = document.getElementById('gadgetClockAmPm');
+        const elGdgTz = document.getElementById('gadgetTimezoneLabel');
+
+        if (elGdgDigits) elGdgDigits.innerText = `${hoursStr}:${minutes}:${seconds}`;
+        if (elGdgDate) elGdgDate.innerText = dateLongStr;
+        if (elGdgAmPm) elGdgAmPm.innerText = ampm || '24H';
+        if (elGdgTz) elGdgTz.innerText = tzLabels[this.timeZone] || this.timeZone;
+
+        // 4. Мировое время филиалов
+        const dMsk = this._getTimeForTimezone('msk');
+        const dEkb = this._getTimeForTimezone('ekb');
+        const dVvo = this._getTimeForTimezone('vvo');
+        const formatShort = (dt) => `${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+
+        const elWorldMsk = document.getElementById('worldTimeMsk');
+        const elWorldEkb = document.getElementById('worldTimeEkb');
+        const elWorldVvo = document.getElementById('worldTimeVvo');
+        if (elWorldMsk) elWorldMsk.innerText = formatShort(dMsk);
+        if (elWorldEkb) elWorldEkb.innerText = formatShort(dEkb);
+        if (elWorldVvo) elWorldVvo.innerText = formatShort(dVvo);
+    }
+
+    toggleTimeFlyout(show) {
+        const modal = document.getElementById('timeFlyoutModal');
+        if (!modal) return;
+
+        const isCurrentlyHidden = modal.classList.contains('hidden');
+        const targetShow = show !== undefined ? Boolean(show) : isCurrentlyHidden;
+
+        if (targetShow) {
+            modal.classList.remove('hidden');
+            this.calCurrentYear = new Date().getFullYear();
+            this.calCurrentMonth = new Date().getMonth();
+            this._renderFlyoutCalendar(this.calCurrentYear, this.calCurrentMonth);
+            this.playSound('click');
+        } else {
+            modal.classList.add('hidden');
+        }
+    }
+
+    _renderFlyoutCalendar(year, month) {
+        const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+        const header = document.getElementById('calendarMonthYear');
+        if (header) header.innerText = `${monthNames[month]} ${year}`;
+
+        const grid = document.getElementById('calendarDaysGrid');
+        if (!grid) return;
+
+        grid.innerHTML = '';
+
+        const firstDay = new Date(year, month, 1);
+        let startingDay = firstDay.getDay() - 1; // Понедельник = 0
+        if (startingDay === -1) startingDay = 6;
+
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+        const today = new Date();
+        const isCurrentMonthToday = today.getFullYear() === year && today.getMonth() === month;
+
+        // Дни предыдущего месяца
+        for (let i = startingDay - 1; i >= 0; i--) {
+            const dayNum = daysInPrevMonth - i;
+            const el = document.createElement('div');
+            el.className = 'py-1 text-slate-600 rounded text-center text-[11px]';
+            el.innerText = String(dayNum);
+            grid.appendChild(el);
+        }
+
+        // Дни текущего месяца
+        for (let d = 1; d <= daysInMonth; d++) {
+            const el = document.createElement('button');
+            const isToday = isCurrentMonthToday && today.getDate() === d;
+            el.innerText = String(d);
+
+            if (isToday) {
+                el.className = 'py-1 rounded-lg bg-blue-600 text-white font-bold shadow-md shadow-blue-600/40 text-center text-xs';
+            } else {
+                el.className = 'py-1 rounded hover:bg-slate-800 text-slate-200 text-center text-xs transition-colors';
+            }
+
+            el.addEventListener('click', () => {
+                this.playSound('click');
+                this.app?._showToast?.(`📅 Выбран день: ${d} ${monthNames[month].toLowerCase()} ${year} г.`);
+            });
+
+            grid.appendChild(el);
+        }
+
+        // Заполнение остатка сетки днями следующего месяца
+        const totalRendered = startingDay + daysInMonth;
+        const remaining = (7 - (totalRendered % 7)) % 7;
+        for (let next = 1; next <= remaining; next++) {
+            const el = document.createElement('div');
+            el.className = 'py-1 text-slate-600 rounded text-center text-[11px]';
+            el.innerText = String(next);
+            grid.appendChild(el);
+        }
+    }
+
+    _initPharmaTimer() {
+        const updateDisplay = () => {
+            const m = Math.floor(this.pharmaTimerSeconds / 60);
+            const s = this.pharmaTimerSeconds % 60;
+            const str = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            const display = document.getElementById('pharmaTimerDisplay');
+            if (display) display.innerText = str;
+        };
+
+        const setPreset = (minutes) => {
+            this.pharmaTimerSeconds = minutes * 60;
+            updateDisplay();
+            this.playSound('click');
+            this.app?._showToast?.(`⏱️ Таймер установлен на ${minutes} минут`);
+        };
+
+        document.getElementById('btnTimerPreset5')?.addEventListener('click', () => setPreset(5));
+        document.getElementById('btnTimerPreset15')?.addEventListener('click', () => setPreset(15));
+        document.getElementById('btnTimerPreset30')?.addEventListener('click', () => setPreset(30));
+        document.getElementById('btnSetTimer15')?.addEventListener('click', () => setPreset(15));
+        document.getElementById('btnSetTimer30')?.addEventListener('click', () => setPreset(30));
+        document.getElementById('btnSetTimer60')?.addEventListener('click', () => setPreset(60));
+
+        const toggleBtn = document.getElementById('btnTimerToggle');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+                if (this.pharmaTimerRunning) {
+                    clearInterval(this.pharmaTimerInterval);
+                    this.pharmaTimerRunning = false;
+                    toggleBtn.innerText = 'Старт';
+                    toggleBtn.className = 'px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-[10px] font-bold text-white shadow-sm cursor-pointer';
+                    this.playSound('click');
+                } else {
+                    this.pharmaTimerRunning = true;
+                    toggleBtn.innerText = 'Пауза';
+                    toggleBtn.className = 'px-2.5 py-1 rounded bg-amber-600 hover:bg-amber-500 text-[10px] font-bold text-white shadow-sm cursor-pointer';
+                    this.playSound('click');
+
+                    this.pharmaTimerInterval = setInterval(() => {
+                        if (this.pharmaTimerSeconds > 0) {
+                            this.pharmaTimerSeconds--;
+                            updateDisplay();
+                        } else {
+                            clearInterval(this.pharmaTimerInterval);
+                            this.pharmaTimerRunning = false;
+                            toggleBtn.innerText = 'Старт';
+                            toggleBtn.className = 'px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-[10px] font-bold text-white shadow-sm cursor-pointer';
+                            this.playSound('success');
+                            this.app?._showToast?.('🔔 Регламентное время верификации партии накладной истекло!');
+                        }
+                    }, 1000);
+                }
+            });
+        }
+
+        updateDisplay();
+    }
+
+    // =========================================================================
+    // 19. АДАПТИВНАЯ ОПТИМИЗАЦИЯ ДЛЯ РАЗНЫХ УСТРОЙСТВ И ПРОФИЛЕЙ
+    // =========================================================================
+
+    _initHardwareOptimization() {
+        this._applyOptimizationSettings(false);
+
+        // Пресеты устройств в один клик
+        document.querySelectorAll('.btn-device-profile').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const profile = btn.getAttribute('data-device-profile');
+                if (profile) this.setDeviceProfile(profile, true);
+            });
+        });
+
+        // Слушатели модульных тумблеров
+        document.getElementById('chkOptAnimations')?.addEventListener('change', (e) => {
+            this.optAnimations = e.target.checked;
+            localStorage.setItem('pharmagate_opt_animations', String(this.optAnimations));
+            this._applyOptimizationSettings(true);
+        });
+
+        document.getElementById('chkOptBackdropBlur')?.addEventListener('change', (e) => {
+            this.optBackdropBlur = e.target.checked;
+            localStorage.setItem('pharmagate_opt_blur', String(this.optBackdropBlur));
+            this._applyOptimizationSettings(true);
+        });
+
+        document.getElementById('chkOptBoxShadows')?.addEventListener('change', (e) => {
+            this.optBoxShadows = e.target.checked;
+            localStorage.setItem('pharmagate_opt_shadows', String(this.optBoxShadows));
+            this._applyOptimizationSettings(true);
+        });
+
+        document.getElementById('chkOptTurboGrid')?.addEventListener('change', (e) => {
+            this.optTurboGrid = e.target.checked;
+            localStorage.setItem('pharmagate_opt_turbogrid', String(this.optTurboGrid));
+            this._applyOptimizationSettings(true);
+        });
+
+        document.getElementById('selectOptFlkAuditMode')?.addEventListener('change', (e) => {
+            this.optFlkAuditMode = e.target.value;
+            localStorage.setItem('pharmagate_opt_flk_mode', this.optFlkAuditMode);
+            if (this.app) this.app.flkAuditMode = this.optFlkAuditMode;
+            this.playSound('click');
+            const badge = document.getElementById('flkAuditModeBadge');
+            const modeNames = { 'realtime': 'В реальном времени', 'debounce': 'Отложенный (800мс)', 'manual': 'По кнопке / F5' };
+            if (badge) badge.innerText = modeNames[this.optFlkAuditMode] || this.optFlkAuditMode;
+            this.app?._showToast?.(`🛡️ Режим аудита ФЛК: ${modeNames[this.optFlkAuditMode]}`);
+        });
+
+        document.getElementById('chkOptBatterySaver')?.addEventListener('change', (e) => {
+            this.optBatterySaver = e.target.checked;
+            localStorage.setItem('pharmagate_opt_battery', String(this.optBatterySaver));
+            this._applyOptimizationSettings(true);
+        });
+
+        document.getElementById('chkOptTouchMode')?.addEventListener('change', (e) => {
+            this.optTouchMode = e.target.checked;
+            localStorage.setItem('pharmagate_opt_touch', String(this.optTouchMode));
+            this._applyOptimizationSettings(true);
+        });
+
+        document.getElementById('chkOptGzipCache')?.addEventListener('change', (e) => {
+            this.optGzipCache = e.target.checked;
+            localStorage.setItem('pharmagate_opt_gzip', String(this.optGzipCache));
+            this.playSound('click');
+            this.app?._showToast?.(`💾 Сжатие сессий Gzip: ${this.optGzipCache ? 'Включено' : 'Выключено'}`);
+        });
+
+        // Запуск мониторинга Hardware Pulse
+        this._startHardwarePulse();
+    }
+
+    setDeviceProfile(profileName, showToast = true) {
+        this.optimizationProfile = profileName;
+        localStorage.setItem('pharmagate_opt_profile', profileName);
+
+        if (profileName === 'lite_tsd') {
+            this.optAnimations = false;
+            this.optBackdropBlur = false;
+            this.optBoxShadows = false;
+            this.optTurboGrid = true;
+            this.optFlkAuditMode = 'manual';
+            this.optBatterySaver = true;
+            this.optTouchMode = true;
+            this.optGzipCache = true;
+        } else if (profileName === 'workstation') {
+            this.optAnimations = true;
+            this.optBackdropBlur = true;
+            this.optBoxShadows = true;
+            this.optTurboGrid = false;
+            this.optFlkAuditMode = 'realtime';
+            this.optBatterySaver = false;
+            this.optTouchMode = false;
+            this.optGzipCache = true;
+        } else {
+            // laptop / default
+            this.optAnimations = true;
+            this.optBackdropBlur = true;
+            this.optBoxShadows = true;
+            this.optTurboGrid = false;
+            this.optFlkAuditMode = 'debounce';
+            this.optBatterySaver = false;
+            this.optTouchMode = false;
+            this.optGzipCache = true;
+        }
+
+        // Сохранение состояний
+        localStorage.setItem('pharmagate_opt_animations', String(this.optAnimations));
+        localStorage.setItem('pharmagate_opt_blur', String(this.optBackdropBlur));
+        localStorage.setItem('pharmagate_opt_shadows', String(this.optBoxShadows));
+        localStorage.setItem('pharmagate_opt_turbogrid', String(this.optTurboGrid));
+        localStorage.setItem('pharmagate_opt_flk_mode', this.optFlkAuditMode);
+        localStorage.setItem('pharmagate_opt_battery', String(this.optBatterySaver));
+        localStorage.setItem('pharmagate_opt_touch', String(this.optTouchMode));
+        localStorage.setItem('pharmagate_opt_gzip', String(this.optGzipCache));
+
+        this._applyOptimizationSettings(showToast);
+    }
+
+    _applyOptimizationSettings(showToast = false) {
+        document.body.classList.toggle('no-animations', !this.optAnimations);
+        document.body.classList.toggle('no-backdrop-blur', !this.optBackdropBlur);
+        document.body.classList.toggle('no-box-shadows', !this.optBoxShadows);
+        document.body.classList.toggle('turbo-grid-mode', this.optTurboGrid);
+        document.body.classList.toggle('touch-mode-active', this.optTouchMode);
+
+        const chkAnim = document.getElementById('chkOptAnimations');
+        const chkBlur = document.getElementById('chkOptBackdropBlur');
+        const chkShadows = document.getElementById('chkOptBoxShadows');
+        const chkTurbo = document.getElementById('chkOptTurboGrid');
+        const selFlk = document.getElementById('selectOptFlkAuditMode');
+        const chkBattery = document.getElementById('chkOptBatterySaver');
+        const chkTouch = document.getElementById('chkOptTouchMode');
+        const chkGzip = document.getElementById('chkOptGzipCache');
+
+        if (chkAnim) chkAnim.checked = this.optAnimations;
+        if (chkBlur) chkBlur.checked = this.optBackdropBlur;
+        if (chkShadows) chkShadows.checked = this.optBoxShadows;
+        if (chkTurbo) chkTurbo.checked = this.optTurboGrid;
+        if (selFlk) selFlk.value = this.optFlkAuditMode;
+        if (chkBattery) chkBattery.checked = this.optBatterySaver;
+        if (chkTouch) chkTouch.checked = this.optTouchMode;
+        if (chkGzip) chkGzip.checked = this.optGzipCache;
+
+        // Подсветка карточек профилей
+        document.querySelectorAll('.btn-device-profile').forEach(btn => {
+            const match = btn.getAttribute('data-device-profile') === this.optimizationProfile;
+            btn.classList.toggle('border-blue-500', match);
+            btn.classList.toggle('border-2', match);
+            btn.classList.toggle('border-slate-800', !match);
+            const badge = btn.querySelector('.device-badge');
+            if (badge) badge.classList.toggle('hidden', !match);
+        });
+
+        const activeProfileBadge = document.getElementById('activeOptimizationProfileBadge');
+        const profileNames = {
+            'lite_tsd': 'Складской ТСД / 2G',
+            'laptop': 'Ноутбук / Планшет',
+            'workstation': 'Рабочая Станция 4K'
+        };
+        if (activeProfileBadge) activeProfileBadge.innerText = profileNames[this.optimizationProfile] || this.optimizationProfile;
+
+        const pulseProfile = document.getElementById('gadgetProfileLabel');
+        if (pulseProfile) pulseProfile.innerText = profileNames[this.optimizationProfile] || 'Стандарт';
+
+        if (showToast) {
+            this.playSound('click');
+            this.app?._showToast?.(`🚀 Профиль оптимизации: ${profileNames[this.optimizationProfile] || this.optimizationProfile}`);
+        }
+    }
+
+    _startHardwarePulse() {
+        let frameCount = 0;
+        let lastTime = performance.now();
+        const fpsLabel = document.getElementById('gadgetFpsVal');
+        const ramLabel = document.getElementById('gadgetRamVal');
+        const netLabel = document.getElementById('gadgetNetStatus');
+
+        const pulseLoop = () => {
+            frameCount++;
+            const now = performance.now();
+            if (now - lastTime >= 1000) {
+                const fps = Math.round((frameCount * 1000) / (now - lastTime));
+                if (fpsLabel) {
+                    fpsLabel.innerText = `${fps} FPS`;
+                    fpsLabel.className = fps >= 45 ? 'font-mono font-bold text-emerald-400' : (fps >= 25 ? 'font-mono font-bold text-amber-400' : 'font-mono font-bold text-red-400');
+                }
+                frameCount = 0;
+                lastTime = now;
+
+                if (ramLabel) {
+                    if (window.performance && performance.memory) {
+                        const usedMb = (performance.memory.usedJSHeapSize / (1024 * 1024)).toFixed(1);
+                        ramLabel.innerText = `${usedMb} МБ`;
+                    } else {
+                        ramLabel.innerText = '38.4 МБ';
+                    }
+                }
+
+                if (netLabel) {
+                    const online = navigator.onLine !== false;
+                    const conn = navigator.connection;
+                    const effectiveType = conn?.effectiveType ? conn.effectiveType.toUpperCase() : '4G';
+                    netLabel.innerHTML = online
+                        ? `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Online (${effectiveType})`
+                        : `<span class="w-2 h-2 rounded-full bg-red-500"></span> Offline`;
+                    netLabel.className = online ? 'font-mono text-[11px] text-emerald-400 font-semibold flex items-center gap-1' : 'font-mono text-[11px] text-red-400 font-semibold flex items-center gap-1';
+                }
+            }
+            requestAnimationFrame(pulseLoop);
+        };
+
+        requestAnimationFrame(pulseLoop);
+    }
+
+    // =========================================================================
+    // 20. ИНТЕРАКТИВНЫЕ ВИДЖЕТЫ РАБОЧЕГО СТОЛА (DESKTOP GADGETS)
+    // =========================================================================
+
+    _initDesktopGadgets() {
+        const gadgets = ['clock', 'pulse', 'pharma', 'notes'];
+
+        // Восстановление позиций и видимости
+        gadgets.forEach(gName => {
+            const el = document.getElementById(`desktopGadget${gName.charAt(0).toUpperCase() + gName.slice(1)}`);
+            const chk = document.getElementById(`chkGadget${gName.charAt(0).toUpperCase() + gName.slice(1)}`);
+            const isVisible = localStorage.getItem(`pharmagate_gadget_${gName}`) !== 'false';
+
+            if (el) el.style.display = isVisible ? 'block' : 'none';
+            if (chk) chk.checked = isVisible;
+
+            // Восстановление координат
+            const savedPos = localStorage.getItem(`pharmagate_gadget_pos_${gName}`);
+            if (savedPos && el) {
+                try {
+                    const { left, top } = JSON.parse(savedPos);
+                    el.style.left = `${left}px`;
+                    el.style.top = `${top}px`;
+                } catch (e) {}
+            }
+        });
+
+        // Слушатели чекбоксов в настройках
+        gadgets.forEach(gName => {
+            const chk = document.getElementById(`chkGadget${gName.charAt(0).toUpperCase() + gName.slice(1)}`);
+            if (chk) {
+                chk.addEventListener('change', (e) => {
+                    this.toggleDesktopGadget(gName, e.target.checked, true);
+                });
+            }
+        });
+
+        // Слушатели кнопок в быстром виджете
+        document.getElementById('btnQuickGadgetClock')?.addEventListener('click', () => this.toggleDesktopGadget('clock', undefined, true));
+        document.getElementById('btnQuickGadgetPulse')?.addEventListener('click', () => this.toggleDesktopGadget('pulse', undefined, true));
+        document.getElementById('btnQuickGadgetPharma')?.addEventListener('click', () => this.toggleDesktopGadget('pharma', undefined, true));
+        document.getElementById('btnQuickGadgetNotes')?.addEventListener('click', () => this.toggleDesktopGadget('notes', undefined, true));
+
+        // Кнопки свернуть / закрыть на самих виджетах
+        document.querySelectorAll('.desktop-gadget').forEach(gadget => {
+            const minBtn = gadget.querySelector('.gadget-btn-min');
+            const closeBtn = gadget.querySelector('.gadget-btn-close');
+            const content = gadget.querySelector('.gadget-content');
+            const gName = gadget.getAttribute('data-gadget');
+
+            if (minBtn && content) {
+                minBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isMin = content.style.display === 'none';
+                    content.style.display = isMin ? 'block' : 'none';
+                    minBtn.innerText = isMin ? '_' : '+';
+                    this.playSound('click');
+                });
+            }
+
+            if (closeBtn && gName) {
+                closeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.toggleDesktopGadget(gName, false, true);
+                });
+            }
+
+            // Перетаскивание виджета (Drag & Drop)
+            const header = gadget.querySelector('.desktop-gadget-header');
+            if (header) {
+                let isDragging = false;
+                let startX = 0, startY = 0, initLeft = 0, initTop = 0;
+
+                header.addEventListener('mousedown', (e) => {
+                    if (e.target.closest('button')) return;
+                    isDragging = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    initLeft = gadget.offsetLeft;
+                    initTop = gadget.offsetTop;
+                    gadget.style.zIndex = '50';
+                    document.body.style.userSelect = 'none';
+
+                    const onMouseMove = (ev) => {
+                        if (!isDragging) return;
+                        const dx = ev.clientX - startX;
+                        const dy = ev.clientY - startY;
+                        const newLeft = Math.max(10, Math.min(window.innerWidth - gadget.offsetWidth - 10, initLeft + dx));
+                        const newTop = Math.max(10, Math.min(window.innerHeight - gadget.offsetHeight - 50, initTop + dy));
+                        gadget.style.left = `${newLeft}px`;
+                        gadget.style.top = `${newTop}px`;
+                    };
+
+                    const onMouseUp = () => {
+                        if (!isDragging) return;
+                        isDragging = false;
+                        gadget.style.zIndex = '10';
+                        document.body.style.userSelect = '';
+                        document.removeEventListener('mousemove', onMouseMove);
+                        document.removeEventListener('mouseup', onMouseUp);
+
+                        if (gName) {
+                            localStorage.setItem(`pharmagate_gadget_pos_${gName}`, JSON.stringify({
+                                left: gadget.offsetLeft,
+                                top: gadget.offsetTop
+                            }));
+                        }
+                    };
+
+                    document.addEventListener('mousemove', onMouseMove);
+                    document.addEventListener('mouseup', onMouseUp);
+                });
+            }
+        });
+
+        // Сброс позиций всех виджетов
+        const resetPositions = () => {
+            const defaults = {
+                clock: { left: 240, top: 20 },
+                pulse: { left: 530, top: 20 },
+                pharma: { left: 810, top: 20 },
+                notes: { left: 240, top: 180 }
+            };
+            gadgets.forEach(gName => {
+                const el = document.getElementById(`desktopGadget${gName.charAt(0).toUpperCase() + gName.slice(1)}`);
+                if (el && defaults[gName]) {
+                    el.style.left = `${defaults[gName].left}px`;
+                    el.style.top = `${defaults[gName].top}px`;
+                    localStorage.setItem(`pharmagate_gadget_pos_${gName}`, JSON.stringify(defaults[gName]));
+                }
+            });
+            this.playSound('click');
+            this.app?._showToast?.('🔄 Расположение виджетов сброшено по умолчанию');
+        };
+
+        document.getElementById('btnResetGadgetsPos')?.addEventListener('click', resetPositions);
+
+        // Sticky notes автосохранение
+        const notesArea = document.getElementById('gadgetStickyNotesText');
+        const notesChars = document.getElementById('gadgetNotesChars');
+        if (notesArea) {
+            const savedNotes = localStorage.getItem('pharmagate_sticky_notes') || '';
+            notesArea.value = savedNotes;
+            if (notesChars) notesChars.innerText = `${savedNotes.length} симв.`;
+
+            notesArea.addEventListener('input', (e) => {
+                const text = e.target.value;
+                localStorage.setItem('pharmagate_sticky_notes', text);
+                if (notesChars) notesChars.innerText = `${text.length} симв.`;
+            });
+        }
+    }
+
+    toggleDesktopGadget(gadgetName, visible, showToast = true) {
+        const el = document.getElementById(`desktopGadget${gadgetName.charAt(0).toUpperCase() + gadgetName.slice(1)}`);
+        const chk = document.getElementById(`chkGadget${gadgetName.charAt(0).toUpperCase() + gadgetName.slice(1)}`);
+        if (!el) return;
+
+        const isCurrentlyVisible = el.style.display !== 'none';
+        const targetVisible = visible !== undefined ? Boolean(visible) : !isCurrentlyVisible;
+
+        el.style.display = targetVisible ? 'block' : 'none';
+        if (chk) chk.checked = targetVisible;
+        localStorage.setItem(`pharmagate_gadget_${gadgetName}`, String(targetVisible));
+
+        // Обновление кнопок в быстром виджете
+        const btnQuick = document.getElementById(`btnQuickGadget${gadgetName.charAt(0).toUpperCase() + gadgetName.slice(1)}`);
+        if (btnQuick) {
+            if (targetVisible) {
+                btnQuick.className = 'py-1 px-1.5 rounded bg-blue-600/30 text-blue-300 border border-blue-500/40 font-semibold text-center hover:bg-blue-600/50 transition-colors';
+            } else {
+                btnQuick.className = 'py-1 px-1.5 rounded bg-slate-800 text-slate-500 border border-slate-700 text-center hover:bg-slate-700 transition-colors';
+            }
+        }
+
+        if (showToast) {
+            this.playSound('click');
+            const gNames = { clock: 'Часы', pulse: 'Hardware Pulse', pharma: 'Сводка накладной', notes: 'Заметки' };
+            this.app?._showToast?.(`📱 Виджет «${gNames[gadgetName] || gadgetName}»: ${targetVisible ? 'Включен' : 'Скрыт'}`);
+        }
+    }
 }
+

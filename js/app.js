@@ -162,13 +162,15 @@ export class PharmaGateWebOS {
     }
 
     _initClock() {
-        const clock = document.getElementById('systemClock');
-        const update = () => {
-            const now = new Date();
-            if (clock) clock.innerText = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-        };
-        update();
-        setInterval(update, 1000);
+        if (this.crossPlatform?._updateClockTick) {
+            this.crossPlatform._updateClockTick();
+        }
+    }
+
+    toggleTimeFlyout(show) {
+        if (this.crossPlatform?.toggleTimeFlyout) {
+            this.crossPlatform.toggleTimeFlyout(show);
+        }
     }
 
     /**
@@ -2138,6 +2140,23 @@ export class PharmaGateWebOS {
                     <b>${i.severity === 'CRITICAL' ? '🔴' : '🟡'} Стр. ${i.rowIndex || 'Шапка'} [${i.field}]:</b> ${i.userText}
                 </div>
             `).join('');
+        }
+
+        // Синхронизация данных с плавающим гаджетом накладной на рабочем столе
+        const gDocName = document.getElementById('gadgetDocName');
+        const gDocCount = document.getElementById('gadgetDocCount');
+        const gDocSum = document.getElementById('gadgetDocSum');
+        const gDocFlk = document.getElementById('gadgetDocFlkStatus');
+        if (gDocName) gDocName.innerText = this.activeFileName || 'Накладная_№407.dbf';
+        if (gDocCount) gDocCount.innerText = String(this.records.length);
+        if (gDocSum) gDocSum.innerText = `${totalSum.toFixed(2)} ₽`;
+        if (gDocFlk) {
+            gDocFlk.innerText = `${readiness.score}% ${readiness.statusText}`;
+            gDocFlk.className = readiness.score >= 90
+                ? 'px-2 py-0.5 rounded font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-800'
+                : (readiness.score >= 50
+                    ? 'px-2 py-0.5 rounded font-mono font-bold bg-amber-950 text-amber-300 border border-amber-800'
+                    : 'px-2 py-0.5 rounded font-mono font-bold bg-red-950 text-red-300 border border-red-800');
         }
     }
 

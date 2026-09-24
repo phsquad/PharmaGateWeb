@@ -384,7 +384,177 @@
         body.wp-light-minimal { background: radial-gradient(circle at 50% 20%, #f1f5f9 0%, #e2e8f0 50%, #cbd5e1 100%) !important; }
         body.wp-cyber-grid { background-color: #030712 !important; background-image: radial-gradient(rgba(16, 185, 129, 0.25) 1px, transparent 1px) !important; background-size: 20px 20px !important; }
         body.wp-nebula { background: radial-gradient(circle at 65% 25%, #4c1d95 0%, #1e1b4b 40%, #020617 100%) !important; }
+        body.wp-win11-bloom { background: radial-gradient(circle at 50% 30%, #1d4ed8 0%, #0c1e4d 40%, #030712 100%) !important; }
+        body.wp-win-xp { background: linear-gradient(180deg, #2563eb 0%, #60a5fa 35%, #15803d 40%, #22c55e 65%, #166534 100%) !important; }
+        body.wp-win7-aero { background: radial-gradient(circle at 40% 40%, #0284c7 0%, #0369a1 40%, #082f49 75%, #020617 100%) !important; }
+        body.wp-macos-sonoma { background: radial-gradient(circle at 60% 40%, #ea580c 0%, #c026d3 35%, #4338ca 70%, #020617 100%) !important; }
+        body.wp-macos-monterey { background: radial-gradient(circle at 35% 30%, #ec4899 0%, #8b5cf6 40%, #1e1b4b 80%, #030712 100%) !important; }
+        body.wp-ubuntu-noble { background: radial-gradient(circle at 75% 25%, #ea580c 0%, #7e22ce 45%, #2e1065 75%, #030712 100%) !important; }
+        body.wp-matrix-rain { background: #020617 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Ctext x='10' y='20' fill='%2310b981' font-family='monospace' font-size='12' opacity='0.25'%3E01%3C/text%3E%3Ctext x='40' y='50' fill='%2310b981' font-family='monospace' font-size='12' opacity='0.3'%3EEDI%3C/text%3E%3Ctext x='20' y='70' fill='%2310b981' font-family='monospace' font-size='12' opacity='0.15'%3EDBF%3C/text%3E%3C/svg%3E") repeat !important; }
         body.wp-custom { background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
+
+        /* 🖼️ Фильтры размытия и затемнения обоев */
+        #desktopWallpaperCanvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -1;
+            backdrop-filter: blur(var(--wp-blur, 0px)) brightness(var(--wp-dim, 100%));
+            -webkit-backdrop-filter: blur(var(--wp-blur, 0px)) brightness(var(--wp-dim, 100%));
+            transition: backdrop-filter 0.2s ease;
+        }
+
+        /* 🪟 Позиции панели задач (Taskbar Positioning) */
+        body.taskbar-pos-top #taskbar {
+            order: -1 !important;
+            border-top: none !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+        }
+        body.taskbar-pos-top #startMenu {
+            top: 56px !important;
+            bottom: auto !important;
+        }
+        body.taskbar-pos-top #quickScaleDropdown,
+        body.taskbar-pos-top #timeFlyoutModal {
+            top: 56px !important;
+            bottom: auto !important;
+        }
+
+        body.taskbar-pos-left {
+            flex-direction: row !important;
+        }
+        body.taskbar-pos-left #taskbar {
+            order: -1 !important;
+            width: 60px !important;
+            height: 100vh !important;
+            flex-direction: column !important;
+            padding: 10px 4px !important;
+            border-top: none !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.12) !important;
+            justify-content: flex-start !important;
+            gap: 12px !important;
+        }
+        body.taskbar-pos-left #taskbar > div {
+            flex-direction: column !important;
+            gap: 8px !important;
+            width: 100% !important;
+        }
+        body.taskbar-pos-left #taskbarAppsContainer {
+            flex-direction: column !important;
+            width: 100% !important;
+        }
+        body.taskbar-pos-left #startMenu {
+            left: 70px !important;
+            bottom: 16px !important;
+        }
+
+        body.taskbar-pos-right {
+            flex-direction: row !important;
+        }
+        body.taskbar-pos-right #taskbar {
+            order: 999 !important;
+            width: 60px !important;
+            height: 100vh !important;
+            flex-direction: column !important;
+            padding: 10px 4px !important;
+            border-top: none !important;
+            border-left: 1px solid rgba(255, 255, 255, 0.12) !important;
+            justify-content: flex-start !important;
+            gap: 12px !important;
+        }
+        body.taskbar-pos-right #taskbar > div {
+            flex-direction: column !important;
+            gap: 8px !important;
+            width: 100% !important;
+        }
+        body.taskbar-pos-right #taskbarAppsContainer {
+            flex-direction: column !important;
+            width: 100% !important;
+        }
+        body.taskbar-pos-right #startMenu {
+            right: 70px !important;
+            left: auto !important;
+            bottom: 16px !important;
+        }
+
+        /* 🍎 СТИЛЬ ПАНЕЛИ: macOS Cupertino Glass Dock */
+        body.dock-style-macos #taskbar {
+            border-radius: 22px !important;
+            margin: 0 auto 12px auto !important;
+            max-width: fit-content !important;
+            padding: 6px 16px !important;
+            background: rgba(15, 23, 42, 0.85) !important;
+            backdrop-filter: blur(28px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.16) !important;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+        }
+
+        /* 🚀 МОДУЛЬНАЯ ОПТИМИЗАЦИЯ ДЛЯ РАЗНЫХ УСТРОЙСТВ */
+        body.no-animations, body.no-animations * {
+            transition: none !important;
+            animation: none !important;
+        }
+        body.no-backdrop-blur, body.no-backdrop-blur * {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+        body.no-box-shadows .os-window,
+        body.no-box-shadows #taskbar,
+        body.no-box-shadows #startMenu,
+        body.no-box-shadows .desktop-gadget {
+            box-shadow: none !important;
+        }
+        body.turbo-grid-mode .tabulator-row {
+            transition: none !important;
+            background-image: none !important;
+        }
+        body.touch-mode-active .win-btn-min,
+        body.touch-mode-active .win-btn-max,
+        body.touch-mode-active .win-btn-close {
+            width: 32px !important;
+            height: 32px !important;
+            font-size: 13px !important;
+        }
+        body.touch-mode-active .desktop-icon {
+            padding: 12px !important;
+            width: 108px !important;
+        }
+        body.touch-mode-active ::-webkit-scrollbar {
+            width: 14px !important;
+            height: 14px !important;
+        }
+
+        /* 📱 ВИДЖЕТЫ РАБОЧЕГО СТОЛА (DESKTOP GADGETS) */
+        .desktop-gadget {
+            position: absolute;
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 16px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+            color: #ffffff;
+            user-select: none;
+            z-index: 10;
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+        .desktop-gadget:hover {
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
+            border-color: rgba(255, 255, 255, 0.28);
+        }
+        .desktop-gadget-header {
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .desktop-gadget-header:active {
+            cursor: grabbing;
+        }
 
         /* 🎨 ТЕМЫ ОФОРМЛЕНИЯ РАБОЧЕГО СТОЛА */
         :root {
@@ -1052,6 +1222,116 @@
 
         </div>
 
+        <!-- 🖼️ Слой фильтров размытия и затемнения обоев -->
+        <div id="desktopWallpaperCanvas"></div>
+
+        <!-- ===================================================================== -->
+        <!-- 📱 ИНТЕРАКТИВНЫЕ ВИДЖЕТЫ РАБОЧЕГО СТОЛА (DESKTOP GADGETS)              -->
+        <!-- ===================================================================== -->
+        <div id="desktopGadgetsLayer" class="relative w-full h-full pointer-events-none z-10">
+            
+            <!-- 1. ВИДЖЕТ: ЧАСЫ И ДАТА -->
+            <div id="desktopGadgetClock" class="desktop-gadget pointer-events-auto" style="left: 240px; top: 20px; width: 270px;" data-gadget="clock">
+                <div class="desktop-gadget-header">
+                    <span class="flex items-center gap-1.5"><span class="text-sm">🕒</span> Время и Дата</span>
+                    <div class="flex items-center gap-1">
+                        <button class="gadget-btn-min w-5 h-5 rounded hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center text-xs" title="Свернуть">_</button>
+                        <button class="gadget-btn-close w-5 h-5 rounded hover:bg-red-600/40 text-slate-400 hover:text-white flex items-center justify-center text-xs font-bold" title="Закрыть">✕</button>
+                    </div>
+                </div>
+                <div class="gadget-content p-3.5 space-y-2">
+                    <div class="flex items-baseline justify-between">
+                        <span id="gadgetClockDigits" class="font-mono text-3xl font-extrabold text-white tracking-wider">12:00:00</span>
+                        <span id="gadgetClockAmPm" class="text-xs font-mono text-blue-400 font-bold">24H</span>
+                    </div>
+                    <div id="gadgetClockDateFull" class="text-xs text-slate-300 font-medium">Четверг, 24 сентября 2026 г.</div>
+                    <div class="flex items-center justify-between text-[10px] text-slate-400 pt-1.5 border-t border-white/10">
+                        <span id="gadgetTimezoneLabel" class="truncate max-w-[150px]">Москва (MSK UTC+3)</span>
+                        <button id="btnGadgetOpenFlyout" class="text-blue-400 hover:text-blue-300 font-semibold cursor-pointer">Календарь →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. ВИДЖЕТ: HARDWARE PULSE & СИСТЕМНЫЙ МОНИТОР -->
+            <div id="desktopGadgetPulse" class="desktop-gadget pointer-events-auto" style="left: 530px; top: 20px; width: 260px;" data-gadget="pulse">
+                <div class="desktop-gadget-header">
+                    <span class="flex items-center gap-1.5"><span class="text-sm">⚡</span> Hardware Pulse</span>
+                    <div class="flex items-center gap-1">
+                        <button class="gadget-btn-min w-5 h-5 rounded hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center text-xs" title="Свернуть">_</button>
+                        <button class="gadget-btn-close w-5 h-5 rounded hover:bg-red-600/40 text-slate-400 hover:text-white flex items-center justify-center text-xs font-bold" title="Закрыть">✕</button>
+                    </div>
+                </div>
+                <div class="gadget-content p-3 space-y-2 text-xs">
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-400">Рендеринг / FPS:</span>
+                        <span id="gadgetFpsVal" class="font-mono font-bold text-emerald-400">60 FPS</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-400">Память JS Heap:</span>
+                        <span id="gadgetRamVal" class="font-mono font-bold text-blue-400">42.1 МБ</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-400">Статус сети:</span>
+                        <span id="gadgetNetStatus" class="font-mono text-[11px] text-emerald-400 font-semibold flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Online (4G)
+                        </span>
+                    </div>
+                    <div class="pt-1.5 border-t border-white/10 flex items-center justify-between text-[10px]">
+                        <span class="text-slate-400">Профиль: <b id="gadgetProfileLabel" class="text-amber-300 font-mono">Стандарт</b></span>
+                        <button onclick="window.PharmaGate?.openSettingsTab('tabOptimization')" class="text-blue-400 hover:text-blue-300 font-semibold">Настроить</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. ВИДЖЕТ: ФАРМ-СВОДКА АКТИВНОЙ НАКЛАДНОЙ -->
+            <div id="desktopGadgetPharma" class="desktop-gadget pointer-events-auto" style="left: 810px; top: 20px; width: 280px;" data-gadget="pharma">
+                <div class="desktop-gadget-header">
+                    <span class="flex items-center gap-1.5"><span class="text-sm">📊</span> Сводка Накладной</span>
+                    <div class="flex items-center gap-1">
+                        <button class="gadget-btn-min w-5 h-5 rounded hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center text-xs" title="Свернуть">_</button>
+                        <button class="gadget-btn-close w-5 h-5 rounded hover:bg-red-600/40 text-slate-400 hover:text-white flex items-center justify-center text-xs font-bold" title="Закрыть">✕</button>
+                    </div>
+                </div>
+                <div class="gadget-content p-3 space-y-2 text-xs">
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-400">Файл:</span>
+                        <span id="gadgetDocName" class="font-mono font-semibold text-white truncate max-w-[150px]">Накладная_№407.dbf</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-400">Позиций номенклатуры:</span>
+                        <span id="gadgetDocCount" class="font-mono font-bold text-blue-400">0</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-400">Сумма документа:</span>
+                        <span id="gadgetDocSum" class="font-mono font-bold text-emerald-400">0.00 ₽</span>
+                    </div>
+                    <div class="pt-1.5 border-t border-white/10 flex items-center justify-between text-[10px]">
+                        <span id="gadgetDocFlkStatus" class="px-2 py-0.5 rounded font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">100% Валиден</span>
+                        <button onclick="window.PharmaGate?.openApp('winEditor')" class="text-blue-400 hover:text-blue-300 font-semibold">В накладную →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. ВИДЖЕТ: БЫСТРЫЕ ЗАМЕТКИ (STICKY NOTES) -->
+            <div id="desktopGadgetNotes" class="desktop-gadget pointer-events-auto" style="left: 240px; top: 180px; width: 270px;" data-gadget="notes">
+                <div class="desktop-gadget-header bg-amber-500/20 text-amber-300 border-b border-amber-500/30">
+                    <span class="flex items-center gap-1.5"><span class="text-sm">📝</span> Заметки Фармацевта</span>
+                    <div class="flex items-center gap-1">
+                        <button class="gadget-btn-min w-5 h-5 rounded hover:bg-white/10 text-amber-300 hover:text-white flex items-center justify-center text-xs" title="Свернуть">_</button>
+                        <button class="gadget-btn-close w-5 h-5 rounded hover:bg-red-600/40 text-amber-300 hover:text-white flex items-center justify-center text-xs font-bold" title="Закрыть">✕</button>
+                    </div>
+                </div>
+                <div class="gadget-content p-2.5 bg-amber-950/20">
+                    <textarea id="gadgetStickyNotesText" placeholder="Быстрые заметки по поставщикам, серии, ЖНВЛП, согласованию..." class="w-full h-24 bg-transparent text-amber-100 placeholder:text-amber-300/40 text-xs focus:outline-none resize-none leading-relaxed font-sans"></textarea>
+                    <div class="flex items-center justify-between text-[9px] text-amber-300/70 pt-1.5 border-t border-amber-500/20">
+                        <span>Автосохранение</span>
+                        <span id="gadgetNotesChars">0 симв.</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
         <!-- ===================================================================== -->
         <!-- ВИДЖЕТ БЫСТРОГО ОФОРМЛЕНИЯ И МАСШТАБИРОВАНИЯ НА РАБОЧЕМ СТОЛЕ         -->
         <!-- ===================================================================== -->
@@ -1061,7 +1341,7 @@
                     <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-fuchsia-500 to-pink-500 flex items-center justify-center text-base shadow-sm shadow-fuchsia-500/30">🎨</div>
                     <div>
                         <div class="text-xs font-bold leading-tight">Кастомизация Стола</div>
-                        <div class="text-[10px] text-slate-400">Темы, Масштаб и Lite-режим</div>
+                        <div class="text-[10px] text-slate-400">Темы, Dock, Виджеты & Оптимизация</div>
                     </div>
                 </div>
                 <button id="btnToggleQuickWidget" title="Свернуть / Развернуть" 
@@ -1147,7 +1427,35 @@
                     </div>
                 </div>
 
-                <!-- Lite Режим для медленного соединения -->
+                <!-- Быстрое управление виджетами рабочего стола -->
+                <div class="bg-slate-950/60 p-2 rounded-xl border border-white/5 space-y-1.5">
+                    <div class="flex items-center justify-between text-[10px] text-slate-300 font-semibold uppercase tracking-wider">
+                        <span>📱 Виджеты на столе:</span>
+                        <span class="text-blue-400 font-mono text-[9px]">4 виджета</span>
+                    </div>
+                    <div class="grid grid-cols-4 gap-1 text-[10px]">
+                        <button id="btnQuickGadgetClock" class="py-1 px-1.5 rounded bg-blue-600/30 text-blue-300 border border-blue-500/40 font-semibold text-center hover:bg-blue-600/50 transition-colors">🕒 Часы</button>
+                        <button id="btnQuickGadgetPulse" class="py-1 px-1.5 rounded bg-blue-600/30 text-blue-300 border border-blue-500/40 font-semibold text-center hover:bg-blue-600/50 transition-colors">⚡ Пульс</button>
+                        <button id="btnQuickGadgetPharma" class="py-1 px-1.5 rounded bg-blue-600/30 text-blue-300 border border-blue-500/40 font-semibold text-center hover:bg-blue-600/50 transition-colors">📊 Фарм</button>
+                        <button id="btnQuickGadgetNotes" class="py-1 px-1.5 rounded bg-blue-600/30 text-blue-300 border border-blue-500/40 font-semibold text-center hover:bg-blue-600/50 transition-colors">📝 Заметки</button>
+                    </div>
+                </div>
+
+                <!-- Быстрое переключение стиля и позиции Taskbar / Dock -->
+                <div class="bg-slate-950/60 p-2 rounded-xl border border-white/5 space-y-1.5">
+                    <div class="flex items-center justify-between text-[10px] text-slate-300 font-semibold uppercase tracking-wider">
+                        <span>🪟 Панель & Dock:</span>
+                        <span id="quickTaskbarPosLabel" class="text-emerald-400 font-mono text-[9px]">Снизу</span>
+                    </div>
+                    <div class="grid grid-cols-4 gap-1 text-[10px]">
+                        <button data-tb-pos="bottom" class="btn-quick-tb-pos py-1 rounded bg-blue-600 text-white font-semibold text-center hover:bg-blue-500 transition-colors">⬇️ Снизу</button>
+                        <button data-tb-pos="top" class="btn-quick-tb-pos py-1 rounded bg-slate-800 text-slate-300 text-center hover:bg-slate-700 transition-colors">⬆️ Сверху</button>
+                        <button data-tb-pos="left" class="btn-quick-tb-pos py-1 rounded bg-slate-800 text-slate-300 text-center hover:bg-slate-700 transition-colors">⬅️ Слева</button>
+                        <button data-tb-pos="macos-dock" class="btn-quick-tb-pos py-1 rounded bg-slate-800 text-slate-300 text-center hover:bg-slate-700 transition-colors">🍏 Dock</button>
+                    </div>
+                </div>
+
+                <!-- Lite Режим и профили устройств -->
                 <div class="flex items-center justify-between bg-amber-950/40 border border-amber-500/30 p-2.5 rounded-xl">
                     <div class="flex items-center gap-2">
                         <span class="text-base">⚡</span>
@@ -1162,7 +1470,16 @@
                             class="px-3 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[10px] transition-colors shadow">Включить</button>
                 </div>
 
-                <!-- Кнопка открыть полное окно -->
+                <!-- Кнопки перехода ко всем параметрам -->
+                <div class="grid grid-cols-2 gap-1.5">
+                    <button onclick="window.PharmaGate?.openSettingsTab('tabDesktop')" class="py-1.5 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-[11px] text-center border border-slate-700 flex items-center justify-center gap-1">
+                        <span>🖥️</span> Стол & Dock
+                    </button>
+                    <button onclick="window.PharmaGate?.openSettingsTab('tabOptimization')" class="py-1.5 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-[11px] text-center border border-slate-700 flex items-center justify-center gap-1">
+                        <span>🚀</span> Оптимизация
+                    </button>
+                </div>
+
                 <button id="btnQuickWidgetOpenSettings" 
                         data-tooltip-title="⚙️ Центр Настроек и Оформления"
                         data-tooltip-desc="Открыть полнофункциональное окно выбора обоев, шрифтов, эффектов размытия и кастомных стилей."
@@ -1537,8 +1854,17 @@
                         <button data-tab="tabPersonalization" class="settings-tab-btn active w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-white bg-blue-600/20 text-blue-400 border border-blue-500/30 transition-all text-left">
                             <span>🎨</span> Оформление и Обои
                         </button>
+                        <button data-tab="tabDesktop" class="settings-tab-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800/60 border border-transparent transition-all text-left">
+                            <span>🖥️</span> Рабочий стол & Dock
+                        </button>
+                        <button data-tab="tabTime" class="settings-tab-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800/60 border border-transparent transition-all text-left">
+                            <span>🕒</span> Время и Календарь
+                        </button>
+                        <button data-tab="tabOptimization" class="settings-tab-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800/60 border border-transparent transition-all text-left">
+                            <span>🚀</span> Оптимизация & Устройства
+                        </button>
                         <button data-tab="tabSystem" class="settings-tab-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800/60 border border-transparent transition-all text-left">
-                            <span>🖥️</span> Система и ОС
+                            <span>⚙️</span> Система и ОС
                         </button>
                         <button data-tab="tabFlk" class="settings-tab-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800/60 border border-transparent transition-all text-left">
                             <span>🛡️</span> Правила ФЛК
@@ -1862,6 +2188,55 @@
                                         <span class="wp-badge text-blue-400 text-xs hidden">✓</span>
                                     </div>
                                 </button>
+                                <button data-wp="win11-bloom" class="wp-card p-2.5 rounded-xl border border-slate-800 bg-[#070b14] flex flex-col gap-2 text-left transition-all hover:scale-[1.02]">
+                                    <div class="w-full h-12 rounded-lg shadow-inner" style="background: radial-gradient(circle at 50% 30%, #1d4ed8 0%, #0c1e4d 40%, #030712 100%);"></div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold text-white text-[11px]">Win11 Bloom</span>
+                                        <span class="wp-badge text-blue-400 text-xs hidden">✓</span>
+                                    </div>
+                                </button>
+                                <button data-wp="win-xp" class="wp-card p-2.5 rounded-xl border border-slate-800 bg-[#070b14] flex flex-col gap-2 text-left transition-all hover:scale-[1.02]">
+                                    <div class="w-full h-12 rounded-lg shadow-inner" style="background: linear-gradient(180deg, #2563eb 0%, #60a5fa 35%, #15803d 40%, #22c55e 65%, #166534 100%);"></div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold text-white text-[11px]">WinXP Bliss</span>
+                                        <span class="wp-badge text-blue-400 text-xs hidden">✓</span>
+                                    </div>
+                                </button>
+                                <button data-wp="win7-aero" class="wp-card p-2.5 rounded-xl border border-slate-800 bg-[#070b14] flex flex-col gap-2 text-left transition-all hover:scale-[1.02]">
+                                    <div class="w-full h-12 rounded-lg shadow-inner" style="background: radial-gradient(circle at 40% 40%, #0284c7 0%, #0369a1 40%, #082f49 75%, #020617 100%);"></div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold text-white text-[11px]">Win7 Aero</span>
+                                        <span class="wp-badge text-blue-400 text-xs hidden">✓</span>
+                                    </div>
+                                </button>
+                                <button data-wp="macos-sonoma" class="wp-card p-2.5 rounded-xl border border-slate-800 bg-[#070b14] flex flex-col gap-2 text-left transition-all hover:scale-[1.02]">
+                                    <div class="w-full h-12 rounded-lg shadow-inner" style="background: radial-gradient(circle at 60% 40%, #ea580c 0%, #c026d3 35%, #4338ca 70%, #020617 100%);"></div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold text-white text-[11px]">macOS Sonoma</span>
+                                        <span class="wp-badge text-blue-400 text-xs hidden">✓</span>
+                                    </div>
+                                </button>
+                                <button data-wp="macos-monterey" class="wp-card p-2.5 rounded-xl border border-slate-800 bg-[#070b14] flex flex-col gap-2 text-left transition-all hover:scale-[1.02]">
+                                    <div class="w-full h-12 rounded-lg shadow-inner" style="background: radial-gradient(circle at 35% 30%, #ec4899 0%, #8b5cf6 40%, #1e1b4b 80%, #030712 100%);"></div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold text-white text-[11px]">macOS Monterey</span>
+                                        <span class="wp-badge text-blue-400 text-xs hidden">✓</span>
+                                    </div>
+                                </button>
+                                <button data-wp="ubuntu-noble" class="wp-card p-2.5 rounded-xl border border-slate-800 bg-[#070b14] flex flex-col gap-2 text-left transition-all hover:scale-[1.02]">
+                                    <div class="w-full h-12 rounded-lg shadow-inner" style="background: radial-gradient(circle at 75% 25%, #ea580c 0%, #7e22ce 45%, #2e1065 75%, #030712 100%);"></div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold text-white text-[11px]">Ubuntu Noble</span>
+                                        <span class="wp-badge text-blue-400 text-xs hidden">✓</span>
+                                    </div>
+                                </button>
+                                <button data-wp="matrix-rain" class="wp-card p-2.5 rounded-xl border border-slate-800 bg-[#070b14] flex flex-col gap-2 text-left transition-all hover:scale-[1.02]">
+                                    <div class="w-full h-12 rounded-lg shadow-inner bg-[#020617] border border-emerald-900/60 flex items-center justify-center font-mono text-[10px] text-emerald-400">0101 EDI</div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold text-white text-[11px]">Matrix Rain</span>
+                                        <span class="wp-badge text-blue-400 text-xs hidden">✓</span>
+                                    </div>
+                                </button>
                             </div>
 
                             <!-- Пользовательские обои (URL или загрузка) -->
@@ -1874,6 +2249,30 @@
                                         <span>📁</span> Обзор
                                         <input type="file" id="inputCustomWallpaperFile" accept="image/*" class="hidden">
                                     </label>
+                                </div>
+                            </div>
+
+                            <!-- Эффекты обоев (Размытие и Затемнение) -->
+                            <div class="p-3 bg-[#040711] rounded-xl border border-slate-800 space-y-3">
+                                <div class="font-semibold text-white text-xs flex items-center justify-between">
+                                    <span class="flex items-center gap-1.5"><span>✨</span> Эффекты размытия и затемнения обоев</span>
+                                    <button id="btnResetWallpaperFilters" class="text-[10px] text-slate-400 hover:text-white underline">Сброс эффектов</button>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div class="space-y-1">
+                                        <div class="flex items-center justify-between text-[11px] text-slate-300">
+                                            <span>Размытие фона (Blur):</span>
+                                            <span id="wpBlurVal" class="font-mono text-blue-400 font-bold">0px</span>
+                                        </div>
+                                        <input type="range" id="sliderWpBlur" min="0" max="30" step="1" value="0" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                                    </div>
+                                    <div class="space-y-1">
+                                        <div class="flex items-center justify-between text-[11px] text-slate-300">
+                                            <span>Яркость фона (Brightness):</span>
+                                            <span id="wpDimVal" class="font-mono text-blue-400 font-bold">100%</span>
+                                        </div>
+                                        <input type="range" id="sliderWpDim" min="30" max="100" step="5" value="100" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1926,6 +2325,312 @@
                                 <button data-blur="none" class="btn-blur-mode py-1.5 px-2 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700 text-center">
                                     Без размытия (Solid)
                                 </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ВСПЛЫВАЮЩАЯ ВКЛАДКА: РАБОЧИЙ СТОЛ, ПАНЕЛЬ ЗАДАЧ И DOCK -->
+                    <div id="tabDesktop" class="settings-panel hidden space-y-4">
+                        <!-- Позиция и стиль панели задач / Dock -->
+                        <div class="p-3.5 bg-[#090d16] rounded-xl border border-slate-800 space-y-3">
+                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                <span>🪟</span> Положение и стиль Панели Задач (Taskbar & Dock)
+                            </h3>
+                            <p class="text-slate-400 text-xs">Выберите расположение панели задач на экране и стиль ее отображения в традициях Windows, Linux и macOS:</p>
+
+                            <div class="grid grid-cols-4 gap-2">
+                                <button data-set-tb="bottom" class="btn-setting-tb-pos active p-2.5 rounded-xl border-2 border-blue-500 bg-[#070b14] flex flex-col items-center gap-1.5 transition-all text-center">
+                                    <span class="text-lg">⬇️</span>
+                                    <span class="font-bold text-white text-[11px]">Снизу</span>
+                                    <span class="text-[9px] text-slate-400">Windows Classic</span>
+                                </button>
+                                <button data-set-tb="top" class="btn-setting-tb-pos p-2.5 rounded-xl border border-slate-800 bg-[#070b14] flex flex-col items-center gap-1.5 transition-all text-center hover:border-slate-700">
+                                    <span class="text-lg">⬆️</span>
+                                    <span class="font-bold text-white text-[11px]">Сверху</span>
+                                    <span class="text-[9px] text-slate-400">macOS / GNOME</span>
+                                </button>
+                                <button data-set-tb="left" class="btn-setting-tb-pos p-2.5 rounded-xl border border-slate-800 bg-[#070b14] flex flex-col items-center gap-1.5 transition-all text-center hover:border-slate-700">
+                                    <span class="text-lg">⬅️</span>
+                                    <span class="font-bold text-white text-[11px]">Слева</span>
+                                    <span class="text-[9px] text-slate-400">Ubuntu Launcher</span>
+                                </button>
+                                <button data-set-tb="macos-dock" class="btn-setting-tb-pos p-2.5 rounded-xl border border-slate-800 bg-[#070b14] flex flex-col items-center gap-1.5 transition-all text-center hover:border-slate-700">
+                                    <span class="text-lg">🍏</span>
+                                    <span class="font-bold text-white text-[11px]">macOS Dock</span>
+                                    <span class="text-[9px] text-slate-400">Cupertino Glass</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Интерактивные виджеты на рабочем столе -->
+                        <div class="p-3.5 bg-[#090d16] rounded-xl border border-slate-800 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                    <span>📱</span> Виджеты рабочего стола (Desktop Gadgets)
+                                </h3>
+                                <button id="btnResetGadgetsPos" class="text-[10px] text-slate-400 hover:text-white underline cursor-pointer">Сбросить позиции</button>
+                            </div>
+                            <p class="text-slate-400 text-xs">Включение и отключение плавающих информационных виджетов:</p>
+
+                            <div class="grid grid-cols-2 gap-2.5">
+                                <label class="p-2.5 rounded-xl bg-[#040711] border border-slate-800 flex items-center justify-between cursor-pointer">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-base">🕒</span>
+                                        <div>
+                                            <div class="font-semibold text-white text-xs">Часы и Календарь</div>
+                                            <div class="text-[10px] text-slate-400">Точное время с секундами и дата</div>
+                                        </div>
+                                    </div>
+                                    <input type="checkbox" id="chkGadgetClock" checked class="w-4 h-4 rounded text-blue-600 cursor-pointer">
+                                </label>
+
+                                <label class="p-2.5 rounded-xl bg-[#040711] border border-slate-800 flex items-center justify-between cursor-pointer">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-base">⚡</span>
+                                        <div>
+                                            <div class="font-semibold text-white text-xs">Hardware Pulse</div>
+                                            <div class="text-[10px] text-slate-400">Мониторинг FPS, памяти и сети</div>
+                                        </div>
+                                    </div>
+                                    <input type="checkbox" id="chkGadgetPulse" checked class="w-4 h-4 rounded text-blue-600 cursor-pointer">
+                                </label>
+
+                                <label class="p-2.5 rounded-xl bg-[#040711] border border-slate-800 flex items-center justify-between cursor-pointer">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-base">📊</span>
+                                        <div>
+                                            <div class="font-semibold text-white text-xs">Сводка Накладной</div>
+                                            <div class="text-[10px] text-slate-400">Позиции, сумма и статус ФЛК</div>
+                                        </div>
+                                    </div>
+                                    <input type="checkbox" id="chkGadgetPharma" checked class="w-4 h-4 rounded text-blue-600 cursor-pointer">
+                                </label>
+
+                                <label class="p-2.5 rounded-xl bg-[#040711] border border-slate-800 flex items-center justify-between cursor-pointer">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-base">📝</span>
+                                        <div>
+                                            <div class="font-semibold text-white text-xs">Заметки Фармацевта</div>
+                                            <div class="text-[10px] text-slate-400">Sticky Note со стикером на столе</div>
+                                        </div>
+                                    </div>
+                                    <input type="checkbox" id="chkGadgetNotes" checked class="w-4 h-4 rounded text-blue-600 cursor-pointer">
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Сетка значков и сортировка -->
+                        <div class="p-3.5 bg-[#090d16] rounded-xl border border-slate-800 space-y-3">
+                            <h4 class="font-bold text-white text-xs">📐 Автовыравнивание и сортировка значков</h4>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button id="btnSortIconsName" class="py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
+                                    <span>🔤</span> По имени
+                                </button>
+                                <button id="btnSortIconsType" class="py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
+                                    <span>📁</span> По типу
+                                </button>
+                                <button id="btnSortIconsUsage" class="py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
+                                    <span>⭐</span> По частоте
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ВСПЛЫВАЮЩАЯ ВКЛАДКА: ВРЕМЯ И КАЛЕНДАРЬ -->
+                    <div id="tabTime" class="settings-panel hidden space-y-4">
+                        <div class="p-3.5 bg-[#090d16] rounded-xl border border-slate-800 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                        <span>🕒</span> Форматы времени и даты в системе
+                                    </h3>
+                                    <p class="text-slate-400 text-xs mt-0.5">Настройка индикации системного времени на панели задач и в документах:</p>
+                                </div>
+                                <button onclick="window.PharmaGate?.toggleTimeFlyout()" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-semibold text-xs flex items-center gap-1 cursor-pointer">
+                                    <span>📅</span> Открыть календарь
+                                </button>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[11px] text-slate-400 mb-1">Формат времени:</label>
+                                    <select id="settingTimeFormat" class="w-full bg-[#030712] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500">
+                                        <option value="24">24-часовой (14:35:10) — РФ / ГОСТ</option>
+                                        <option value="12">12-часовой (02:35 PM) — US / UK</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] text-slate-400 mb-1">Часовой пояс станции:</label>
+                                    <select id="settingTimezone" class="w-full bg-[#030712] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500">
+                                        <option value="auto">🔄 Системный часовой пояс устройства</option>
+                                        <option value="msk">🇷🇺 Москва (MSK UTC+3)</option>
+                                        <option value="utc">🌐 Всемирное координированное время (UTC)</option>
+                                        <option value="ekb">🇷🇺 Екатеринбург (YEKT UTC+5)</option>
+                                        <option value="nsk">🇷🇺 Новосибирск (NOVT UTC+7)</option>
+                                        <option value="vvo">🇷🇺 Владивосток (VLAT UTC+10)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2 pt-2 border-t border-slate-800">
+                                <label class="flex items-center justify-between p-2 rounded-lg bg-[#040711] border border-slate-800/80 cursor-pointer">
+                                    <div>
+                                        <div class="font-semibold text-white text-xs">Отображать секунды в часах панели задач</div>
+                                        <div class="text-[10px] text-slate-400">Живое отображение секундного счетчика для оперативной фиксации</div>
+                                    </div>
+                                    <input type="checkbox" id="chkTimeSeconds" class="w-4 h-4 rounded text-blue-600 cursor-pointer">
+                                </label>
+
+                                <label class="flex items-center justify-between p-2 rounded-lg bg-[#040711] border border-slate-800/80 cursor-pointer">
+                                    <div>
+                                        <div class="font-semibold text-white text-xs">Отображать дату рядом со временем (ДД.ММ.ГГГГ)</div>
+                                        <div class="text-[10px] text-slate-400">Формат даты в стиле системного трея Windows 11 / macOS</div>
+                                    </div>
+                                    <input type="checkbox" id="chkTimeShowDate" checked class="w-4 h-4 rounded text-blue-600 cursor-pointer">
+                                </label>
+
+                                <label class="flex items-center justify-between p-2 rounded-lg bg-[#040711] border border-slate-800/80 cursor-pointer">
+                                    <div>
+                                        <div class="font-semibold text-white text-xs">Отображать день недели (Пн, Вт, Ср...)</div>
+                                        <div class="text-[10px] text-slate-400">Краткое обозначение дня недели для контроля графиков отгрузок</div>
+                                    </div>
+                                    <input type="checkbox" id="chkTimeShowDow" checked class="w-4 h-4 rounded text-blue-600 cursor-pointer">
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Фармацевтический таймер регламента -->
+                        <div class="p-3.5 bg-[#090d16] rounded-xl border border-slate-800 space-y-2.5">
+                            <h4 class="font-bold text-white text-xs">⏱️ Фармацевтический регламентный таймер</h4>
+                            <p class="text-slate-400 text-xs">Автоматический отсчет контрольного времени на приемку и верификацию партий в EDI-шлюзе:</p>
+                            <div class="flex items-center gap-2">
+                                <button id="btnSetTimer15" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-semibold text-xs transition-colors cursor-pointer">15 мин (ФЛК Стандарт)</button>
+                                <button id="btnSetTimer30" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-200 font-semibold text-xs border border-slate-700 transition-colors cursor-pointer">30 мин (Приемка партии)</button>
+                                <button id="btnSetTimer60" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-200 font-semibold text-xs border border-slate-700 transition-colors cursor-pointer">60 мин (Смена)</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ВСПЛЫВАЮЩАЯ ВКЛАДКА: ОПТИМИЗАЦИЯ И РАЗНЫЕ УСТРОЙСТВА -->
+                    <div id="tabOptimization" class="settings-panel hidden space-y-4">
+                        <!-- Пресеты устройств в один клик -->
+                        <div class="p-3.5 bg-[#090d16] rounded-xl border border-slate-800 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                        <span>🚀</span> Пресеты оптимизации под устройство
+                                    </h3>
+                                    <p class="text-slate-400 text-xs mt-0.5">Мгновенная настройка графики, памяти и расчетов под тип вашего оборудования:</p>
+                                </div>
+                                <span id="activeOptimizationProfileBadge" class="px-2 py-0.5 rounded bg-blue-950 border border-blue-800 text-blue-300 font-mono text-[10px]">Ноутбук / Планшет</span>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-2.5">
+                                <button data-device-profile="lite_tsd" class="btn-device-profile p-3 rounded-xl border border-slate-800 bg-[#070b14] flex flex-col gap-1.5 text-left transition-all hover:scale-[1.02] cursor-pointer">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xl">⚡</span>
+                                        <span class="device-badge text-blue-400 text-xs hidden">✓</span>
+                                    </div>
+                                    <div class="font-bold text-amber-300 text-xs">Складской ТСД / 2G</div>
+                                    <p class="text-[10px] text-slate-400 leading-tight">0ms анимации, solid-окна, плоская таблица, ручной аудит F5</p>
+                                </button>
+
+                                <button data-device-profile="laptop" class="btn-device-profile active p-3 rounded-xl border-2 border-blue-500 bg-[#070b14] flex flex-col gap-1.5 text-left transition-all hover:scale-[1.02] cursor-pointer">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xl">💻</span>
+                                        <span class="device-badge text-blue-400 text-xs">✓</span>
+                                    </div>
+                                    <div class="font-bold text-white text-xs">Ноутбук / Планшет</div>
+                                    <p class="text-[10px] text-slate-400 leading-tight">Баланс энергосбережения, умеренный акрил, отложенная проверка</p>
+                                </button>
+
+                                <button data-device-profile="workstation" class="btn-device-profile p-3 rounded-xl border border-slate-800 bg-[#070b14] flex flex-col gap-1.5 text-left transition-all hover:scale-[1.02] cursor-pointer">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xl">🖥️</span>
+                                        <span class="device-badge text-blue-400 text-xs hidden">✓</span>
+                                    </div>
+                                    <div class="font-bold text-cyan-300 text-xs">Рабочая Станция 4K</div>
+                                    <p class="text-[10px] text-slate-400 leading-tight">36px Blur, глубокие тени, живой аудит O(1), 60 FPS рендеринг</p>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Детальные тумблеры отключения компонентов -->
+                        <div class="p-3.5 bg-[#090d16] rounded-xl border border-slate-800 space-y-2.5">
+                            <h4 class="font-bold text-white text-xs flex items-center justify-between">
+                                <span>🔧 Модульное отключение компонентов (Granular Toggles)</span>
+                                <span class="text-slate-400 text-[10px] font-normal">Отключайте то, что нагружает систему</span>
+                            </h4>
+
+                            <div class="space-y-2 text-xs">
+                                <label class="flex items-center justify-between p-2.5 rounded-lg bg-[#040711] border border-slate-800/80 cursor-pointer">
+                                    <div>
+                                        <div class="font-semibold text-white">💨 Анимации окон и интерфейса</div>
+                                        <div class="text-[10px] text-slate-400">Отключение убирает задержки при открытии и перемещении окон (0ms скорость)</div>
+                                    </div>
+                                    <input type="checkbox" id="chkOptAnimations" checked class="w-4 h-4 rounded text-blue-600 cursor-pointer">
+                                </label>
+
+                                <label class="flex items-center justify-between p-2.5 rounded-lg bg-[#040711] border border-slate-800/80 cursor-pointer">
+                                    <div>
+                                        <div class="font-semibold text-white">🧊 Акриловое размытие стекла (Backdrop Blur)</div>
+                                        <div class="text-[10px] text-slate-400">Экономит до 40% ресурсов GPU на слабых встроенных видеокартах</div>
+                                    </div>
+                                    <input type="checkbox" id="chkOptBackdropBlur" checked class="w-4 h-4 rounded text-blue-600 cursor-pointer">
+                                </label>
+
+                                <label class="flex items-center justify-between p-2.5 rounded-lg bg-[#040711] border border-slate-800/80 cursor-pointer">
+                                    <div>
+                                        <div class="font-semibold text-white">🔮 Многослойные тени окон (Box Shadows)</div>
+                                        <div class="text-[10px] text-slate-400">Делает оформление окон плоским Flat для ускорения перерисовки браузера</div>
+                                    </div>
+                                    <input type="checkbox" id="chkOptBoxShadows" checked class="w-4 h-4 rounded text-blue-600 cursor-pointer">
+                                </label>
+
+                                <label class="flex items-center justify-between p-2.5 rounded-lg bg-[#040711] border border-slate-800/80 cursor-pointer">
+                                    <div>
+                                        <div class="font-semibold text-white">📊 Турбо-рендеринг таблицы накладной</div>
+                                        <div class="text-[10px] text-slate-400">Отключает декоративные эффекты строк для мгновенного скролла 100k+ строк</div>
+                                    </div>
+                                    <input type="checkbox" id="chkOptTurboGrid" class="w-4 h-4 rounded text-blue-600 cursor-pointer">
+                                </label>
+
+                                <div class="p-2.5 rounded-lg bg-[#040711] border border-slate-800/80 space-y-1.5">
+                                    <div class="flex items-center justify-between">
+                                        <div class="font-semibold text-white">🛡️ Режим фонового аудита ФЛК</div>
+                                        <span id="flkAuditModeBadge" class="text-[10px] text-blue-400 font-mono">Отложенный</span>
+                                    </div>
+                                    <div class="text-[10px] text-slate-400">Выберите частоту проверки форматно-логического контроля:</div>
+                                    <select id="selectOptFlkAuditMode" class="w-full bg-[#090d16] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none">
+                                        <option value="realtime">В реальном времени (на лету при каждом символе) — для мощных ПК</option>
+                                        <option value="debounce" selected>Отложенный аудит (через 800мс паузы ввода) — баланс для ноутбуков</option>
+                                        <option value="manual">Только по требованию (по кнопке F5 / Проверить) — для слабых CPU</option>
+                                    </select>
+                                </div>
+
+                                <label class="flex items-center justify-between p-2.5 rounded-lg bg-[#040711] border border-slate-800/80 cursor-pointer">
+                                    <div>
+                                        <div class="font-semibold text-white">🔋 Режим энергосбережения батареи (Battery Saver)</div>
+                                        <div class="text-[10px] text-slate-400">Урежает фоновые таймеры и замеры при работе ноутбука от аккумулятора</div>
+                                    </div>
+                                    <input type="checkbox" id="chkOptBatterySaver" class="w-4 h-4 rounded text-blue-600 cursor-pointer">
+                                </label>
+
+                                <label class="flex items-center justify-between p-2.5 rounded-lg bg-[#040711] border border-slate-800/80 cursor-pointer">
+                                    <div>
+                                        <div class="font-semibold text-white">📱 Сенсорный режим (Touch & Tablet Mode)</div>
+                                        <div class="text-[10px] text-slate-400">Крупные кнопки 36px, широкие полосы прокрутки 14px под палец на складе/ТСД</div>
+                                    </div>
+                                    <input type="checkbox" id="chkOptTouchMode" class="w-4 h-4 rounded text-blue-600 cursor-pointer">
+                                </label>
+
+                                <label class="flex items-center justify-between p-2.5 rounded-lg bg-[#040711] border border-slate-800/80 cursor-pointer">
+                                    <div>
+                                        <div class="font-semibold text-white">💾 Сжатие сессий Gzip в IndexedDB (pako.js)</div>
+                                        <div class="text-[10px] text-slate-400">Сжатие экономит память диска, отключение снижает пиковую нагрузку на CPU</div>
+                                    </div>
+                                    <input type="checkbox" id="chkOptGzipCache" checked class="w-4 h-4 rounded text-blue-600 cursor-pointer">
+                                </label>
                             </div>
                         </div>
                     </div>
@@ -2142,40 +2847,53 @@
         </div>
 
         <!-- 📑 КОНТЕКСТНОЕ МЕНЮ РАБОЧЕГО СТОЛА (DESKTOP CONTEXT MENU) -->
-        <div id="desktopContextMenu" class="fixed z-[100001] bg-[#0f172a]/95 backdrop-blur-2xl border border-slate-700/80 rounded-xl shadow-2xl py-1.5 min-w-[220px] hidden text-xs text-slate-200">
-            <button id="ctxRefreshDesktop" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2">
+        <div id="desktopContextMenu" class="fixed z-[100001] bg-[#0f172a]/95 backdrop-blur-2xl border border-slate-700/80 rounded-xl shadow-2xl py-1.5 min-w-[240px] hidden text-xs text-slate-200">
+            <button id="ctxRefreshDesktop" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
                 <span>🔄</span> Обновить рабочий стол
             </button>
-            <button id="ctxArrangeGrid" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2">
+            <button id="ctxArrangeGrid" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
                 <span>📐</span> Упорядочить значки по сетке
             </button>
-            <button id="ctxToggleIcons" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2">
+            <button id="ctxToggleIcons" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
                 <span>👁️</span> Скрыть / Показать значки
             </button>
+            <button id="ctxToggleGadgets" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
+                <span>📱</span> Виджеты рабочего стола (Gadgets)
+            </button>
             <div class="h-px bg-slate-800 my-1"></div>
-            <button id="ctxDemoInvoice" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2">
+            <button id="ctxTimeCalendar" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
+                <span>🕒</span> Время, Дата & Календарь...
+            </button>
+            <button id="ctxTaskbarPosMenu" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
+                <span>🪟</span> Панель задач & macOS Dock...
+            </button>
+            <button id="ctxOptimization" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
+                <span>🚀</span> Оптимизация под устройство...
+            </button>
+            <div class="h-px bg-slate-800 my-1"></div>
+            <button id="ctxDemoInvoice" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
                 <span>🎲</span> Сгенерировать демо-накладную (50)
             </button>
-            <button id="ctxNewInvoice" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2">
+            <button id="ctxNewInvoice" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
                 <span>🚀</span> Мастер создания накладной
             </button>
-            <button id="ctxAutoRepair" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2">
+            <button id="ctxAutoRepair" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
                 <span>🛠️</span> Авто-Ремонт ФЛК (F5)
             </button>
             <div class="h-px bg-slate-800 my-1"></div>
-            <button id="ctxScaleMenu" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2">
+            <button id="ctxScaleMenu" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
                 <span>🔍</span> Масштаб экрана (Auto-DPI / %)...
             </button>
-            <button id="ctxLiteMode" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2">
+            <button id="ctxLiteMode" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
                 <span>⚡</span> Упрощенный режим (Lite Speed)
             </button>
-            <button id="ctxPersonalization" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2">
+            <button id="ctxPersonalization" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
                 <span>🎨</span> Персонализация и Обои...
             </button>
-            <button id="ctxOpenSettings" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2">
+            <button id="ctxOpenSettings" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
                 <span>⚙️</span> Параметры системы...
             </button>
-            <button id="ctxFullscreen" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2">
+            <button id="ctxFullscreen" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
                 <span>⛶</span> Полноэкранный режим (F11)
             </button>
         </div>
@@ -2891,15 +3609,100 @@
                 </select>
             </div>
 
-            <!-- Часы -->
-            <div id="systemClock" 
-                 data-tooltip-title="🕒 Системное Время и Дата"
-                 data-tooltip-desc="Локальное системное время станции. Фиксируется при генерации временных меток электронных документов и журнала аудита."
-                 data-tooltip-badge="Точное время"
-                 data-tooltip-shortcut="Синхронизировано"
-                 class="font-mono text-slate-300 font-bold text-xs pl-1 cursor-default">12:00</div>
+            <!-- Часы (Интерактивные: клик открывает календарь и таймер) -->
+            <button id="systemClock" 
+                 data-tooltip-title="🕒 Системное Время, Дата и Календарь"
+                 data-tooltip-desc="Локальное системное время станции и быстрый доступ к интерактивному календарю, часовым поясам и регламентному таймеру."
+                 data-tooltip-badge="Интерактивные часы"
+                 data-tooltip-shortcut="Клик / Календарь"
+                 class="font-mono text-slate-300 hover:text-white hover:bg-slate-800/80 px-2 py-1 rounded-lg transition-colors cursor-pointer flex flex-col items-end leading-tight border border-transparent hover:border-slate-700">
+                <span id="systemClockTime" class="font-bold text-xs">12:00</span>
+                <span id="systemClockDate" class="text-[9px] text-slate-400 font-normal">24.09.2026</span>
+            </button>
         </div>
     </footer>
+
+    <!-- ========================================================================= -->
+    <!-- ВСПЛЫВАЮЩИЙ ЦЕНТР ВРЕМЕНИ И КАЛЕНДАРЬ (WINDOWS 11 / MACOS FLYOUT)           -->
+    <!-- ========================================================================= -->
+    <div id="timeFlyoutModal" class="fixed right-3 bottom-14 z-[99998] w-80 bg-slate-900/98 backdrop-blur-2xl border border-slate-700/80 rounded-2xl shadow-2xl p-4 text-white hidden select-none animate-fadeIn">
+        <!-- Шапка с часами и секундами -->
+        <div class="flex items-start justify-between pb-3 border-b border-white/10 mb-3">
+            <div>
+                <div class="flex items-baseline gap-2">
+                    <span id="flyoutClockTime" class="font-mono text-3xl font-extrabold text-white tracking-wider">12:00:00</span>
+                    <span id="flyoutAmPm" class="font-mono text-xs text-blue-400 font-bold">24H</span>
+                </div>
+                <div id="flyoutClockDate" class="text-xs text-slate-300 font-medium mt-0.5">Четверг, 24 сентября 2026 г.</div>
+                <div class="flex items-center gap-1.5 mt-1.5">
+                    <span id="flyoutTimezoneBadge" class="text-[9px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 font-mono border border-blue-500/30">Москва (MSK UTC+3)</span>
+                </div>
+            </div>
+            <button id="btnTimeFlyoutClose" class="w-6 h-6 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-xs cursor-pointer">✕</button>
+        </div>
+
+        <!-- Календарь текущего месяца -->
+        <div class="space-y-2 mb-3">
+            <div class="flex items-center justify-between text-xs">
+                <span id="calendarMonthYear" class="font-bold text-white">Сентябрь 2026</span>
+                <div class="flex items-center gap-1">
+                    <button id="btnCalPrevMonth" class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs cursor-pointer">‹</button>
+                    <button id="btnCalToday" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-blue-300 font-semibold cursor-pointer">Сегодня</button>
+                    <button id="btnCalNextMonth" class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs cursor-pointer">›</button>
+                </div>
+            </div>
+
+            <!-- Сетка дней недели -->
+            <div class="grid grid-cols-7 gap-1 text-center font-mono text-[10px] text-slate-400 font-semibold border-b border-white/5 pb-1">
+                <span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span class="text-amber-400">Сб</span><span class="text-rose-400">Вс</span>
+            </div>
+
+            <!-- Сетка дней месяца -->
+            <div id="calendarDaysGrid" class="grid grid-cols-7 gap-1 text-center font-mono text-xs">
+                <!-- Заполняется динамически -->
+            </div>
+        </div>
+
+        <!-- Фармацевтический таймер регламентной обработки -->
+        <div class="p-2.5 rounded-xl bg-slate-950/60 border border-white/5 space-y-2">
+            <div class="flex items-center justify-between text-[11px]">
+                <span class="font-semibold text-slate-300 flex items-center gap-1">
+                    <span>⏱️</span> Таймер обработки накладной:
+                </span>
+                <span id="pharmaTimerDisplay" class="font-mono font-bold text-emerald-400 text-xs">15:00</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <button id="btnTimerPreset5" class="flex-1 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[10px] font-mono text-slate-300 cursor-pointer">5 мин</button>
+                <button id="btnTimerPreset15" class="flex-1 py-1 rounded bg-blue-600 text-[10px] font-mono text-white font-bold cursor-pointer">15 мин (EDI)</button>
+                <button id="btnTimerPreset30" class="flex-1 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[10px] font-mono text-slate-300 cursor-pointer">30 мин</button>
+                <button id="btnTimerToggle" class="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-[10px] font-bold text-white shadow-sm cursor-pointer">Старт</button>
+            </div>
+        </div>
+
+        <!-- Мировое время филиалов -->
+        <div class="mt-2.5 pt-2 border-t border-white/5 grid grid-cols-3 gap-1 text-[10px] text-center font-mono text-slate-400">
+            <div class="p-1 rounded bg-slate-950/40">
+                <div class="text-[9px] text-slate-500">MSK +0</div>
+                <div id="worldTimeMsk" class="font-bold text-slate-300">12:00</div>
+            </div>
+            <div class="p-1 rounded bg-slate-950/40">
+                <div class="text-[9px] text-slate-500">EKB +2</div>
+                <div id="worldTimeEkb" class="font-bold text-slate-300">14:00</div>
+            </div>
+            <div class="p-1 rounded bg-slate-950/40">
+                <div class="text-[9px] text-slate-500">VVO +7</div>
+                <div id="worldTimeVvo" class="font-bold text-slate-300">19:00</div>
+            </div>
+        </div>
+
+        <!-- Нижняя панель действий -->
+        <div class="flex items-center justify-between pt-2.5 mt-2.5 border-t border-white/10 text-[10px]">
+            <button onclick="window.PharmaGate?.openSettingsTab('tabTime'); window.PharmaGate?.toggleTimeFlyout(false);" class="text-blue-400 hover:text-blue-300 flex items-center gap-1 font-semibold cursor-pointer">
+                <span>⚙️</span> Настройки времени и поясов
+            </button>
+            <span class="text-slate-500 font-mono">GOST R 54830</span>
+        </div>
+    </div>
 
     <!-- ========================================================================= -->
     <!-- 4. SPOTLIGHT & COMMAND PALETTE (⌘K / Ctrl+K)                              -->
