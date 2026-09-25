@@ -1032,6 +1032,14 @@ export class CrossPlatformHub {
                 action: () => this.app.openApp('winKb')
             },
             {
+                id: 'open_guide',
+                title: '📖 Интерактивный Гид и Обучение (Пошаговый Tutorial RU/EN)',
+                shortcut: 'F1',
+                icon: '📖',
+                category: 'Справка',
+                action: () => this.app.openApp('winGuide')
+            },
+            {
                 id: 'open_inspector',
                 title: 'Открыть: Инспектор правок (Live Diff Studio)',
                 shortcut: '',

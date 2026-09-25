@@ -42,6 +42,7 @@ import { PharmaVocabulary, PharmacyBranch } from './domain/pharma_vocab.js';
 import { KB_ARTICLES, KB_CATEGORIES } from './domain/knowledge_base_data.js';
 import { GridController } from './ui/grid_controller.js';
 import { CrossPlatformHub } from './services/cross_platform_hub.js';
+import { GuideService } from './services/guide_service.js';
 
 export class PharmaGateWebOS {
     constructor() {
@@ -63,6 +64,9 @@ export class PharmaGateWebOS {
         // Машина времени (Undo / Redo)
         this.undoStack = [];
         this.redoStack = [];
+
+        // Интерактивный гид и руководство пользователя (Bilingual RU / EN)
+        this.guideService = new GuideService(this);
         this.maxStackDepth = 25;
 
         // Оконный менеджер и слои z-index
@@ -132,6 +136,7 @@ export class PharmaGateWebOS {
         this._bindSchemaDesigner();
         this._bindReconciliation();
         this._bindKnowledgeBase();
+        this._bindGuideWindow();
         this._bindCreateWizard();
         this._bindActionInspector();
         this._bindSettingsCenter();
@@ -465,6 +470,7 @@ export class PharmaGateWebOS {
             winWizard: { x: 120, y: 16 },
             winInspector: { x: 120, y: 112 },
             winSettings: { x: 120, y: 208 },
+            winGuide: { x: 224, y: 16 },
             winPersonalization: { x: 120, y: 304 },
             winScale: { x: 120, y: 400 },
             winLiteMode: { x: 120, y: 496 }
@@ -901,6 +907,7 @@ export class PharmaGateWebOS {
         if (winId === 'winDb') this._refreshErpTable();
         if (winId === 'winSchema') this._renderSchemaDesigner();
         if (winId === 'winKb') this._renderKbCards();
+        if (winId === 'winGuide') this.guideService?.render();
         if (winId === 'winInspector') this._renderActionInspector();
         if (winId === 'winReconcile' && this.reconcilerGrid) {
             try { this.reconcilerGrid.redraw(true); } catch (e) {}
@@ -960,6 +967,13 @@ export class PharmaGateWebOS {
                 icon: '🛠️',
                 badge: 'Аудит и ФЛК',
                 desc: 'Журнал операций, аудит правок ячеек, трассировка цен и детализация предупреждений ФЛК.'
+            },
+            { 
+                id: 'winGuide', 
+                title: 'Гид / Справка', 
+                icon: '📖',
+                badge: 'Обучение RU/EN',
+                desc: 'Интерактивный пошаговый гид по системе, песочница симуляторов ФЛК и шпаргалка оператора.'
             },
             { 
                 id: 'winSettings', 
@@ -1660,6 +1674,35 @@ export class PharmaGateWebOS {
     // 8. ОКНО 5: ИНТЕРАКТИВНАЯ БАЗА ЗНАНИЙ (25+ СТАТЕЙ С 1-CLICK FIX)
     // =========================================================================
 
+    _bindGuideWindow() {
+        if (!this.guideService) return;
+        this.guideService.render();
+
+        const searchInput = document.getElementById('guideSearchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                this.guideService.searchQuery = e.target.value;
+                this.guideService.renderTutorialList();
+            });
+        }
+
+        const catContainer = document.getElementById('guideCategoryFilterContainer');
+        if (catContainer) {
+            catContainer.querySelectorAll('.guide-cat-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const cat = btn.getAttribute('data-cat') || 'all';
+                    this.guideService.activeCategory = cat;
+                    catContainer.querySelectorAll('.guide-cat-btn').forEach(b => {
+                        b.className = b === btn 
+                            ? 'guide-cat-btn px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-600 text-white shrink-0 cursor-pointer'
+                            : 'guide-cat-btn px-2 py-0.5 rounded text-[10px] font-semibold text-slate-400 hover:text-white bg-slate-800 shrink-0 cursor-pointer';
+                    });
+                    this.guideService.renderTutorialList();
+                });
+            });
+        }
+    }
+
     _bindKnowledgeBase() {
         this._renderKbCategoryChips();
         this._renderKbCards();
@@ -2302,10 +2345,10 @@ export class PharmaGateWebOS {
                 e.preventDefault();
                 document.getElementById('btnAutoRepair')?.click();
             }
-            // F1 - Справка / База знаний
+            // F1 - Интерактивный Гид и Справка по системе
             else if (e.key === 'F1') {
                 e.preventDefault();
-                this.openApp('winKb');
+                this.openApp('winGuide');
             }
             // F11 - Полноэкранный режим
             else if (e.key === 'F11') {
