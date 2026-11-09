@@ -1,14 +1,24 @@
 /**
- * js/ui/webos_ui_controller.js - Визуальный контроллер и движок окружения WebOS
+ * js/ui/webos_ui_controller.js - Визуальный контроллер и движок окружения WebOS 2026.3.0
  * 
  * Включает:
- * 1. 🪟 Физика и микро-анимации окон (плавное открытие, сворачивание в док, максимизация, double-click заголовок)
- * 2. 🖱️ Лассо-выделение рабочего стола (Desktop Marquee Selection) мышью и тачем
- * 3. 🎛️ Центр Управления WebOS (Control Center & Quick Settings) — ползунки громкости, DPI, темы, обои, ОС
- * 4. 🔒 Экран блокировки WebOS (Lock Screen) — часы, аватар провизора, разблокировка (Win+L / Space)
- * 5. 🔍 Быстрый виджет проверки КИЗ и штрихкодов Честный ЗНАК / EAN-13 прямо на рабочем столе
- * 6. 📝 Цветные стикеры-заметки (Sticky Notes) с автосохранением и палитрой
- * 7. 🚀 Центрированный Док и умные индикаторы активных приложений на панели задач
+ * 1. 🪟 Панель задач Windows 11 (Fluent Centered Taskbar & Dock 2.0):
+ *    - Отображает ТОЛЬКО запущенные / открытые прямо сейчас программы!
+ *    - Иконки-тайлы 40x40px без горизонтального нагромождения текста.
+ *    - Светящаяся акцентная полоска под активным окном (как в Windows 11).
+ *    - Индикаторная микро-точка под фоновыми / свернутыми программами.
+ * 2. 🕒 Системный Трей Windows 11:
+ *    - Двухстрочные часы и дата (время сверху, дата снизу).
+ *    - Стрелка трея ^ для скрытых значков (Zoom, Кодировка, Перевод строк, Профиль).
+ *    - Защита Windows Defender / ФЛК (🛡️), Сеть (🛜), Звук (🔊), Язык (РУС).
+ *    - Полоска Aero Peek (Show Desktop) на правом краю.
+ * 3. ❐ Представление задач & Виртуальные рабочие столы (Task View / Win+Tab):
+ *    - Карточки открытых окон с мини-превью и переключение рабочих столов 1 и 2.
+ * 4. 🖱️ Контекстное меню Windows 11 (Desktop & Window Context Menus):
+ *    - Меню рабочего стола с горячими клавишами (F5, Ctrl+K, Win+L, Ctrl+Shift+C).
+ *    - Контекстное меню шапки окна (Свернуть, Развернуть, Прижать 50%, Закрыть).
+ * 5. 📱 Полная адаптивность под любые экраны (4K, 1080p, ноутбуки 1366x768, планшеты, смартфоны).
+ * 6. 📥 Перетаскивание файлов прямо на обои рабочего стола (Desktop File Drop Catcher).
  * 
  * Developed by Alexander Talents Agency
  * Support: phsquad@internet.ru
@@ -46,7 +56,34 @@ export class WebOsUiController {
         this.isMarqueeSelecting = false;
         this.marqueeStartX = 0;
         this.marqueeStartY = 0;
-        this.isDockCentered = safeGet('pharmagate_dock_centered') === 'true';
+        this.isDockCentered = true;
+        this.activeVirtualDesktop = 1;
+        this.activeLang = 'РУС';
+        this.allWindowsMinimized = false;
+        this.preShowDesktopState = [];
+        this.activeContextMenuTarget = null;
+
+        // Набор ТОЛЬКО открытых прямо сейчас окон (по умолчанию открыт только Редактор Накладных)
+        this.runningApps = new Set(['winEditor']);
+
+        // Метаданные всех приложений WebOS
+        this.appsCatalog = {
+            winEditor: { id: 'winEditor', title: 'Редактор Накладных', icon: '📄', badge: 'EDI Grid' },
+            winCameraScanner: { id: 'winCameraScanner', title: 'ТСД Сканер', icon: '📱', badge: 'Честный ЗНАК' },
+            winBatchProcessor: { id: 'winBatchProcessor', title: 'Пакетный EDI', icon: '📦', badge: 'Конвейер' },
+            winJnvlp: { id: 'winJnvlp', title: 'ЖНВЛП & Цены', icon: '⚖️', badge: '89 регионов' },
+            winLabelPrinter: { id: 'winLabelPrinter', title: 'Печать ценников', icon: '🏷️', badge: 'Термопринтер' },
+            winDiffViewer: { id: 'winDiffViewer', title: 'Сравнение EDI', icon: '🔍', badge: 'Visual Diff' },
+            winSqlConsole: { id: 'winSqlConsole', title: 'SQL Консоль', icon: '💻', badge: 'SQLite WASM' },
+            winDb: { id: 'winDb', title: 'СУБД ERP', icon: '🗄️', badge: 'Каталог ГРЛС' },
+            winReconcile: { id: 'winReconcile', title: 'Сверка Накладных', icon: '⚖️', badge: 'Smart Match' },
+            winSchema: { id: 'winSchema', title: 'Конструктор Схем', icon: '📐', badge: 'DBF Doctor' },
+            winWizard: { id: 'winWizard', title: 'Мастер 2.0', icon: '🚀', badge: 'Конвертация' },
+            winInspector: { id: 'winInspector', title: 'Инспектор ФЛК', icon: '🛠️', badge: 'Аудит' },
+            winKb: { id: 'winKb', title: 'База Знаний', icon: '📚', badge: '25+ регламентов' },
+            winGuide: { id: 'winGuide', title: 'Гид F1', icon: '📖', badge: 'Обучение' },
+            winSettings: { id: 'winSettings', title: 'Параметры', icon: '⚙️', badge: 'Система' }
+        };
     }
 
     init() {
@@ -56,22 +93,24 @@ export class WebOsUiController {
         this._initLockScreen();
         this._initBarcodeGadget();
         this._initStickyNotesGadget();
-        this._initDockCenterToggle();
         this._enhanceTaskbar();
+        this._initTaskView();
+        this._initContextMenus();
+        this._initDesktopFileDrop();
+        this._initResponsiveGridAutoArrange();
         this._bindGlobalOsShortcuts();
-        console.log("[WebOsUiController] Визуальная система WebOS успешно запущена.");
+        console.log("[WebOsUiController] Windows 11 Fluent WebOS окружение успешно запущено.");
     }
 
     // =========================================================================
-    // 1. ПЛАВНАЯ ФИЗИКА И АНИМАЦИИ ОКОН
+    // 1. ЖИЗНЕННЫЙ ЦИКЛ ОКОН & УМНЫЙ ТАСКБАР (ТОЛЬКО ОТКРЫТЫЕ ОКНА)
     // =========================================================================
 
     _patchWindowLifecycle() {
         const app = this.app;
         if (!app) return;
 
-        // Патч открытия окна со spring-анимацией
-        const origOpen = app.openApp?.bind(app);
+        // Патч открытия окна: добавляем окно в runningApps
         app.openApp = (winId) => {
             if (winId === 'winPersonalization' || winId === 'winScale') {
                 app.openSettingsTab?.('tabPersonalization');
@@ -85,9 +124,15 @@ export class WebOsUiController {
             const win = typeof document !== 'undefined' ? document.getElementById(winId) : null;
             if (!win) return;
 
+            // Добавляем в список запущенных программ
+            this.runningApps.add(winId);
+
             const wasMinimized = win.classList.contains('minimized');
             win.classList.remove('minimized');
             app.focusWindow?.(winId);
+
+            // Адаптивное центрирование если окно вылезло за экран
+            this._clampWindowInViewport(win);
 
             if (wasMinimized) {
                 win.classList.add('win-opening');
@@ -97,12 +142,13 @@ export class WebOsUiController {
                 app.crossPlatform?.playSound?.('window_open');
             }
 
-            app._updateTaskbar?.();
+            this.allWindowsMinimized = false;
+            this._enhanceTaskbar();
             app._redrawWindowContents?.(winId);
         };
 
-        // Патч сворачивания окна с полетом вниз
-        app.closeApp = (winId) => {
+        // Патч сворачивания окна: окно остается в runningApps, но скрыто
+        app.minimizeApp = (winId) => {
             const win = typeof document !== 'undefined' ? document.getElementById(winId) : null;
             if (!win || win.classList.contains('minimized')) return;
 
@@ -112,15 +158,29 @@ export class WebOsUiController {
             setTimeout(() => {
                 win.classList.add('minimized');
                 win.classList.remove('win-minimizing');
-                app._updateTaskbar?.();
+                this._enhanceTaskbar();
             }, 180);
         };
 
-        app.minimizeApp = (winId) => {
-            app.closeApp(winId);
+        // Патч закрытия окна: окно УДАЛЯЕТСЯ из runningApps и исчезает с панели задач!
+        app.closeApp = (winId) => {
+            const win = typeof document !== 'undefined' ? document.getElementById(winId) : null;
+            if (!win) return;
+
+            // Удаляем из панели задач
+            this.runningApps.delete(winId);
+
+            win.classList.add('win-minimizing');
+            app.crossPlatform?.playSound?.('window_close');
+
+            setTimeout(() => {
+                win.classList.add('minimized');
+                win.classList.remove('win-minimizing');
+                this._enhanceTaskbar();
+            }, 180);
         };
 
-        // Патч максимизации окна с переключением глифа
+        // Патч максимизации окна
         app.maximizeApp = (winId) => {
             const win = typeof document !== 'undefined' ? document.getElementById(winId) : null;
             if (!win) return;
@@ -138,27 +198,498 @@ export class WebOsUiController {
 
         if (typeof document === 'undefined') return;
 
-        // Улучшение заголовков всех окон: double-click для максимизации и сглаживание перетаскивания
+        // Перехват кнопок всех окон
         document.querySelectorAll('.os-window').forEach(win => {
             const header = win.querySelector('.win-header');
             if (!header) return;
 
+            // Двойной клик по заголовку разворачивает окно
             header.addEventListener('dblclick', (e) => {
                 if (e.target.closest('button, input, select, textarea')) return;
                 app.maximizeApp(win.id);
             });
 
+            // Правый клик по заголовку открывает контекстное меню окна
+            header.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.showWindowContextMenu(e, win.id);
+            });
+
+            // Отключение задержек transition во время перетаскивания (60fps)
             header.addEventListener('pointerdown', () => {
                 win.classList.add('is-dragging');
             });
             window.addEventListener('pointerup', () => {
                 win.classList.remove('is-dragging');
             });
+
+            // Кнопка закрытия (X) полностью закрывает приложение и убирает из панели задач
+            const closeBtn = win.querySelector('.win-btn-close');
+            if (closeBtn) {
+                closeBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    app.closeApp(win.id);
+                };
+            }
+
+            // Кнопка сворачивания (_) сворачивает на панель задач
+            const minBtn = win.querySelector('.win-btn-min');
+            if (minBtn) {
+                minBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    app.minimizeApp(win.id);
+                };
+            }
+        });
+    }
+
+    // Ограничение положения окна в границах экрана
+    _clampWindowInViewport(win) {
+        if (!win || win.classList.contains('maximized')) return;
+        const winW = win.offsetWidth || 700;
+        const winH = win.offsetHeight || 480;
+        const maxL = Math.max(10, window.innerWidth - winW - 16);
+        const maxT = Math.max(10, window.innerHeight - winH - 64);
+
+        if (win.offsetLeft > maxL) win.style.left = `${maxL}px`;
+        if (win.offsetTop > maxT) win.style.top = `${maxT}px`;
+        if (win.offsetLeft < 10) win.style.left = '16px';
+        if (win.offsetTop < 10) win.style.top = '16px';
+    }
+
+    // =========================================================================
+    // 2. WINDOWS 11 ПАНЕЛЬ ЗАДАЧ (ОТОБРАЖАЕТ ТОЛЬКО ОТКРЫТЫЕ ПРОГРАММЫ)
+    // =========================================================================
+
+    _enhanceTaskbar() {
+        const app = this.app;
+        if (!app) return;
+
+        app._updateTaskbar = () => {
+            if (typeof document === 'undefined') return;
+            const container = document.getElementById('taskbarAppsContainer');
+            const divider = document.getElementById('taskbarDockDivider');
+            if (!container) return;
+
+            // Если открытых программ нет, скрываем разделитель и очищаем контейнер
+            if (this.runningApps.size === 0) {
+                container.innerHTML = '';
+                if (divider) divider.style.display = 'none';
+                return;
+            }
+
+            if (divider) divider.style.display = 'block';
+
+            // Отображаем ТОЛЬКО те программы, которые сейчас запущены в runningApps!
+            const runningItems = Array.from(this.runningApps)
+                .map(id => this.appsCatalog[id])
+                .filter(Boolean);
+
+            container.innerHTML = runningItems.map(item => {
+                const win = document.getElementById(item.id);
+                const isMinimized = !win || win.classList.contains('minimized');
+                const isFront = !isMinimized && (parseInt(win.style.zIndex || '10', 10) >= (app.topZIndex - 1));
+
+                // Стили кнопки тайла как в Windows 11 (Image 2)
+                let tileClass = 'taskbar-app-tile relative w-10 h-10 rounded-lg flex items-center justify-center transition-all cursor-pointer select-none ';
+                if (isFront) {
+                    tileClass += 'bg-white/15 is-active';
+                } else if (!isMinimized) {
+                    tileClass += 'bg-white/5 hover:bg-white/10';
+                } else {
+                    tileClass += 'hover:bg-white/10 opacity-75 hover:opacity-100';
+                }
+
+                // Индикатор под иконкой: светящаяся линия под активным окном, точка под фоновым
+                const indicatorHtml = isFront
+                    ? '<span class="taskbar-active-line"></span>'
+                    : '<span class="taskbar-running-dot"></span>';
+
+                return `
+                    <button class="${tileClass}"
+                            onclick="window.PharmaGate.webOsUi.handleTaskbarIconClick('${item.id}')"
+                            oncontextmenu="window.PharmaGate.webOsUi.showTaskbarContextMenu(event, '${item.id}')"
+                            data-tooltip-title="${item.icon} ${item.title}"
+                            data-tooltip-desc="${isFront ? 'Активно на переднем плане' : (isMinimized ? 'Свернуто — нажмите для разворачивания' : 'В фоновом режиме')}"
+                            data-tooltip-badge="${item.badge}"
+                            data-tooltip-pos="top"
+                            aria-label="${item.title}">
+                        <span class="text-xl filter drop-shadow leading-none">${item.icon}</span>
+                        ${indicatorHtml}
+                    </button>
+                `;
+            }).join('');
+        };
+
+        app._updateTaskbar();
+    }
+
+    // Клик по значку в панели задач (поведение Windows 11)
+    handleTaskbarIconClick(winId) {
+        const win = document.getElementById(winId);
+        if (!win) return;
+
+        const isMinimized = win.classList.contains('minimized');
+        const isFront = !isMinimized && (parseInt(win.style.zIndex || '10', 10) >= (this.app.topZIndex - 1));
+
+        if (isMinimized) {
+            // Разворачиваем и выводим на передний план
+            this.app.openApp(winId);
+        } else if (isFront) {
+            // Если активно на переднем плане — сворачиваем
+            this.app.minimizeApp(winId);
+        } else {
+            // Если в фоне — выводим на передний план
+            this.app.focusWindow(winId);
+            this._enhanceTaskbar();
+        }
+    }
+
+    // Свернуть все окна / Показать рабочий стол (Aero Peek strip)
+    toggleShowDesktop() {
+        const openWins = Array.from(this.runningApps)
+            .map(id => document.getElementById(id))
+            .filter(w => w && !w.classList.contains('minimized'));
+
+        if (openWins.length > 0) {
+            this.preShowDesktopState = openWins.map(w => w.id);
+            openWins.forEach(w => this.app.minimizeApp(w.id));
+            this.allWindowsMinimized = true;
+            this.app.crossPlatform?.playSound?.('click');
+            this.app._showToast?.('🖥️ Рабочий стол отображен');
+        } else if (this.preShowDesktopState.length > 0) {
+            this.preShowDesktopState.forEach(id => this.app.openApp(id));
+            this.allWindowsMinimized = false;
+            this.app.crossPlatform?.playSound?.('click');
+        }
+    }
+
+    // Переключение языка РУС / ENG
+    toggleLanguage() {
+        this.activeLang = this.activeLang === 'РУС' ? 'ENG' : 'РУС';
+        const btn = document.getElementById('btnLangToggle');
+        if (btn) btn.textContent = this.activeLang;
+        this.app.crossPlatform?.playSound?.('click');
+        this.app._showToast?.(`🌐 Язык переключен: ${this.activeLang === 'РУС' ? 'Русский' : 'English'}`);
+    }
+
+    // Всплывающее меню скрытых значков (^)
+    toggleTrayOverflow() {
+        const flyout = document.getElementById('trayOverflowFlyout');
+        if (!flyout) return;
+        const isHidden = flyout.classList.toggle('hidden');
+        if (!isHidden) {
+            this.app.crossPlatform?.playSound?.('click');
+        }
+    }
+
+    // =========================================================================
+    // 3. ПРЕДСТАВЛЕНИЕ ЗАДАЧ / ВИРТУАЛЬНЫЕ РАБОЧИЕ СТОЛЫ (TASK VIEW)
+    // =========================================================================
+
+    _initTaskView() {
+        if (typeof document === 'undefined') return;
+        const overlay = document.getElementById('taskViewOverlay');
+        if (!overlay) return;
+
+        // Клик мимо карточек закрывает оверлей
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay || e.target.id === 'taskViewGrid') {
+                this.closeTaskView();
+            }
+        });
+
+        // Переключение виртуальных столов
+        overlay.querySelectorAll('.vdesktop-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const desk = parseInt(tab.getAttribute('data-desk') || '1', 10);
+                this.switchVirtualDesktop(desk);
+            });
+        });
+    }
+
+    toggleTaskView() {
+        const overlay = document.getElementById('taskViewOverlay');
+        if (!overlay) return;
+        if (overlay.classList.contains('hidden')) {
+            this.openTaskView();
+        } else {
+            this.closeTaskView();
+        }
+    }
+
+    openTaskView() {
+        const overlay = document.getElementById('taskViewOverlay');
+        const grid = document.getElementById('taskViewGrid');
+        const countBadge = document.getElementById('taskViewCountBadge');
+        if (!overlay || !grid) return;
+
+        this.app.crossPlatform?.playSound?.('click');
+
+        // Рендерим карточки всех запущенных окон
+        const openItems = Array.from(this.runningApps)
+            .map(id => this.appsCatalog[id])
+            .filter(Boolean);
+
+        if (countBadge) countBadge.textContent = String(openItems.length);
+
+        if (openItems.length === 0) {
+            grid.innerHTML = `
+                <div class="col-span-full py-12 flex flex-col items-center justify-center text-slate-400 space-y-2">
+                    <span class="text-4xl">🪟</span>
+                    <span class="text-sm">Нет открытых окон</span>
+                    <button onclick="window.PharmaGate.openApp('winEditor'); window.PharmaGate.webOsUi.closeTaskView()" class="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-bold mt-2 cursor-pointer">Открыть Накладную</button>
+                </div>
+            `;
+        } else {
+            grid.innerHTML = openItems.map(item => {
+                const win = document.getElementById(item.id);
+                const isMinimized = !win || win.classList.contains('minimized');
+                return `
+                    <div class="group relative rounded-2xl bg-slate-900/90 border border-white/10 hover:border-blue-500/80 p-3 flex flex-col justify-between h-48 transition-all cursor-pointer shadow-xl hover:shadow-2xl hover:scale-[1.02]"
+                         onclick="window.PharmaGate.openApp('${item.id}'); window.PharmaGate.webOsUi.closeTaskView()">
+                        <div class="flex items-center justify-between pb-2 border-b border-white/10">
+                            <span class="flex items-center gap-2 text-xs font-bold text-white truncate">
+                                <span>${item.icon}</span>
+                                <span>${item.title}</span>
+                            </span>
+                            <button onclick="event.stopPropagation(); window.PharmaGate.closeApp('${item.id}'); window.PharmaGate.webOsUi.openTaskView()"
+                                    class="w-6 h-6 rounded hover:bg-red-600/80 text-slate-400 hover:text-white flex items-center justify-center text-xs font-bold cursor-pointer">✕</button>
+                        </div>
+                        <div class="flex-1 flex flex-col items-center justify-center text-center p-2 text-slate-400">
+                            <span class="text-4xl filter drop-shadow">${item.icon}</span>
+                            <span class="text-[10px] text-slate-500 font-mono mt-2">${item.badge}</span>
+                            <span class="text-[9px] px-2 py-0.5 rounded-full ${isMinimized ? 'bg-slate-800 text-slate-400' : 'bg-emerald-950 text-emerald-300'} mt-1 font-semibold">${isMinimized ? 'Свернуто' : 'Активно'}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        overlay.classList.remove('hidden');
+    }
+
+    closeTaskView() {
+        const overlay = document.getElementById('taskViewOverlay');
+        if (overlay) overlay.classList.add('hidden');
+    }
+
+    switchVirtualDesktop(deskNumber) {
+        this.activeVirtualDesktop = deskNumber;
+        document.querySelectorAll('.vdesktop-tab').forEach(tab => {
+            const isMatch = parseInt(tab.getAttribute('data-desk') || '1', 10) === deskNumber;
+            tab.classList.toggle('active', isMatch);
+            tab.classList.toggle('bg-blue-600/30', isMatch);
+            tab.classList.toggle('border-blue-500/60', isMatch);
+            tab.classList.toggle('bg-white/5', !isMatch);
+            tab.classList.toggle('border-white/10', !isMatch);
+        });
+
+        this.app.crossPlatform?.playSound?.('chime');
+        this.app._showToast?.(`🖥️ Переключение на: Рабочий стол ${deskNumber}`);
+
+        // Для стола 2 по умолчанию предлагаем СУБД и SQL
+        if (deskNumber === 2 && !this.runningApps.has('winDb')) {
+            this.app.openApp('winDb');
+        }
+    }
+
+    // =========================================================================
+    // 4. КОНТЕКСТНЫЕ МЕНЮ (WINDOWS 11 FLUENT CONTEXT MENUS)
+    // =========================================================================
+
+    _initContextMenus() {
+        if (typeof document === 'undefined') return;
+
+        const dMenu = document.getElementById('desktopContextMenu');
+        const wMenu = document.getElementById('windowContextMenu');
+
+        const hideAll = () => {
+            dMenu?.classList.add('hidden');
+            wMenu?.classList.add('hidden');
+        };
+
+        // Клик в любом месте закрывает меню
+        document.addEventListener('click', hideAll);
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') hideAll();
+        });
+
+        // 1. Правый клик по рабочему столу
+        const desktopArea = document.getElementById('desktopArea');
+        desktopArea?.addEventListener('contextmenu', (e) => {
+            if (e.target.closest('.os-window, #taskbar, #startMenu, #controlCenterModal')) return;
+            e.preventDefault();
+            hideAll();
+
+            if (!dMenu) return;
+            this.app.crossPlatform?.playSound?.('click');
+
+            const mWidth = 270;
+            const mHeight = 360;
+            const left = Math.max(10, Math.min(window.innerWidth - mWidth - 10, e.clientX));
+            const top = Math.max(10, Math.min(window.innerHeight - mHeight - 50, e.clientY));
+
+            dMenu.style.left = `${left}px`;
+            dMenu.style.top = `${top}px`;
+            dMenu.classList.remove('hidden');
+        });
+
+        // Привязка обработчиков пунктов меню
+        document.getElementById('ctxRefreshDesktop')?.addEventListener('click', () => {
+            this.app.crossPlatform?.playSound?.('click');
+            this.app._showToast?.('🔄 Рабочий стол обновлен');
+        });
+        document.getElementById('ctxArrangeGrid')?.addEventListener('click', () => {
+            this.app.crossPlatform?.arrangeIconsGrid?.();
+        });
+        document.getElementById('ctxToggleIcons')?.addEventListener('click', () => {
+            const isHidden = document.body.classList.contains('desktop-icons-hidden');
+            this.app.crossPlatform?.toggleDesktopIcons?.(isHidden);
+        });
+        document.getElementById('ctxNewInvoice')?.addEventListener('click', () => {
+            this.app.openApp('winWizard');
+        });
+        document.getElementById('ctxDemoInvoice')?.addEventListener('click', () => {
+            this.app.crossPlatform?.generateDemoPharmaInvoice?.(50);
+        });
+        document.getElementById('ctxOpenSpotlightMenu')?.addEventListener('click', () => {
+            this.app.crossPlatform?.openCommandPalette?.();
+        });
+        document.getElementById('ctxTaskViewMenu')?.addEventListener('click', () => {
+            this.toggleTaskView();
+        });
+        document.getElementById('ctxControlCenterMenu')?.addEventListener('click', () => {
+            this.toggleControlCenter();
+        });
+        document.getElementById('ctxOpenSql')?.addEventListener('click', () => {
+            this.app.openApp('winSqlConsole');
+        });
+        document.getElementById('ctxPersonalization')?.addEventListener('click', () => {
+            this.app.openSettingsTab?.('tabPersonalization');
+        });
+        document.getElementById('ctxSystemSettings')?.addEventListener('click', () => {
+            this.app.openApp('winSettings');
+        });
+        document.getElementById('ctxLockScreen')?.addEventListener('click', () => {
+            this.lockWebOs();
+        });
+
+        // 2. Обработчики контекстного меню окна
+        document.getElementById('wctxMin')?.addEventListener('click', () => {
+            if (this.activeContextMenuTarget) this.app.minimizeApp(this.activeContextMenuTarget);
+        });
+        document.getElementById('wctxMax')?.addEventListener('click', () => {
+            if (this.activeContextMenuTarget) this.app.maximizeApp(this.activeContextMenuTarget);
+        });
+        document.getElementById('wctxSnapLeft')?.addEventListener('click', () => {
+            if (this.activeContextMenuTarget) this._snapWindow(this.activeContextMenuTarget, 'left');
+        });
+        document.getElementById('wctxSnapRight')?.addEventListener('click', () => {
+            if (this.activeContextMenuTarget) this._snapWindow(this.activeContextMenuTarget, 'right');
+        });
+        document.getElementById('wctxClose')?.addEventListener('click', () => {
+            if (this.activeContextMenuTarget) this.app.closeApp(this.activeContextMenuTarget);
+        });
+    }
+
+    showWindowContextMenu(e, winId) {
+        this.activeContextMenuTarget = winId;
+        const wMenu = document.getElementById('windowContextMenu');
+        if (!wMenu) return;
+
+        this.app.crossPlatform?.playSound?.('click');
+
+        const mWidth = 210;
+        const mHeight = 180;
+        const left = Math.max(10, Math.min(window.innerWidth - mWidth - 10, e.clientX));
+        const top = Math.max(10, Math.min(window.innerHeight - mHeight - 50, e.clientY));
+
+        wMenu.style.left = `${left}px`;
+        wMenu.style.top = `${top}px`;
+        wMenu.classList.remove('hidden');
+    }
+
+    showTaskbarContextMenu(e, winId) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.showWindowContextMenu(e, winId);
+    }
+
+    _snapWindow(winId, side) {
+        const win = document.getElementById(winId);
+        if (!win) return;
+        win.classList.remove('maximized', 'minimized');
+        const halfW = Math.floor((window.innerWidth - 12) / 2);
+        const fullH = window.innerHeight - 56;
+
+        win.style.width = `${halfW}px`;
+        win.style.height = `${fullH}px`;
+        win.style.top = '6px';
+        win.style.left = side === 'left' ? '6px' : `${halfW + 6}px`;
+
+        this.app.focusWindow(winId);
+        this.app._redrawWindowContents?.(winId);
+    }
+
+    // =========================================================================
+    // 5. ПРИЕМ ФАЙЛОВ ПРЯМО НА ОБОИ СТОЛА (DESKTOP DRAG & DROP)
+    // =========================================================================
+
+    _initDesktopFileDrop() {
+        if (typeof window === 'undefined') return;
+
+        window.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+        });
+
+        window.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const files = Array.from(e.dataTransfer?.files || []);
+            if (files.length === 0) return;
+
+            if (files.length === 1) {
+                this.app.openApp('winEditor');
+                this.app._loadFileDirectly?.(files[0]);
+                this.app._showToast?.(`📥 Открыт файл: ${files[0].name}`);
+            } else {
+                this.app.openApp('winBatchProcessor');
+                this.app.handleBatchFiles?.(files);
+                this.app._showToast?.(`📦 Пакетная загрузка: ${files.length} накладных`);
+            }
         });
     }
 
     // =========================================================================
-    // 2. ЛАССО-ВЫДЕЛЕНИЕ ЗНАЧКОВ РАБОЧЕГО СТОЛА (MARQUEE SELECTION)
+    // 6. АДАПТИВНОЕ АВТОВЫРАВНИВАНИЕ ЗНАЧКОВ НА ВСЕХ ЭКРАНАХ
+    // =========================================================================
+
+    _initResponsiveGridAutoArrange() {
+        if (typeof window === 'undefined') return;
+
+        const onResize = () => {
+            // Перевыравнивание всех окон если вылезли
+            document.querySelectorAll('.os-window:not(.minimized)').forEach(win => {
+                this._clampWindowInViewport(win);
+            });
+
+            // На мобильных экранах (< 768px)
+            const isMobile = window.innerWidth < 768;
+            if (isMobile) {
+                document.body.classList.add('is-mobile-screen');
+            } else {
+                document.body.classList.remove('is-mobile-screen');
+            }
+        };
+
+        window.addEventListener('resize', onResize);
+        setTimeout(onResize, 500);
+    }
+
+    // =========================================================================
+    // 7. ЛАССО, ЦЕНТР УПРАВЛЕНИЯ, ЭКРАН БЛОКИРОВКИ, ГАДЖЕТЫ
     // =========================================================================
 
     _initDesktopMarquee() {
@@ -177,7 +708,7 @@ export class WebOsUiController {
         const icons = () => Array.from(document.querySelectorAll('.desktop-icon'));
 
         desktopArea.addEventListener('pointerdown', (e) => {
-            if (e.target.closest('.os-window, #taskbar, #startMenu, .desktop-gadget, #desktopQuickWidget, #desktopContextMenu, #controlCenterModal, #timeFlyoutModal')) {
+            if (e.target.closest('.os-window, #taskbar, #startMenu, .desktop-gadget, #desktopQuickWidget, #desktopContextMenu, #controlCenterModal, #timeFlyoutModal, #taskViewOverlay')) {
                 return;
             }
 
@@ -264,10 +795,6 @@ export class WebOsUiController {
         });
     }
 
-    // =========================================================================
-    // 3. ЦЕНТР УПРАВЛЕНИЯ WEBOS (CONTROL CENTER & QUICK SETTINGS)
-    // =========================================================================
-
     _initControlCenter() {
         if (typeof document === 'undefined') return;
         const btnToggle = document.getElementById('btnOpenControlCenter');
@@ -291,7 +818,6 @@ export class WebOsUiController {
             }
         });
 
-        // 1. Ползунок громкости звуков Web Audio
         const volSlider = document.getElementById('ccVolumeSlider');
         const volLabel = document.getElementById('ccVolumeLabel');
         if (volSlider && volLabel) {
@@ -313,7 +839,6 @@ export class WebOsUiController {
             });
         }
 
-        // 2. Ползунок масштабирования DPI
         const dpiSlider = document.getElementById('ccDpiSlider');
         const dpiLabel = document.getElementById('ccDpiLabel');
         if (dpiSlider && dpiLabel) {
@@ -330,7 +855,6 @@ export class WebOsUiController {
             });
         }
 
-        // 3. Ползунок прозрачности окон (Блюр/Акрил)
         const blurSelect = document.getElementById('ccBlurSelect');
         if (blurSelect) {
             blurSelect.value = safeGet('pharmagate_blur_mode', 'strong');
@@ -339,7 +863,6 @@ export class WebOsUiController {
             });
         }
 
-        // 4. Чипы выбора тем оформления
         modal.querySelectorAll('.cc-theme-chip').forEach(chip => {
             chip.addEventListener('click', () => {
                 const theme = chip.getAttribute('data-theme');
@@ -350,7 +873,6 @@ export class WebOsUiController {
             });
         });
 
-        // 5. Чипы выбора персоны ОС
         modal.querySelectorAll('.cc-os-chip').forEach(chip => {
             chip.addEventListener('click', () => {
                 const os = chip.getAttribute('data-os');
@@ -361,7 +883,6 @@ export class WebOsUiController {
             });
         });
 
-        // 6. Быстрые переключатели: Lite Mode, Fullscreen, Lock, PWA
         document.getElementById('ccToggleLite')?.addEventListener('click', () => {
             this.app?.toggleLiteMode?.();
             this._syncControlCenterToggles();
@@ -381,7 +902,6 @@ export class WebOsUiController {
             this.app?.crossPlatform?.clearAppCache?.();
         });
 
-        // 7. Мини-карусель обоев рабочего стола
         modal.querySelectorAll('.cc-wp-thumb').forEach(thumb => {
             thumb.addEventListener('click', () => {
                 const wp = thumb.getAttribute('data-wp');
@@ -397,22 +917,16 @@ export class WebOsUiController {
     toggleControlCenter() {
         const modal = document.getElementById('controlCenterModal');
         if (!modal) return;
-
         const isHidden = modal.classList.contains('hidden');
-        if (isHidden) {
-            this.openControlCenter();
-        } else {
-            this.closeControlCenter();
-        }
+        if (isHidden) this.openControlCenter();
+        else this.closeControlCenter();
     }
 
     openControlCenter() {
         const modal = document.getElementById('controlCenterModal');
         if (!modal) return;
-
         document.getElementById('timeFlyoutModal')?.classList.add('hidden');
         document.getElementById('startMenu')?.classList.add('hidden');
-
         this._syncControlCenterToggles();
         modal.classList.remove('hidden');
         this.app?.crossPlatform?.playSound?.('click');
@@ -425,9 +939,6 @@ export class WebOsUiController {
 
     _syncControlCenterToggles() {
         if (typeof document === 'undefined') return;
-        const modal = document.getElementById('controlCenterModal');
-        if (!modal) return;
-
         const isLite = document.body.classList.contains('lite-mode');
         const btnLite = document.getElementById('ccToggleLite');
         if (btnLite) {
@@ -478,10 +989,6 @@ export class WebOsUiController {
             chip.classList.toggle('border-slate-700', !match);
         });
     }
-
-    // =========================================================================
-    // 4. ЭКРАН БЛОКИРОВКИ WEBOS (LOCK SCREEN)
-    // =========================================================================
 
     _initLockScreen() {
         if (typeof document === 'undefined') return;
@@ -561,10 +1068,6 @@ export class WebOsUiController {
         }
     }
 
-    // =========================================================================
-    // 5. БЫСТРЫЙ ВИДЖЕТ ПРОВЕРКИ КИЗ И ШТРИХКОДОВ НА РАБОЧЕМ СТОЛЕ
-    // =========================================================================
-
     _initBarcodeGadget() {
         if (typeof document === 'undefined') return;
         const input = document.getElementById('gadgetBarcodeInput');
@@ -582,7 +1085,6 @@ export class WebOsUiController {
                 return;
             }
 
-            // 1. Проверяем как DataMatrix Честный ЗНАК
             if (raw.length >= 25 || raw.startsWith('01') || raw.includes('\x1d')) {
                 const dm = MdlpValidator.validateDataMatrix(raw, 'pharma');
                 if (dm.isValid) {
@@ -617,7 +1119,6 @@ export class WebOsUiController {
                 return;
             }
 
-            // 2. Проверяем как EAN-13
             if (/^\d{12,13}$/.test(raw)) {
                 const eanCheck = MdlpValidator.validateEan13(raw);
                 if (eanCheck.isValid) {
@@ -672,10 +1173,6 @@ export class WebOsUiController {
             }
         });
     }
-
-    // =========================================================================
-    // 6. ЦВЕТНЫЕ СТИКЕРЫ-ЗАМЕТКИ (STICKY NOTES GADGET)
-    // =========================================================================
 
     _initStickyNotesGadget() {
         if (typeof document === 'undefined') return;
@@ -740,112 +1237,41 @@ export class WebOsUiController {
         }
     }
 
-    // =========================================================================
-    // 7. ДОК И УМНЫЕ ИНДИКАТОРЫ ПАНЕЛИ ЗАДАЧ
-    // =========================================================================
-
-    _initDockCenterToggle() {
-        if (typeof document === 'undefined') return;
-        if (this.isDockCentered) {
-            document.body.classList.add('dock-centered');
-        }
-
-        document.getElementById('btnToggleDockCenter')?.addEventListener('click', () => {
-            this.isDockCentered = !this.isDockCentered;
-            document.body.classList.toggle('dock-centered', this.isDockCentered);
-            safeSet('pharmagate_dock_centered', String(this.isDockCentered));
-            this.app?.crossPlatform?.playSound?.('click');
-            this.app?._showToast?.(this.isDockCentered ? '📌 Док приложений центрирован' : '📌 Док приложений прижат влево');
-        });
-    }
-
-    _enhanceTaskbar() {
-        const app = this.app;
-        if (!app) return;
-
-        app._updateTaskbar = () => {
-            if (typeof document === 'undefined') return;
-            const container = document.getElementById('taskbarAppsContainer');
-            if (!container) return;
-
-            const apps = [
-                { id: 'winEditor', title: 'Накладная', icon: '📄', badge: 'EDI Grid' },
-                { id: 'winCameraScanner', title: 'ТСД Сканер', icon: '📱', badge: 'Честный ЗНАК' },
-                { id: 'winBatchProcessor', title: 'Пакетный EDI', icon: '📦', badge: 'Конвейер' },
-                { id: 'winJnvlp', title: 'ЖНВЛП & Цены', icon: '⚖️', badge: '89 регионов' },
-                { id: 'winLabelPrinter', title: 'Ценники', icon: '🏷️', badge: 'Термопринтер' },
-                { id: 'winDiffViewer', title: 'Сравнение', icon: '🔍', badge: 'Visual Diff' },
-                { id: 'winSqlConsole', title: 'SQL Консоль', icon: '💻', badge: 'SQLite WASM' },
-                { id: 'winDb', title: 'СУБД ERP', icon: '🗄️', badge: 'Каталог ГРЛС' },
-                { id: 'winReconcile', title: 'Сверка', icon: '⚖️', badge: 'Smart Match' },
-                { id: 'winSchema', title: 'Конструктор', icon: '📐', badge: 'DBF Doctor' },
-                { id: 'winWizard', title: 'Мастер 2.0', icon: '🚀', badge: 'Конвертация' },
-                { id: 'winInspector', title: 'Инспектор', icon: '🛠️', badge: 'Аудит ФЛК' },
-                { id: 'winKb', title: 'База Знаний', icon: '📚', badge: '25+ регламентов' },
-                { id: 'winGuide', title: 'Гид F1', icon: '📖', badge: 'Обучение' },
-                { id: 'winSettings', title: 'Настройки', icon: '⚙️', badge: 'Параметры' }
-            ];
-
-            container.innerHTML = apps.map(item => {
-                const win = document.getElementById(item.id);
-                const isOpen = win && !win.classList.contains('minimized');
-                const isFront = isOpen && (parseInt(win.style.zIndex || '10', 10) >= (app.topZIndex - 1));
-
-                let btnClass = 'relative px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer select-none ';
-                if (isOpen) {
-                    if (isFront) {
-                        btnClass += 'bg-blue-600/25 text-white border border-blue-500/80 shadow-md shadow-blue-500/20 active-taskbar-item';
-                    } else {
-                        btnClass += 'bg-slate-800/90 text-slate-200 border border-slate-700 hover:bg-slate-700/80';
-                    }
-                } else {
-                    btnClass += 'text-slate-400 hover:text-white hover:bg-slate-800/50 border border-transparent';
-                }
-
-                const dotHtml = isOpen
-                    ? `<span class="taskbar-dot ${isFront ? 'taskbar-dot-active' : ''}"></span>`
-                    : '';
-
-                return `
-                    <button onclick="window.PharmaGate.toggleApp('${item.id}')"
-                            class="${btnClass}"
-                            data-tooltip-title="${item.icon} ${item.title}"
-                            data-tooltip-desc="Нажмите для переключения или сворачивания окна"
-                            data-tooltip-badge="${item.badge}"
-                            data-tooltip-pos="top"
-                            aria-label="${item.title}">
-                        <span>${item.icon}</span>
-                        <span class="taskbar-title truncate max-w-[85px]">${item.title}</span>
-                        ${dotHtml}
-                    </button>
-                `;
-            }).join('');
-        };
-
-        app._updateTaskbar();
-    }
-
-    // =========================================================================
-    // 8. ГЛОБАЛЬНЫЕ СИСТЕМНЫЕ ГОРЯЧИЕ КЛАВИШИ WEBOS
-    // =========================================================================
-
     _bindGlobalOsShortcuts() {
         if (typeof window === 'undefined') return;
         window.addEventListener('keydown', (e) => {
+            // Win+L или Ctrl+Alt+L — Блокировка экрана
             if ((e.code === 'KeyL' && (e.metaKey || (e.ctrlKey && e.altKey))) || (e.key === 'l' && e.ctrlKey && e.altKey)) {
                 e.preventDefault();
                 this.lockWebOs();
                 return;
             }
 
+            // Win+Tab — Представление задач
+            if (e.code === 'Tab' && (e.metaKey || (e.altKey && !e.ctrlKey))) {
+                e.preventDefault();
+                this.toggleTaskView();
+                return;
+            }
+
+            // Win или Ctrl+Esc — Открыть меню Пуск
             if (e.key === 'Meta' && !e.ctrlKey && !e.altKey && !e.shiftKey) {
                 this.app?.toggleStartMenu?.();
                 return;
             }
 
+            // Ctrl+Shift+C — Открыть Центр Управления
             if (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.code === 'KeyC')) {
                 e.preventDefault();
                 this.toggleControlCenter();
+                return;
+            }
+
+            // F5 — Обновить рабочий стол
+            if (e.key === 'F5' && !e.ctrlKey) {
+                e.preventDefault();
+                this.app._showToast?.('🔄 Рабочий стол обновлен');
+                this.app.crossPlatform?.playSound?.('click');
                 return;
             }
         });
