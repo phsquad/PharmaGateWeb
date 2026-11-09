@@ -1,7 +1,7 @@
 const assert = require('assert');
 const fs = require('fs');
 
-console.log('=== TEST SUITE: ADAPTIVE SHELL (MobileShell + DesktopShell) ===\n');
+console.log('=== TEST SUITE: ADAPTIVE SHELL & CLEAN TEXT-BASED MOBILE PORTAL ===\n');
 
 (async () => {
     try {
@@ -10,53 +10,49 @@ console.log('=== TEST SUITE: ADAPTIVE SHELL (MobileShell + DesktopShell) ===\n')
         assert(typeof AdaptiveShellController === 'function', 'AdaptiveShellController must be a class');
         console.log('✔ Test 1 passed: AdaptiveShellController exported cleanly.');
 
-        // 2. Check Mock app integration
+        // 2. Check Controller initialization and state
         const mockApp = {
             focusWindow: (id) => {},
             _redrawWindowContents: (id) => {},
             crossPlatform: { playSound: (s) => {} },
-            webOsUi: { _enhanceTaskbar: () => {} }
+            _showToast: (m) => {}
         };
 
         const controller = new AdaptiveShellController(mockApp);
         assert(controller.isMobile === false, 'Initially isMobile should be false');
         assert(controller.currentActiveApp === null, 'Initially currentActiveApp should be null');
-        assert(controller.activeMobileTab === 'apps', 'Initially activeMobileTab should be apps');
-        console.log('✔ Test 2 passed: AdaptiveShellController instance initializes state properly.');
+        assert(controller.forceDesktop === false, 'Initially forceDesktop should be false');
+        assert(typeof controller.openMobilePortalApp === 'function', 'openMobilePortalApp must be a function');
+        assert(typeof controller.closeMobilePortalApp === 'function', 'closeMobilePortalApp must be a function');
+        assert(typeof controller.toggleForceDesktopMode === 'function', 'toggleForceDesktopMode must be a function');
+        console.log('✔ Test 2 passed: AdaptiveShellController instance initializes state and methods properly.');
 
-        // 3. Test switchMobileTab logic
-        let openedApp = null;
-        controller.openMobileApp = (id) => { openedApp = id; };
-        controller.closeMobileApp = () => { openedApp = 'closed'; };
-        controller._setBottomBarActive = (t) => {};
-
-        controller.switchMobileTab('scanner');
-        assert(openedApp === 'winCameraScanner', 'scanner tab must open winCameraScanner');
-
-        controller.switchMobileTab('invoice');
-        assert(openedApp === 'winEditor', 'invoice tab must open winEditor');
-
-        controller.switchMobileTab('settings');
-        assert(openedApp === 'winSettings', 'settings tab must open winSettings');
-
-        controller.switchMobileTab('apps');
-        assert(openedApp === 'closed', 'apps tab must close apps and show launcher');
-        console.log('✔ Test 3 passed: switchMobileTab routes to appropriate enterprise modules.');
+        // 3. Test toggleForceDesktopMode logic
+        controller.toggleForceDesktopMode();
+        assert(controller.forceDesktop === true, 'forceDesktop should become true after toggle');
+        controller.toggleForceDesktopMode();
+        assert(controller.forceDesktop === false, 'forceDesktop should toggle back to false');
+        console.log('✔ Test 3 passed: toggleForceDesktopMode toggles between mobile portal and desktop mode.');
 
         // 4. Verify index.html mobile elements
         const html = fs.readFileSync('index.html', 'utf8');
-        assert(html.includes('id="mobileSpringboard"'), 'index.html must include #mobileSpringboard');
-        assert(html.includes('id="mobileBottomBar"'), 'index.html must include #mobileBottomBar');
-        assert(html.includes('id="mobNavScanner"'), 'index.html must include #mobNavScanner');
-        assert(html.includes('id="mobNavInvoice"'), 'index.html must include #mobNavInvoice');
-        assert(html.includes('id="mobNavApps"'), 'index.html must include #mobNavApps');
-        assert(html.includes('id="mobNavSettings"'), 'index.html must include #mobNavSettings');
-        assert(html.includes('body.shell-mobile #taskbar'), 'index.html must hide taskbar on mobile');
-        assert(html.includes('body.shell-mobile .os-window.mobile-fullscreen-sheet'), 'index.html must have full-screen sheet styling');
-        console.log('✔ Test 4 passed: All DOM IDs and CSS classes present in index.html.');
+        assert(html.includes('id="mobilePortal"'), 'index.html must include #mobilePortal');
+        assert(html.includes('class="mobile-portal-header"'), 'index.html must include mobile portal header');
+        assert(html.includes('class="mobile-quick-actions"'), 'index.html must include mobile quick actions');
+        assert(html.includes('class="mobile-sections-container"'), 'index.html must include mobile sections container');
+        assert(html.includes('openMobilePortalApp(\'winCameraScanner\')'), 'must link to Camera-TSD scanner');
+        assert(html.includes('openMobilePortalApp(\'winEditor\')'), 'must link to Invoice Editor');
+        assert(html.includes('openMobilePortalApp(\'winJnvlp\')'), 'must link to JNVLP calculator');
+        assert(html.includes('openMobilePortalApp(\'winExplorer\')'), 'must link to File Explorer');
+        assert(html.includes('openMobilePortalApp(\'winUpdateCenter\')'), 'must link to Update Center');
+        assert(html.includes('@media (max-width: 900px)'), 'index.html must contain pure CSS media query for mobile');
+        assert(html.includes('body:not(.force-desktop-mode) #taskbar'), 'index.html must hide taskbar on mobile');
+        assert(html.includes('body:not(.force-desktop-mode) #desktopIconsLayer'), 'index.html must hide desktop icons layer on mobile');
+        assert(html.includes('.mobile-portal-back-btn'), 'index.html must style mobile back button');
+        console.log('✔ Test 4 passed: All Mobile Portal DOM elements, tool links, and CSS rules verified in index.html.');
 
         console.log('\n====================================================');
-        console.log('ALL ADAPTIVE SHELL TESTS PASSED WITH 100% SUCCESS!');
+        console.log('ALL MOBILE PORTAL & ADAPTIVE SHELL TESTS PASSED WITH 100% SUCCESS!');
         console.log('====================================================\n');
     } catch (err) {
         console.error('❌ Test failed:', err);
