@@ -22,6 +22,40 @@ import { DateEngine } from '../engine/date_engine.js';
 
 export const PHARMAGATE_RELEASES = [
     {
+        version: "v2026.3.5",
+        date: "09.11.2026",
+        title: "Adaptive Shell Evolution: MobileShell & Springboard Launcher",
+        badge: "Enterprise",
+        badgeColor: "bg-blue-500/20 text-blue-300 border-blue-500/40",
+        summary: "Запуск гибридной двухоболочечной архитектуры (Adaptive Shell): полноценная десктопная WebOS для ПК и мобильный лаунчер (Springboard) с полноэкранными листами и нижним Bottom Bar для смартфонов склада.",
+        highlights: [
+            {
+                category: "features",
+                catLabel: "MobileShell",
+                title: "Адаптивный брейкпоинт и мобильный Springboard Launcher",
+                desc: "На экранах < 768px интерфейс автоматически трансформируется в iOS/Android лаунчер с крупными тач-плитками (64×64px), разбитыми на категории: Склад, Цены, Инструменты и Система."
+            },
+            {
+                category: "ui",
+                catLabel: "Full-Screen Sheet",
+                title: "Полноэкранный запуск модулей с нативной кнопкой «‹ Назад»",
+                desc: "Любой прикладной модуль на смартфоне открывается на 100% экрана, скрывая ресайзеры и десктопные кнопки, с удобной шапкой возврата в лаунчер."
+            },
+            {
+                category: "ui",
+                catLabel: "Bottom Bar",
+                title: "Эргономичный нижний тач-бар под большой палец",
+                desc: "Фиксированная нижняя панель навигации для мгновенного доступа к Сканеру ТСД, Накладной, Лаунчеру и Настройкам на ходу в аптеке и на складе."
+            },
+            {
+                category: "performance",
+                catLabel: "Единое ядро",
+                title: "100% общая бизнес-логика без дублирования кода",
+                desc: "Обе оболочки (десктопная и мобильная) работают с одними и теми же модулями DBF, SQLite WASM, МДЛП GS1 и ЖНВЛП."
+            }
+        ]
+    },
+    {
         version: "v2026.3.4",
         date: "09.11.2026",
         title: "WebOS Core Refinements: Cascading Windows, Hybrid Tabs & Sharp UX",
