@@ -56,19 +56,21 @@ export class AdaptiveShellController {
         }
 
         if (this.isMobile) {
+            this.app?.processManager?.saveShellSnapshot();
             if (this.currentActiveApp) {
                 this.openMobilePortalApp(this.currentActiveApp, false);
             } else {
                 this.closeMobilePortalApp(false);
             }
         } else {
-            // Десктоп: снимаем мобильные полноэкранные классы
+            // Десктоп: снимаем мобильные полноэкранные классы и восстанавливаем геометрию
             if (typeof document !== 'undefined') {
                 document.querySelectorAll('.os-window').forEach(win => {
                     win.classList.remove('mobile-active-page');
                     win.style.transform = '';
                 });
             }
+            this.app?.processManager?.restoreShellSnapshot();
         }
     }
 
@@ -85,6 +87,7 @@ export class AdaptiveShellController {
         }
 
         this.currentActiveApp = winId;
+        this.app?.processManager?.spawn(winId);
 
         // Скрываем все остальные окна
         document.querySelectorAll('.os-window').forEach(w => {
@@ -124,6 +127,9 @@ export class AdaptiveShellController {
     }
 
     closeMobilePortalApp(backHistory = true) {
+        if (this.currentActiveApp) {
+            this.app?.processManager?.minimize(this.currentActiveApp);
+        }
         this.currentActiveApp = null;
 
         // Сворачиваем все окна

@@ -410,6 +410,11 @@
         }
 
         /* 🪟 Позиции панели задач (Taskbar Positioning) */
+        body.taskbar-pos-top #taskbarOverflowDropdown {
+            top: 100% !important;
+            bottom: auto !important;
+            margin-top: 8px !important;
+        }
         body.taskbar-pos-top #taskbar {
             order: -1 !important;
             border-top: none !important;
@@ -5703,7 +5708,7 @@
         </div>
 
         <!-- ПРАВАЯ ЧАСТЬ: WINDOWS 11 СИСТЕМНЫЙ ТРЕЙ (SYSTEM TRAY) -->
-        <div class="flex items-center gap-1 text-xs">
+        <div class="flex items-center gap-1 text-xs shrink-0">
             
             <!-- Стрелка трея ^ (скрытые значки) -->
             <button id="btnTrayOverflow" onclick="window.PharmaGate?.webOsUi?.toggleTrayOverflow()"

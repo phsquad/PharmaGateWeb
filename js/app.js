@@ -48,6 +48,8 @@ import { bindEnterpriseFeatures } from './ui/feature_controllers.js';
 import { initWebOsUi } from './ui/webos_ui_controller.js';
 import { AdaptiveShellController } from './ui/adaptive_shell_controller.js';
 import { ExplorerController } from './ui/explorer_controller.js';
+import { ParserWorkerClient } from './services/parser_worker_client.js';
+import { ProcessManager } from './services/process_manager.js';
 
 export class PharmaGateWebOS {
     constructor() {
@@ -71,6 +73,7 @@ export class PharmaGateWebOS {
         this.redoStack = [];
 
         // Интерактивный гид и руководство пользователя (Bilingual RU / EN)
+        this.processManager = ProcessManager.getInstance(this);
         this.guideService = new GuideService(this);
         this.maxStackDepth = 25;
 
@@ -2186,10 +2189,13 @@ export class PharmaGateWebOS {
 
     async loadFile(file) {
         try {
-            const report = await UniversalImporter.importFile(file, file.name, this.schema);
+            this._showToast(`⏳ Фоновый парсер обрабатывает '${file.name}'...`);
+            const report = await ParserWorkerClient.getInstance().parseInvoiceAsync(file, file.name, this.schema);
+            // Автосохранение копии документа в VFS (Диск C:/Документы)
+            try { this.vfs?.writeFile('C:/Документы/' + file.name, file); } catch(err) {}
             this._saveSnapshot();
             
-            this.records = report.mappedRecords;
+            this.records = report.mappedRecords || report.records || [];
             this.metaHeader = report.metaHeader || {};
             this.activeFileName = file.name;
 

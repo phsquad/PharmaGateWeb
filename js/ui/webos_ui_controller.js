@@ -128,7 +128,8 @@ export class WebOsUiController {
             const win = typeof document !== 'undefined' ? document.getElementById(winId) : null;
             if (!win) return;
 
-            // Добавляем в список запущенных программ
+            // Регистрируем в ProcessManager и панели задач
+            app.processManager?.spawn(winId);
             this.runningApps.add(winId);
 
             const wasMinimized = win.classList.contains('minimized');
@@ -155,6 +156,7 @@ export class WebOsUiController {
         app.minimizeApp = (winId) => {
             const win = typeof document !== 'undefined' ? document.getElementById(winId) : null;
             if (!win || win.classList.contains('minimized')) return;
+            app.processManager?.minimize(winId);
 
             win.classList.add('win-minimizing');
             app.crossPlatform?.playSound?.('window_close');
@@ -171,7 +173,8 @@ export class WebOsUiController {
             const win = typeof document !== 'undefined' ? document.getElementById(winId) : null;
             if (!win) return;
 
-            // Удаляем из панели задач
+            // Удаляем из ProcessManager и панели задач
+            app.processManager?.terminate(winId);
             this.runningApps.delete(winId);
 
             win.classList.add('win-minimizing');
