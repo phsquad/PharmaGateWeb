@@ -25,6 +25,7 @@ import { SQLiteWasmService } from '../services/sqlite_wasm_service.js';
 import { MdlpValidator } from '../domain/mdlp_validator.js';
 import { UniversalImporter } from '../services/universal_importer.js';
 import { PharmaMath } from '../engine/pharma_math.js';
+import { bindUpdateCenter } from './update_center_controller.js';
 
 export function bindEnterpriseFeatures(app) {
     // Инициализация сервисов на экземпляре приложения
@@ -44,6 +45,7 @@ export function bindEnterpriseFeatures(app) {
     _bindSqlConsole(app);
     _bindPwaFileHandling(app);
     _bindWebShare(app);
+    bindUpdateCenter(app);
 
     console.log("[EnterpriseFeatures] Все 8 расширенных модулей PharmaGate v2026.3.0 успешно инициализированы.");
 }
