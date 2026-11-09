@@ -27,8 +27,8 @@ import { UniversalImporter } from '../services/universal_importer.js';
 import { PharmaMath } from '../engine/pharma_math.js';
 import { bindUpdateCenter } from './update_center_controller.js';
 import { ReconcilerService } from '../services/reconciler_service.js';
-import { ExportService } from '../services/export_service.js?v=2026.3.8';
-import { FlkEngine } from '../domain/flk_engine.js';
+import { ExportService } from '../services/export_service.js?v=2026.3.9';
+import { FLKEngine, FLKEngine as FlkEngine } from '../domain/flk_engine.js?v=2026.3.9';
 import { DbfDoctorEngine } from '../engine/dbf_doctor_engine.js';
 
 export function bindEnterpriseFeatures(app) {
