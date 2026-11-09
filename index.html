@@ -1649,7 +1649,16 @@
                     <span>🛠️</span> <span>Инструменты & СУБД</span>
                 </div>
                 <div class="grid grid-cols-4 gap-2 text-center">
-                    <!-- SQL Консоль -->
+                    
+                    <!-- Проводник VFS -->
+                    <button onclick="window.PharmaGate?.openApp('winExplorer')" class="flex flex-col items-center gap-1.5 p-2 rounded-2xl bg-slate-900/80 border border-white/10 active:scale-95 active:bg-blue-600/20 transition-all cursor-pointer group">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-amber-500 via-orange-500 to-yellow-600 flex items-center justify-center text-2xl shadow-md shadow-amber-500/30">
+                            📁
+                        </div>
+                        <span class="text-[11px] font-semibold text-white leading-tight">Проводник</span>
+                        <span class="text-[9px] text-slate-400">Диск C:</span>
+                    </button>
+<!-- SQL Консоль -->
                     <button onclick="window.PharmaGate?.openApp('winSqlConsole')" class="flex flex-col items-center gap-1.5 p-2 rounded-2xl bg-slate-900/80 border border-white/10 active:scale-95 active:bg-blue-600/20 transition-all cursor-pointer group">
                         <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-slate-950 via-slate-900 to-emerald-950 border border-emerald-500/40 flex items-center justify-center font-mono font-bold text-emerald-400 text-base shadow-md shadow-emerald-500/20">
                             &gt;_
@@ -4927,6 +4936,114 @@
     <!-- ========================================================================= -->
     <!-- 2.16 ОКНО: ЦЕНТР ОБНОВЛЕНИЙ PHARMAGATEWEB (UPDATE CENTER & CHANGELOG)     -->
     <!-- ========================================================================= -->
+    
+    <!-- ========================================================================= -->
+    <!-- 2.17 ОКНО: ПРОВОДНИК ФАЙЛОВ / ДИСК C:\ (VFS INDEXEDDB FILE EXPLORER)        -->
+    <!-- ========================================================================= -->
+    <div id="winExplorer" class="os-window minimized" style="top: 25px; left: 180px; width: 1060px; height: 680px; z-index: 26;">
+        <!-- Заголовок окна -->
+        <div class="win-header px-4 py-2.5 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <button class="mobile-back-btn hidden items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/10 text-white text-xs font-bold mr-2 cursor-pointer" onclick="window.PharmaGate?.adaptiveShell?.closeMobileApp()"><span class="text-sm">‹</span><span>Назад</span></button>
+                <span class="text-sm">📁</span>
+                <span class="font-bold text-xs text-white">Проводник — Виртуальный диск C:\ (VFS IndexedDB)</span>
+                <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono text-[10px] border border-amber-500/30 font-bold">Офлайн VFS</span>
+            </div>
+            <div class="flex items-center gap-1">
+                <button class="win-btn-min w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">_</button>
+                <button class="win-btn-max w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">□</button>
+                <button class="win-btn-close w-6 h-6 rounded hover:bg-red-600 flex items-center justify-center text-slate-400 hover:text-white text-xs font-bold">✕</button>
+            </div>
+        </div>
+
+        <!-- Тело Проводника -->
+        <div class="flex-1 flex flex-col overflow-hidden bg-slate-950/90 select-none">
+            
+            <!-- Верхний тулбар: Навигация, Адресная строка, Поиск и Вид -->
+            <div class="p-2 border-b border-white/10 flex items-center gap-2 bg-slate-900/60">
+                <button id="btnExplorerBack" class="w-7 h-7 rounded hover:bg-white/10 flex items-center justify-center text-slate-300 text-sm cursor-pointer" title="Назад (Alt+Left)">‹</button>
+                <button id="btnExplorerForward" class="w-7 h-7 rounded hover:bg-white/10 flex items-center justify-center text-slate-300 text-sm cursor-pointer" title="Вперед (Alt+Right)">›</button>
+                <button id="btnExplorerUp" class="w-7 h-7 rounded hover:bg-white/10 flex items-center justify-center text-slate-300 text-sm cursor-pointer" title="Вверх (Alt+Up)">↑</button>
+
+                <!-- Хлебные крошки (Адресная строка) -->
+                <div id="explorerBreadcrumbs" class="flex-1 flex items-center gap-1 px-3 py-1 bg-slate-950/80 rounded-lg border border-white/10 overflow-x-auto no-scrollbar"></div>
+
+                <!-- Поиск -->
+                <div class="relative w-48 sm:w-64 shrink-0">
+                    <span class="absolute left-2.5 top-2 text-slate-500 text-xs">🔍</span>
+                    <input id="explorerSearchInput" type="text" placeholder="Поиск в папке..." class="w-full pl-7 pr-2 py-1 bg-slate-950/80 border border-white/10 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                </div>
+
+                <!-- Режимы вида -->
+                <div class="flex items-center gap-1 border-l border-white/10 pl-2">
+                    <button id="btnExplorerViewGrid" class="w-7 h-7 rounded hover:bg-white/10 flex items-center justify-center text-slate-300 text-xs cursor-pointer" title="Крупные значки">⊞</button>
+                    <button id="btnExplorerViewList" class="w-7 h-7 rounded hover:bg-white/10 flex items-center justify-center text-slate-300 text-xs cursor-pointer" title="Таблица">☰</button>
+                </div>
+            </div>
+
+            <!-- Панель действий: Новая папка, Файл, Импорт, Экспорт, Удалить -->
+            <div class="px-3 py-1.5 border-b border-white/10 flex items-center gap-2 text-xs bg-slate-900/40 overflow-x-auto no-scrollbar">
+                <button id="btnExplorerNewFolder" class="px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-slate-200 flex items-center gap-1.5 cursor-pointer border border-white/5">
+                    <span>📁</span> <span>Новая папка</span>
+                </button>
+                <button id="btnExplorerNewFile" class="px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-slate-200 flex items-center gap-1.5 cursor-pointer border border-white/5">
+                    <span>📝</span> <span>Новый документ</span>
+                </button>
+                <button id="btnExplorerImport" class="px-2.5 py-1 rounded bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 border border-blue-500/40 flex items-center gap-1.5 cursor-pointer font-semibold">
+                    <span>📥</span> <span>Импорт с ПК</span>
+                </button>
+                <button id="btnExplorerDownload" class="px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-slate-200 flex items-center gap-1.5 cursor-pointer border border-white/5">
+                    <span>📤</span> <span>Скачать на ПК</span>
+                </button>
+                <button id="btnExplorerDelete" class="px-2.5 py-1 rounded hover:bg-red-600/30 text-rose-300 border border-transparent hover:border-red-500/40 flex items-center gap-1.5 cursor-pointer">
+                    <span>🗑️</span> <span>Удалить</span>
+                </button>
+                <input id="explorerFileInput" type="file" multiple class="hidden" />
+            </div>
+
+            <!-- Основная область: Боковая панель + Рабочая область файлов -->
+            <div class="flex-1 flex overflow-hidden">
+                <!-- Левая колонка «Быстрый доступ» -->
+                <div class="w-48 bg-slate-950/60 border-r border-white/10 p-2 space-y-1 hidden sm:flex flex-col text-xs text-slate-300">
+                    <div class="text-[10px] font-bold text-slate-500 uppercase px-2 py-1 tracking-wider">Быстрый доступ</div>
+                    <button class="explorer-quick-link w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-white/10 flex items-center gap-2 cursor-pointer" data-path="C:">
+                        <span>💻</span> <span>Диск C: (Корень)</span>
+                    </button>
+                    <button class="explorer-quick-link w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-white/10 flex items-center gap-2 cursor-pointer" data-path="C:/Документы">
+                        <span>📁</span> <span>Документы</span>
+                    </button>
+                    <button class="explorer-quick-link w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-white/10 flex items-center gap-2 cursor-pointer" data-path="C:/Загрузки">
+                        <span>📥</span> <span>Загрузки</span>
+                    </button>
+                    <button class="explorer-quick-link w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-white/10 flex items-center gap-2 cursor-pointer" data-path="C:/База_ERP">
+                        <span>🗄️</span> <span>База ERP (SQLite)</span>
+                    </button>
+                    <button class="explorer-quick-link w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-white/10 flex items-center gap-2 cursor-pointer" data-path="C:/Схемы_DBF">
+                        <span>📐</span> <span>Схемы DBF</span>
+                    </button>
+                </div>
+
+                <!-- Правая рабочая область с Drag & Drop -->
+                <div id="explorerDropZone" class="flex-1 flex flex-col overflow-y-auto border-2 border-transparent transition-colors">
+                    <div id="explorerItemsContainer"></div>
+                </div>
+            </div>
+
+            <!-- Нижняя строка состояния -->
+            <div class="h-6 bg-slate-900 border-t border-white/10 px-3 flex items-center justify-between text-[10px] text-slate-400 font-mono">
+                <div class="flex items-center gap-3">
+                    <span id="explorerStatusCount">0 элементов</span>
+                    <span>|</span>
+                    <span id="explorerStatusSize">0 КБ</span>
+                </div>
+                <div class="flex items-center gap-1.5 text-emerald-400">
+                    <span>●</span>
+                    <span>IndexedDB VFS активна</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="winUpdateCenter" class="os-window minimized" style="top: 30px; left: 160px; width: 1040px; height: 680px; z-index: 25;">
         <!-- Заголовок окна -->
         <div class="win-header px-4 py-2.5 flex items-center justify-between">
@@ -5141,9 +5258,9 @@
             </button>
 
             <!-- Проводник файлов / File Explorer -->
-            <button id="btnFileExplorer" onclick="window.PharmaGate.openApp('winEditor')"
-                    data-tooltip-title="📁 Проводник накладных"
-                    data-tooltip-desc="Открыть редактор и обозреватель документов"
+            <button id="btnFileExplorer" onclick="window.PharmaGate.openApp('winExplorer')"
+                    data-tooltip-title="📁 Проводник файлов (Диск C:)"
+                    data-tooltip-desc="Виртуальная файловая система VFS на IndexedDB с папками и импортом с ПК"
                     data-tooltip-badge="EDI Grid"
                     class="w-10 h-10 rounded-lg hover:bg-white/10 flex items-center justify-center transition-all cursor-pointer shrink-0" title="Проводник накладных">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">

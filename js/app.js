@@ -47,6 +47,7 @@ import { GuideService } from './services/guide_service.js';
 import { bindEnterpriseFeatures } from './ui/feature_controllers.js';
 import { initWebOsUi } from './ui/webos_ui_controller.js';
 import { AdaptiveShellController } from './ui/adaptive_shell_controller.js';
+import { ExplorerController } from './ui/explorer_controller.js';
 
 export class PharmaGateWebOS {
     constructor() {
@@ -152,6 +153,8 @@ export class PharmaGateWebOS {
         initWebOsUi(this);
         this.adaptiveShell = new AdaptiveShellController(this);
         this.adaptiveShell.init();
+        this.explorer = new ExplorerController(this);
+        this.explorer.init();
 
         // 10. Глобальные слушатели горячих клавиш, Drag & Drop и таймер автосохранения
         this._bindKeyboardShortcuts();
@@ -937,6 +940,7 @@ export class PharmaGateWebOS {
     }
 
     _redrawWindowContents(winId) {
+        if (winId === 'winExplorer') this.explorer?.render();
         if (winId === 'winEditor' && this.mainGrid?.isBuilt) {
             try { this.mainGrid.tabulator?.redraw(true); } catch (e) {}
         }
