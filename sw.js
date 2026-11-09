@@ -33,19 +33,27 @@ const ASSETS_TO_CACHE = [
     './js/domain/commercial_guard.js',
     './js/domain/flk_engine.js',
     './js/domain/fuzzy_column_matcher.js',
+    './js/domain/jnvlp_registry.js',
     './js/domain/knowledge_base_data.js',
+    './js/domain/mdlp_validator.js',
     './js/domain/models.js',
     './js/domain/network_profiles.js',
     './js/domain/pharma_vocab.js',
     './js/services/access_wasm_driver.js',
+    './js/services/batch_processor.js',
+    './js/services/camera_scanner.js',
     './js/services/cross_platform_hub.js',
+    './js/services/diff_engine.js',
     './js/services/export_service.js',
     './js/services/guide_service.js',
+    './js/services/label_printer.js',
     './js/services/reconciler_service.js',
     './js/services/session_cache.js',
     './js/services/sqlite_wasm_service.js',
     './js/services/universal_importer.js',
-    './js/ui/grid_controller.js'
+    './js/ui/grid_controller.js',
+    './js/ui/feature_controllers.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js'
 ];
 
 self.addEventListener('install', event => {

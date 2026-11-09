@@ -230,7 +230,13 @@ export class WebDBFEngine {
         return { fields, records, languageByte, activeEncoding };
     }
 
-    static writeDBF(fields, records, encoding = 'cp866') {
+    static writeDBF(arg1, arg2, encoding = 'cp866') {
+        let fields = arg1;
+        let records = arg2;
+        if (Array.isArray(arg2) && arg2.length > 0 && (arg2[0] instanceof DBFFieldDescriptor || (arg2[0] && arg2[0].type && arg2[0].length))) {
+            fields = arg2;
+            records = arg1;
+        }
         const is866 = encoding.toLowerCase().includes('866');
         const langByte = is866 ? this.LANG_DOS_CP866 : this.LANG_WIN_CP1251;
 

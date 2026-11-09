@@ -25,6 +25,7 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -1233,6 +1234,66 @@
                 <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 via-rose-500 to-indigo-600 flex items-center justify-center text-2xl shadow-lg shadow-rose-500/30">📖</div>
                 <span class="text-xs font-semibold text-white drop-shadow">Гид EDI</span>
             </div>
+            <div data-app="winCameraScanner" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 224px; top: 112px;"
+                 data-tooltip-title="📱 Камера-ТСД (Сканер 2D)"
+                 data-tooltip-desc="Мобильный оптический сканер: считывание штрихкодов EAN-13 и кодов DataMatrix Честный ЗНАК камерой устройства."
+                 data-tooltip-badge="DataMatrix & EAN"
+                 data-tooltip-shortcut="Клик / Перетаскивание"
+                 aria-label="Камера ТСД">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-600 via-pink-600 to-amber-500 flex items-center justify-center text-2xl shadow-lg shadow-rose-500/30">📱</div>
+                <span class="text-xs font-semibold text-white drop-shadow">Камера ТСД</span>
+            </div>
+
+            <div data-app="winBatchProcessor" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 224px; top: 208px;"
+                 data-tooltip-title="📦 Пакетный EDI-Конвейер"
+                 data-tooltip-desc="Пакетная обработка и авто-ремонт группы накладных (DBF/XML/Excel) с выгрузкой в общий ZIP-архив."
+                 data-tooltip-badge="Конвейер & ZIP"
+                 data-tooltip-shortcut="Клик / Перетаскивание"
+                 aria-label="Пакетный EDI">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-600 via-orange-600 to-red-500 flex items-center justify-center text-2xl shadow-lg shadow-orange-500/30">📦</div>
+                <span class="text-xs font-semibold text-white drop-shadow">Пакетный EDI</span>
+            </div>
+
+            <div data-app="winJnvlp" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 224px; top: 304px;"
+                 data-tooltip-title="⚖️ Региональный ЖНВЛП"
+                 data-tooltip-desc="Калькулятор предельных оптовых и розничных цен по 89 субъектам РФ (ПП РФ № 865) и Протокол согласования цен."
+                 data-tooltip-badge="89 регионов РФ"
+                 data-tooltip-shortcut="Клик / Перетаскивание"
+                 aria-label="ЖНВЛП & Цены">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-teal-600 via-emerald-600 to-cyan-500 flex items-center justify-center text-2xl shadow-lg shadow-teal-500/30">⚖️</div>
+                <span class="text-xs font-semibold text-white drop-shadow">ЖНВЛП & Цены</span>
+            </div>
+
+            <div data-app="winLabelPrinter" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 224px; top: 400px;"
+                 data-tooltip-title="🏷️ Печать Термоэтикеток"
+                 data-tooltip-desc="Студия печати ценников и термоэтикеток 58×40, 43×25, 30×20 со штрихкодами EAN-13 и DataMatrix."
+                 data-tooltip-badge="Термопринтер"
+                 data-tooltip-shortcut="Клик / Перетаскивание"
+                 aria-label="Печать ценников">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-yellow-500 via-amber-500 to-orange-600 flex items-center justify-center text-2xl shadow-lg shadow-yellow-500/30">🏷️</div>
+                <span class="text-xs font-semibold text-white drop-shadow">Ценники</span>
+            </div>
+
+            <div data-app="winDiffViewer" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 328px; top: 16px;"
+                 data-tooltip-title="🔍 Visual Diff (Сравнение)"
+                 data-tooltip-desc="Двухколоночное сравнение двух накладных (Документ А vs Документ Б) с подсветкой расхождений и отчетом Excel."
+                 data-tooltip-badge="Visual Diff"
+                 data-tooltip-shortcut="Клик / Перетаскивание"
+                 aria-label="Сравнение EDI">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 via-blue-600 to-cyan-500 flex items-center justify-center text-2xl shadow-lg shadow-indigo-500/30">🔍</div>
+                <span class="text-xs font-semibold text-white drop-shadow">Сравнение</span>
+            </div>
+
+            <div data-app="winSqlConsole" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 328px; top: 112px;"
+                 data-tooltip-title="💻 SQL Консоль ERP"
+                 data-tooltip-desc="Интерактивная консоль произвольных SQL-запросов к локальной СУБД SQLite WASM с шаблонами и экспортом."
+                 data-tooltip-badge="SQL Studio"
+                 data-tooltip-shortcut="Клик / Перетаскивание"
+                 aria-label="SQL Консоль">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-600 via-sky-600 to-blue-700 flex items-center justify-center text-2xl shadow-lg shadow-sky-500/30">💻</div>
+                <span class="text-xs font-semibold text-white drop-shadow">SQL Консоль</span>
+            </div>
+
 
         </div>
 
@@ -1563,6 +1624,9 @@
                     </button>
                     <button id="btnExportAuditReport" class="px-2.5 py-1.5 bg-purple-700 hover:bg-purple-600 rounded-lg text-white font-semibold cursor-pointer shadow-sm flex items-center gap-1" title="Скачать подробный отчет аудита ФЛК и приёмки (HTML/Print)">
                         <span>📊</span> Отчет аудита
+                    </button>
+                    <button id="btnToolbarShare" class="px-2.5 py-1.5 bg-blue-700 hover:bg-blue-600 rounded-lg text-white font-semibold cursor-pointer shadow-sm flex items-center gap-1" title="Поделиться накладной (Web Share API)">
+                        <span>🌐</span> Поделиться
                     </button>
                 </div>
 
@@ -2983,7 +3047,578 @@
             </div>
         </div>
 
-        <!-- 📑 КОНТЕКСТНОЕ МЕНЮ РАБОЧЕГО СТОЛА (DESKTOP CONTEXT MENU) -->
+        
+        <!-- ===================================================================== -->
+        <!-- ОКНО 10: 📷 КАМЕРА-ТСД (СКАНЕР DATAMATRIX И EAN-13)                  -->
+        <!-- ===================================================================== -->
+        <div id="winCameraScanner" class="os-window minimized" style="top: 30px; left: 320px; width: 560px; height: 680px; z-index: 25;">
+            <div class="win-header px-4 py-2.5 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm">📷</span>
+                    <span class="font-bold text-xs text-white">Камера-ТСД — Оптический 2D-сканер Честный ЗНАК / EAN-13</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button class="win-btn-min w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">_</button>
+                    <button class="win-btn-max w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">□</button>
+                    <button class="win-btn-close w-6 h-6 rounded hover:bg-red-600 flex items-center justify-center text-slate-400 hover:text-white text-xs font-bold">✕</button>
+                </div>
+            </div>
+
+            <!-- Режимы сканирования -->
+            <div class="bg-[#0b0f19] border-b border-slate-800 px-3 py-2 flex items-center justify-between gap-2 text-xs shrink-0 flex-wrap">
+                <div class="flex items-center gap-1.5" id="scannerModeTabs">
+                    <button id="btnScanModeVerify" class="px-2.5 py-1 rounded-lg bg-blue-600 text-white font-bold text-[11px] cursor-pointer shadow-sm">🔍 Сверка с накладной</button>
+                    <button id="btnScanModeAdd" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white font-semibold text-[11px] cursor-pointer">➕ Добавление</button>
+                    <button id="btnScanModeInspect" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white font-semibold text-[11px] cursor-pointer">🛡️ Аудит КИЗ</button>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <button id="btnScanTorchToggle" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs flex items-center gap-1 cursor-pointer" title="Включить / Выключить фонарик">
+                        <span>🔦</span>
+                        <span id="lblScanTorchState">Фонарик</span>
+                    </button>
+                    <button id="btnScanSoundToggle" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs flex items-center gap-1 cursor-pointer" title="Звук сканирования">
+                        <span id="iconScanSound">🔔</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Область видоискателя камеры -->
+            <div class="p-3 bg-[#030712] flex flex-col gap-3 flex-1 overflow-y-auto">
+                <div class="relative w-full h-64 bg-slate-950 rounded-xl overflow-hidden border-2 border-slate-800 flex items-center justify-center group shadow-inner">
+                    <video id="scannerVideo" autoplay playsinline muted class="w-full h-full object-cover"></video>
+                    
+                    <!-- Оптическая сетка и лазерная линия -->
+                    <div class="pointer-events-none absolute inset-0 flex items-center justify-center">
+                        <div class="w-48 h-48 border-2 border-dashed border-blue-400/70 rounded-2xl relative flex items-center justify-center">
+                            <div class="absolute inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-red-500 to-transparent shadow-[0_0_8px_rgba(239,68,68,0.8)] animate-pulse"></div>
+                            <span class="text-[10px] text-blue-300/80 bg-slate-900/80 px-2 py-0.5 rounded-full border border-blue-500/30">Наведите на штрихкод</span>
+                        </div>
+                    </div>
+
+                    <!-- Статус сканера -->
+                    <div id="scannerOverlayBadge" class="absolute bottom-2 inset-x-2 text-center text-[11px] font-mono py-1 rounded-lg bg-slate-900/90 text-slate-300 border border-slate-700/60 backdrop-blur-sm">
+                        Камера готова. Нажмите «Включить камеру»
+                    </div>
+                </div>
+
+                <!-- Кнопки управления камерой -->
+                <div class="flex items-center gap-2">
+                    <button id="btnScanStart" class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-emerald-900/40">
+                        <span>▶️</span> Включить камеру
+                    </button>
+                    <button id="btnScanStop" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-slate-300 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer">
+                        <span>⏹️</span> Остановить
+                    </button>
+                    <select id="selScanCameraDevice" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white max-w-[130px] truncate focus:outline-none">
+                        <option value="">Основная камера</option>
+                    </select>
+                </div>
+
+                <!-- Результат распознавания -->
+                <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Считанный код</span>
+                        <span id="scanTypeBadge" class="text-[10px] px-2 py-0.5 rounded bg-blue-900/50 text-blue-300 font-mono">Ожидание</span>
+                    </div>
+                    <div id="scannedRawCode" class="p-2 rounded-lg bg-slate-950 font-mono text-xs text-emerald-400 break-all select-all min-h-[38px] flex items-center">
+                        —
+                    </div>
+                    
+                    <!-- Распарсенные данные DataMatrix -->
+                    <div id="scanParsedDataBox" class="grid grid-cols-2 gap-2 text-xs pt-1 border-t border-slate-800">
+                        <div>
+                            <span class="text-[10px] text-slate-400">GTIN (01):</span>
+                            <div id="scanResultGtin" class="font-mono text-slate-200 text-[11px] truncate">—</div>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-400">Серийный номер (21):</span>
+                            <div id="scanResultSerial" class="font-mono text-slate-200 text-[11px] truncate">—</div>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-400">Срок годности (17):</span>
+                            <div id="scanResultExp" class="font-mono text-slate-200 text-[11px] truncate">—</div>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-400">Серия (10):</span>
+                            <div id="scanResultSeries" class="font-mono text-slate-200 text-[11px] truncate">—</div>
+                        </div>
+                    </div>
+
+                    <!-- Статус сопоставления с накладной -->
+                    <div id="scanMatchResultBox" class="p-2.5 rounded-lg bg-slate-950/90 border border-slate-800 text-xs">
+                        <div class="text-[11px] text-slate-400">Результат сопоставления:</div>
+                        <div id="scanMatchStatusText" class="font-semibold text-slate-300 mt-0.5">Код пока не отсканирован</div>
+                    </div>
+                </div>
+
+                <!-- Ручной ввод штрихкода -->
+                <div class="flex items-center gap-2 pt-1">
+                    <input type="text" id="inpScanManualCode" placeholder="Ввести штрихкод или DataMatrix вручную..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-blue-500">
+                    <button id="btnScanManualApply" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-xl text-white font-bold text-xs cursor-pointer">OK</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- ОКНО 11: 📦 ПАКЕТНЫЙ EDI-КОНВЕЙЕР & ZIP АРХИВ                        -->
+        <!-- ===================================================================== -->
+        <div id="winBatchProcessor" class="os-window minimized" style="top: 40px; left: 260px; width: 1040px; height: 640px; z-index: 24;">
+            <div class="win-header px-4 py-2.5 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm">📦</span>
+                    <span class="font-bold text-xs text-white">Пакетный EDI-конвейер — Групповая обработка накладных и авто-ремонт</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button class="win-btn-min w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">_</button>
+                    <button class="win-btn-max w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">□</button>
+                    <button class="win-btn-close w-6 h-6 rounded hover:bg-red-600 flex items-center justify-center text-slate-400 hover:text-white text-xs font-bold">✕</button>
+                </div>
+            </div>
+
+            <!-- Панель управления конвейером -->
+            <div class="bg-[#0b0f19] border-b border-slate-800 px-3 py-2 flex items-center justify-between gap-3 text-xs shrink-0 flex-wrap">
+                <div class="flex items-center gap-2">
+                    <input type="file" id="batchFileInput" multiple accept=".dbf,.xml,.xlsx,.xls,.csv" class="hidden">
+                    <button id="btnBatchSelectFiles" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-bold flex items-center gap-1.5 cursor-pointer shadow-sm">
+                        <span>📂</span> Выбрать файлы (DBF/XML/Excel)
+                    </button>
+                    <button id="btnBatchProcessAll" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white font-bold flex items-center gap-1.5 cursor-pointer shadow-sm">
+                        <span>⚙️</span> Запустить пакетный ремонт
+                    </button>
+                    <button id="btnBatchClear" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 font-semibold cursor-pointer">
+                        <span>🗑️</span> Очистить
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button id="btnBatchDownloadZip" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white font-bold flex items-center gap-1.5 cursor-pointer shadow-sm">
+                        <span>📥</span> Скачать все в ZIP
+                    </button>
+                    <button id="btnBatchDownloadExcel" class="px-3 py-1.5 bg-teal-600 hover:bg-teal-500 rounded-lg text-white font-bold flex items-center gap-1.5 cursor-pointer shadow-sm">
+                        <span>📊</span> Сводный реестр Excel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Зона перетаскивания и статистика -->
+            <div class="p-3 bg-[#030712] flex flex-col gap-3 flex-1 overflow-hidden">
+                <!-- Drop zone -->
+                <div id="batchDropZone" class="border-2 border-dashed border-slate-800 hover:border-blue-500 rounded-2xl p-4 text-center bg-slate-950/60 transition-all flex flex-col items-center justify-center gap-1 cursor-pointer">
+                    <div class="text-2xl mb-0.5">📂</div>
+                    <div class="font-semibold text-xs text-white">Перетащите сюда группу накладных (DBF, XML УПД 970@, Excel, CSV)</div>
+                    <div class="text-[11px] text-slate-400">Система автоматически проверит ФЛК каждой накладной, исправит ошибки и упакует результат в ZIP</div>
+                </div>
+
+                <!-- Прогресс-бар -->
+                <div id="batchProgressWrapper" class="space-y-1 hidden">
+                    <div class="flex items-center justify-between text-xs text-slate-400">
+                        <span id="batchProgressLabel">Обработка...</span>
+                        <span id="batchProgressPercent" class="font-mono text-blue-400">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-800">
+                        <div id="batchProgressBar" class="bg-gradient-to-r from-blue-500 to-emerald-500 h-2 transition-all duration-200" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <!-- Сводные бейджи -->
+                <div class="grid grid-cols-4 gap-2 text-xs">
+                    <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                        <div class="text-[10px] text-slate-400">Всего файлов</div>
+                        <div id="batchStatsTotal" class="text-base font-bold text-white mt-0.5">0</div>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                        <div class="text-[10px] text-slate-400">Без ошибок</div>
+                        <div id="batchStatsOk" class="text-base font-bold text-emerald-400 mt-0.5">0</div>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                        <div class="text-[10px] text-slate-400">Отремонтировано</div>
+                        <div id="batchStatsFixed" class="text-base font-bold text-amber-400 mt-0.5">0</div>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                        <div class="text-[10px] text-slate-400">Сумма реестра</div>
+                        <div id="batchStatsSum" class="text-base font-bold text-cyan-400 mt-0.5">0.00 ₽</div>
+                    </div>
+                </div>
+
+                <!-- Таблица очереди файлов -->
+                <div class="flex-1 bg-slate-950 rounded-xl border border-slate-800 overflow-y-auto">
+                    <table class="w-full text-left text-xs text-slate-300 border-collapse">
+                        <thead class="sticky top-0 bg-slate-900 text-slate-400 border-b border-slate-800 font-semibold text-[11px]">
+                            <tr>
+                                <th class="p-2.5 w-12 text-center">№</th>
+                                <th class="p-2.5">Файл</th>
+                                <th class="p-2.5 w-24">Тип</th>
+                                <th class="p-2.5 w-24 text-right">Строк</th>
+                                <th class="p-2.5 w-32 text-right">Сумма с НДС</th>
+                                <th class="p-2.5 w-40 text-center">Статус ФЛК</th>
+                                <th class="p-2.5 w-32 text-center">Действие</th>
+                            </tr>
+                        </thead>
+                        <tbody id="batchFilesTableBody" class="divide-y divide-slate-800/60 font-mono text-xs">
+                            <tr>
+                                <td colspan="7" class="p-8 text-center text-slate-500 font-sans">Очередь файлов пуста. Перетащите накладные в окно или нажмите «Выбрать файлы».</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- ОКНО 12: ⚖️ РЕГИОНАЛЬНЫЙ КАЛЬКУЛЯТОР ЖНВЛП & ПРОТОКОЛ ЦЕН              -->
+        <!-- ===================================================================== -->
+        <div id="winJnvlp" class="os-window minimized" style="top: 50px; left: 240px; width: 1060px; height: 660px; z-index: 23;">
+            <div class="win-header px-4 py-2.5 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm">⚖️</span>
+                    <span class="font-bold text-xs text-white">Региональный калькулятор ЖНВЛП (ПП РФ № 865) и Протокол согласования цен</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button class="win-btn-min w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">_</button>
+                    <button class="win-btn-max w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">□</button>
+                    <button class="win-btn-close w-6 h-6 rounded hover:bg-red-600 flex items-center justify-center text-slate-400 hover:text-white text-xs font-bold">✕</button>
+                </div>
+            </div>
+
+            <!-- Панель региона и действий -->
+            <div class="bg-[#0b0f19] border-b border-slate-800 px-3 py-2 flex items-center justify-between gap-3 text-xs shrink-0 flex-wrap">
+                <div class="flex items-center gap-2">
+                    <span class="text-slate-400 font-medium">Субъект РФ:</span>
+                    <select id="selJnvlpRegion" class="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white font-semibold focus:outline-none focus:border-blue-500 min-w-[220px]">
+                        <!-- Populated by JS -->
+                    </select>
+                    <span id="jnvlpTariffInfoBadge" class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 font-mono text-[10px]">Тарифы загружены</span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button id="btnJnvlpApplyCurrentInvoice" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white font-bold cursor-pointer">
+                        📥 Заполнить из накладной
+                    </button>
+                    <button id="btnJnvlpExportProtocol" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white font-bold cursor-pointer">
+                        📄 Скачать Протокол (Excel)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Интерактивная форма калькулятора + Таблица проверки -->
+            <div class="p-3 bg-[#030712] flex flex-col gap-3 flex-1 overflow-hidden">
+                <!-- Калькулятор одной позиции -->
+                <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 grid grid-cols-6 gap-2.5 text-xs">
+                    <div>
+                        <label class="text-[10px] text-slate-400 font-medium block mb-1">Реестровая цена (₽)</label>
+                        <input type="number" id="inpJnvlpRegPrice" step="0.01" value="250.00" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white font-mono focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-slate-400 font-medium block mb-1">Факт цена произв. (₽)</label>
+                        <input type="number" id="inpJnvlpFactPrice" step="0.01" value="240.00" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white font-mono focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-slate-400 font-medium block mb-1">Факт опт надбавка %</label>
+                        <input type="number" id="inpJnvlpOptMarkup" step="0.1" value="9.0" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white font-mono focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-slate-400 font-medium block mb-1">Факт розн надбавка %</label>
+                        <input type="number" id="inpJnvlpRetailMarkup" step="0.1" value="15.0" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white font-mono focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-slate-400 font-medium block mb-1">Ставка НДС</label>
+                        <select id="selJnvlpNds" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-blue-500">
+                            <option value="10">10%</option>
+                            <option value="20">20%</option>
+                            <option value="0">Без НДС</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col justify-end">
+                        <button id="btnJnvlpRecalcSingle" class="w-full py-1 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-bold cursor-pointer">
+                            🔄 Рассчитать
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Результаты контроля цен -->
+                <div class="grid grid-cols-4 gap-2 text-xs">
+                    <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                        <div class="text-[10px] text-slate-400">Предельная оптовая надбавка</div>
+                        <div id="lblJnvlpMaxWholesaleMarkup" class="text-sm font-bold text-amber-400 mt-0.5">10.0%</div>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                        <div class="text-[10px] text-slate-400">Предельная оптовая цена с НДС</div>
+                        <div id="lblJnvlpMaxWholesalePrice" class="text-sm font-bold text-white mt-0.5">291.50 ₽</div>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                        <div class="text-[10px] text-slate-400">Предельная розничная цена с НДС</div>
+                        <div id="lblJnvlpMaxRetailPrice" class="text-sm font-bold text-cyan-400 mt-0.5">336.88 ₽</div>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex flex-col justify-center">
+                        <div class="text-[10px] text-slate-400">Статус контроля</div>
+                        <div id="badgeJnvlpStatus" class="text-xs font-bold text-emerald-400 mt-0.5">● ЦЕНА В ПРЕДЕЛАХ НОРМЫ</div>
+                    </div>
+                </div>
+
+                <!-- Таблица ЖНВЛП по текущей накладной -->
+                <div class="flex-1 bg-slate-950 rounded-xl border border-slate-800 overflow-hidden flex flex-col">
+                    <div class="p-2 bg-slate-900/60 border-b border-slate-800 flex items-center justify-between text-xs">
+                        <span class="font-semibold text-slate-300">Анализ позиций текущей накладной на превышение надбавок ЖНВЛП</span>
+                        <span id="jnvlpTableStatsBadge" class="text-[10px] font-mono text-slate-400">0 позиций</span>
+                    </div>
+                    <div id="jnvlpTableContainer" class="flex-1 overflow-auto">
+                        <table class="w-full text-left text-xs text-slate-300 border-collapse">
+                            <thead class="sticky top-0 bg-slate-900 text-slate-400 border-b border-slate-800 font-semibold text-[10px]">
+                                <tr>
+                                    <th class="p-2">№</th>
+                                    <th class="p-2">Наименование</th>
+                                    <th class="p-2 text-right">Реестр. ₽</th>
+                                    <th class="p-2 text-right">Отпуск. произв.</th>
+                                    <th class="p-2 text-right">Опт факт %</th>
+                                    <th class="p-2 text-right">Опт пред. %</th>
+                                    <th class="p-2 text-right">Цена факт</th>
+                                    <th class="p-2 text-right">Пред. цена</th>
+                                    <th class="p-2 text-center">Статус</th>
+                                </tr>
+                            </thead>
+                            <tbody id="jnvlpTableBody" class="divide-y divide-slate-800/60 font-mono text-xs">
+                                <tr>
+                                    <td colspan="9" class="p-8 text-center text-slate-500 font-sans">Нажмите «Заполнить из накладной», чтобы загрузить данные открытого документа.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- ОКНО 13: 🏷️ СТУДИЯ ПЕЧАТИ ЦЕННИКОВ И ТЕРМОЭТИКЕТОК СО ШТРИХКОДАМИ    -->
+        <!-- ===================================================================== -->
+        <div id="winLabelPrinter" class="os-window minimized" style="top: 60px; left: 220px; width: 1020px; height: 660px; z-index: 22;">
+            <div class="win-header px-4 py-2.5 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm">🏷️</span>
+                    <span class="font-bold text-xs text-white">Студия печати термоэтикеток и ценников со штрихкодами (Zebra / Xprinter)</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button class="win-btn-min w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">_</button>
+                    <button class="win-btn-max w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">□</button>
+                    <button class="win-btn-close w-6 h-6 rounded hover:bg-red-600 flex items-center justify-center text-slate-400 hover:text-white text-xs font-bold">✕</button>
+                </div>
+            </div>
+
+            <!-- Главный лейаут: Слева настройки, справа предпросмотр -->
+            <div class="flex flex-1 overflow-hidden bg-[#030712]">
+                <!-- Левая колонка параметров -->
+                <div class="w-80 bg-[#0b0f19] border-r border-slate-800 p-4 space-y-4 overflow-y-auto shrink-0 text-xs text-slate-300">
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-400 block mb-1.5 uppercase tracking-wider">Формат термоэтикетки</label>
+                        <select id="selLabelFormat" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+                            <option value="58x40">58 × 40 мм (Стандарт аптек)</option>
+                            <option value="43x25">43 × 25 мм (Компактный полочный)</option>
+                            <option value="30x20">30 × 20 мм (Мини-флакон)</option>
+                            <option value="a4">Лист A4 (Сетка 24 ценника)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-400 block mb-1.5 uppercase tracking-wider">Тип штрихкода</label>
+                        <select id="selLabelBarcodeType" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+                            <option value="ean13">EAN-13 (Линейный штрихкод)</option>
+                            <option value="datamatrix">DataMatrix (Честный ЗНАК)</option>
+                            <option value="code128">Code-128 (Внутренний артикул)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-400 block mb-1.5 uppercase tracking-wider">Название аптеки / Организации</label>
+                        <input type="text" id="inpLabelOrgName" value="Аптека «ФармаГейт»" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+                    </div>
+
+                    <div class="space-y-2 pt-2 border-t border-slate-800">
+                        <label class="text-[11px] font-bold text-slate-400 block mb-1 uppercase tracking-wider">Отображать на ценнике</label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="chkLabelShowSeries" checked class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0">
+                            <span>Серия препарата</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="chkLabelShowExp" checked class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0">
+                            <span>Срок годности</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="chkLabelShowCountry" checked class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0">
+                            <span>Страна производителя</span>
+                        </label>
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-800">
+                        <label class="text-[11px] font-bold text-slate-400 block mb-1.5 uppercase tracking-wider">Тираж печати</label>
+                        <select id="selLabelQtyMode" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+                            <option value="single">1 ценник на каждую позицию</option>
+                            <option value="by_qnt">По количеству в накладной (QNT)</option>
+                        </select>
+                    </div>
+
+                    <div class="pt-3">
+                        <button id="btnLabelPrint" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 rounded-xl text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-blue-900/40">
+                            <span>🖨️</span> Печать на принтере (Ctrl+P)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Правая колонка: Интерактивный предпросмотр -->
+                <div class="flex-1 p-4 flex flex-col gap-3 overflow-hidden">
+                    <div class="flex items-center justify-between text-xs text-slate-400">
+                        <span class="font-semibold text-white">Интерактивный предпросмотр этикетки (Масштаб 1:1)</span>
+                        <span id="lblLabelCountBadge" class="font-mono px-2 py-0.5 rounded bg-slate-800 text-blue-300">Готово к печати: 0 шт.</span>
+                    </div>
+
+                    <div class="flex-1 bg-slate-950 rounded-2xl border border-slate-800 p-6 flex items-center justify-center overflow-auto shadow-inner">
+                        <div id="labelPreviewBox" class="bg-white text-black rounded-lg shadow-2xl p-4 flex items-center justify-center transition-all">
+                            <!-- Live SVG preview injected here -->
+                            <div class="text-slate-400 text-xs font-sans">Загрузите накладную для предпросмотра ценников</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- ОКНО 14: 🔍 ИНТЕРАКТИВНЫЙ VISUAL DIFF (СРАВНЕНИЕ ДВУХ НАКЛАДНЫХ)      -->
+        <!-- ===================================================================== -->
+        <div id="winDiffViewer" class="os-window minimized" style="top: 40px; left: 180px; width: 1120px; height: 680px; z-index: 21;">
+            <div class="win-header px-4 py-2.5 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm">🔍</span>
+                    <span class="font-bold text-xs text-white">Visual Diff — Двухколоночное сравнение двух накладных</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button class="win-btn-min w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">_</button>
+                    <button class="win-btn-max w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">□</button>
+                    <button class="win-btn-close w-6 h-6 rounded hover:bg-red-600 flex items-center justify-center text-slate-400 hover:text-white text-xs font-bold">✕</button>
+                </div>
+            </div>
+
+            <!-- Верхняя панель выбора двух документов -->
+            <div class="bg-[#0b0f19] border-b border-slate-800 px-3 py-2 flex items-center justify-between gap-3 text-xs shrink-0 flex-wrap">
+                <div class="flex items-center gap-2">
+                    <input type="file" id="diffFileInputA" accept=".dbf,.xml,.xlsx,.xls,.csv" class="hidden">
+                    <button id="btnDiffLoadA" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-bold flex items-center gap-1.5 cursor-pointer">
+                        <span>📄</span> Документ А (Исходный)
+                    </button>
+                    <span id="lblDiffFileA" class="font-mono text-slate-400 max-w-[140px] truncate">Не выбран</span>
+
+                    <span class="text-slate-600 font-bold px-1">➔</span>
+
+                    <input type="file" id="diffFileInputB" accept=".dbf,.xml,.xlsx,.xls,.csv" class="hidden">
+                    <button id="btnDiffLoadB" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white font-bold flex items-center gap-1.5 cursor-pointer">
+                        <span>📄</span> Документ Б (Новый / Корр.)
+                    </button>
+                    <span id="lblDiffFileB" class="font-mono text-slate-400 max-w-[140px] truncate">Не выбран</span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button id="btnDiffUseCurrentAsA" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 font-semibold cursor-pointer">
+                        📥 Открытая накладная как «А»
+                    </button>
+                    <button id="btnDiffExportExcel" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white font-bold flex items-center gap-1.5 cursor-pointer">
+                        <span>📊</span> Экспорт отчета в Excel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Сводный баннер различий -->
+            <div class="p-3 bg-[#030712] flex flex-col gap-3 flex-1 overflow-hidden">
+                <div class="grid grid-cols-5 gap-2 text-xs">
+                    <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                        <div class="text-[10px] text-slate-400">Без изменений</div>
+                        <div id="diffBadgeEqual" class="text-sm font-bold text-slate-200 mt-0.5">0</div>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                        <div class="text-[10px] text-slate-400">Изменено</div>
+                        <div id="diffBadgeMod" class="text-sm font-bold text-amber-400 mt-0.5">0</div>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                        <div class="text-[10px] text-slate-400">Добавлено в Б</div>
+                        <div id="diffBadgeAdd" class="text-sm font-bold text-emerald-400 mt-0.5">0</div>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                        <div class="text-[10px] text-slate-400">Удалено из Б</div>
+                        <div id="diffBadgeDel" class="text-sm font-bold text-rose-400 mt-0.5">0</div>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                        <div class="text-[10px] text-slate-400">Дельта суммы (Б - А)</div>
+                        <div id="diffDeltaSum" class="text-sm font-bold text-cyan-400 mt-0.5">0.00 ₽</div>
+                    </div>
+                </div>
+
+                <!-- Таблица различий -->
+                <div class="flex-1 bg-slate-950 rounded-xl border border-slate-800 overflow-hidden">
+                    <div id="diffGridContainer" class="w-full h-full"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- ОКНО 15: 💻 SQL КОНСОЛЬ & QUERY BUILDER ДЛЯ СУБД MINI-ERP             -->
+        <!-- ===================================================================== -->
+        <div id="winSqlConsole" class="os-window minimized" style="top: 45px; left: 200px; width: 1080px; height: 660px; z-index: 20;">
+            <div class="win-header px-4 py-2.5 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm">💻</span>
+                    <span class="font-bold text-xs text-white">SQL Консоль — Интерактивный Query Studio СУБД Mini-ERP (SQLite WASM)</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button class="win-btn-min w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">_</button>
+                    <button class="win-btn-max w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">□</button>
+                    <button class="win-btn-close w-6 h-6 rounded hover:bg-red-600 flex items-center justify-center text-slate-400 hover:text-white text-xs font-bold">✕</button>
+                </div>
+            </div>
+
+            <!-- Тулбар SQL шаблонов и кнопок -->
+            <div class="bg-[#0b0f19] border-b border-slate-800 px-3 py-2 flex items-center justify-between gap-3 text-xs shrink-0 flex-wrap">
+                <div class="flex items-center gap-2">
+                    <span class="text-slate-400 font-medium">Шаблоны запросов:</span>
+                    <select id="selSqlPresets" class="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none focus:border-blue-500 min-w-[260px]">
+                        <!-- Populated dynamically -->
+                    </select>
+                    <button id="btnSqlRun" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white font-bold flex items-center gap-1 cursor-pointer shadow-sm">
+                        <span>▶️</span> Выполнить (F5)
+                    </button>
+                    <button id="btnSqlClear" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 font-semibold cursor-pointer">
+                        Очистить
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <span id="sqlExecutionBadge" class="font-mono text-[10px] text-slate-400 px-2 py-0.5 rounded bg-slate-900 border border-slate-800">0 строк (0 мс)</span>
+                    <button id="btnSqlExportExcel" class="px-3 py-1 bg-teal-600 hover:bg-teal-500 rounded-lg text-white font-bold flex items-center gap-1 cursor-pointer shadow-sm">
+                        <span>📊</span> В Excel
+                    </button>
+                    <button id="btnSqlExportCsv" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 font-semibold cursor-pointer">
+                        CSV
+                    </button>
+                </div>
+            </div>
+
+            <!-- Тело консоли: Редактор запроса + Таблица результатов -->
+            <div class="p-3 bg-[#030712] flex flex-col gap-2.5 flex-1 overflow-hidden">
+                <!-- Поле ввода SQL -->
+                <div class="h-32 bg-slate-950 rounded-xl border border-slate-800 p-2 relative flex flex-col shrink-0">
+                    <div class="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1 flex items-center justify-between">
+                        <span>SQL Запрос (Таблицы: products, documents, document_items, defectura_log)</span>
+                        <span class="text-blue-400">Ctrl+Enter для запуска</span>
+                    </div>
+                    <textarea id="sqlQueryInput" class="w-full flex-1 bg-transparent text-emerald-400 font-mono text-xs focus:outline-none resize-none leading-relaxed" spellcheck="false">SELECT id, codepst AS 'Код', name AS 'Наименование', ean13 AS 'Штрихкод', regprc AS 'Реестр. цена', firm AS 'Производитель' FROM products ORDER BY id DESC LIMIT 100;</textarea>
+                </div>
+
+                <!-- Сообщение об ошибке (если есть) -->
+                <div id="sqlErrorBanner" class="p-2 rounded-lg bg-rose-950/60 border border-rose-800 text-rose-300 font-mono text-xs hidden"></div>
+
+                <!-- Таблица результатов -->
+                <div class="flex-1 bg-slate-950 rounded-xl border border-slate-800 overflow-hidden flex flex-col">
+                    <div id="sqlResultsGridContainer" class="w-full h-full"></div>
+                </div>
+            </div>
+        </div>
+
+<!-- 📑 КОНТЕКСТНОЕ МЕНЮ РАБОЧЕГО СТОЛА (DESKTOP CONTEXT MENU) -->
         <div id="desktopContextMenu" class="fixed z-[100001] bg-[#0f172a]/95 backdrop-blur-2xl border border-slate-700/80 rounded-xl shadow-2xl py-1.5 min-w-[240px] hidden text-xs text-slate-200">
             <button id="ctxRefreshDesktop" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
                 <span>🔄</span> Обновить рабочий стол
@@ -3222,7 +3857,44 @@
                             <div class="font-semibold text-slate-200 text-[11px] leading-tight">Гид & Справка</div>
                             <div class="text-[9px] text-slate-400">Обучение EDI</div>
                         </button>
-                    </div>
+                    
+                        <!-- Камера ТСД -->
+                        <button onclick="window.PharmaGate.openApp('winCameraScanner'); window.PharmaGate.toggleStartMenu();" class="start-app-item flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-slate-800/80 border border-transparent hover:border-slate-700 transition-all group">
+                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-600 via-pink-600 to-amber-500 text-white flex items-center justify-center text-2xl group-hover:scale-105 transition-transform shadow-md shadow-rose-600/30">📱</div>
+                            <div class="font-semibold text-slate-200 text-[11px] leading-tight">Камера ТСД</div>
+                            <div class="text-[9px] text-slate-400">2D Сканер</div>
+                        </button>
+                        <!-- Пакетный EDI -->
+                        <button onclick="window.PharmaGate.openApp('winBatchProcessor'); window.PharmaGate.toggleStartMenu();" class="start-app-item flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-slate-800/80 border border-transparent hover:border-slate-700 transition-all group">
+                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-600 via-orange-600 to-red-500 text-white flex items-center justify-center text-2xl group-hover:scale-105 transition-transform shadow-md shadow-orange-600/30">📦</div>
+                            <div class="font-semibold text-slate-200 text-[11px] leading-tight">Пакетный EDI</div>
+                            <div class="text-[9px] text-slate-400">Конвейер & ZIP</div>
+                        </button>
+                        <!-- ЖНВЛП & Цены -->
+                        <button onclick="window.PharmaGate.openApp('winJnvlp'); window.PharmaGate.toggleStartMenu();" class="start-app-item flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-slate-800/80 border border-transparent hover:border-slate-700 transition-all group">
+                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-teal-600 via-emerald-600 to-cyan-500 text-white flex items-center justify-center text-2xl group-hover:scale-105 transition-transform shadow-md shadow-teal-600/30">⚖️</div>
+                            <div class="font-semibold text-slate-200 text-[11px] leading-tight">ЖНВЛП & Цены</div>
+                            <div class="text-[9px] text-slate-400">89 регионов РФ</div>
+                        </button>
+                        <!-- Печать ценников -->
+                        <button onclick="window.PharmaGate.openApp('winLabelPrinter'); window.PharmaGate.toggleStartMenu();" class="start-app-item flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-slate-800/80 border border-transparent hover:border-slate-700 transition-all group">
+                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-yellow-500 via-amber-500 to-orange-600 text-white flex items-center justify-center text-2xl group-hover:scale-105 transition-transform shadow-md shadow-yellow-600/30">🏷️</div>
+                            <div class="font-semibold text-slate-200 text-[11px] leading-tight">Ценники</div>
+                            <div class="text-[9px] text-slate-400">Термопечать</div>
+                        </button>
+                        <!-- Сравнение накладных -->
+                        <button onclick="window.PharmaGate.openApp('winDiffViewer'); window.PharmaGate.toggleStartMenu();" class="start-app-item flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-slate-800/80 border border-transparent hover:border-slate-700 transition-all group">
+                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 via-blue-600 to-cyan-500 text-white flex items-center justify-center text-2xl group-hover:scale-105 transition-transform shadow-md shadow-indigo-600/30">🔍</div>
+                            <div class="font-semibold text-slate-200 text-[11px] leading-tight">Visual Diff</div>
+                            <div class="text-[9px] text-slate-400">Сравнение EDI</div>
+                        </button>
+                        <!-- SQL Консоль -->
+                        <button onclick="window.PharmaGate.openApp('winSqlConsole'); window.PharmaGate.toggleStartMenu();" class="start-app-item flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-slate-800/80 border border-transparent hover:border-slate-700 transition-all group">
+                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-600 via-sky-600 to-blue-700 text-white flex items-center justify-center text-2xl group-hover:scale-105 transition-transform shadow-md shadow-sky-600/30">💻</div>
+                            <div class="font-semibold text-slate-200 text-[11px] leading-tight">SQL Консоль</div>
+                            <div class="text-[9px] text-slate-400">SQLite Studio</div>
+                        </button>
+</div>
                 </div>
 
                 <!-- ВИД 2: macOS Finder (Проводник файлов и накладных) -->
