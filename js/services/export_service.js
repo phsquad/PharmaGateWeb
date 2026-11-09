@@ -473,3 +473,52 @@ export class UpdFns970Generator {
         setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
     }
 }
+
+/**
+ * Универсальный сервис экспорта файлов, выгрузки Blob и формирования Excel/CSV
+ */
+export class ExportService {
+    /**
+     * Скачивание произвольного Blob в браузере
+     * @param {Blob} blob 
+     * @param {string} filename 
+     */
+    static downloadBlob(blob, filename = 'download') {
+        if (!blob || typeof document === 'undefined') return;
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+    }
+
+    /**
+     * Экспорт массива объектов в Excel (.xlsx) с fallback на CSV
+     * @param {Array<Object>} records 
+     * @param {string} filename 
+     * @param {string} sheetName 
+     */
+    static exportToExcel(records, filename = 'export.xlsx', sheetName = 'Sheet1') {
+        if (typeof window !== 'undefined' && window.XLSX) {
+            const ws = window.XLSX.utils.json_to_sheet(records || []);
+            const wb = window.XLSX.utils.book_new();
+            window.XLSX.utils.book_append_sheet(wb, ws, sheetName);
+            window.XLSX.writeFile(wb, filename);
+        } else {
+            // CSV Fallback если XLSX еще не подгружен
+            const keys = records && records.length ? Object.keys(records[0]) : [];
+            const csvRows = [keys.join(';')];
+            (records || []).forEach(r => {
+                csvRows.push(keys.map(k => `"${String(r[k] ?? '').replace(/"/g, '""')}"`).join(';'));
+            });
+            const csvContent = '\uFEFF' + csvRows.join('\r\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            this.downloadBlob(blob, filename.replace(/\.xlsx$/i, '.csv'));
+        }
+    }
+}
+
+export default ExportService;
