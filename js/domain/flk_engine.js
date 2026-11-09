@@ -332,3 +332,6 @@ export class FLKEngine {
         return { repairedRecords, fixedCount, logs };
     }
 }
+
+export { FLKEngine as FlkEngine };
+export default FLKEngine;

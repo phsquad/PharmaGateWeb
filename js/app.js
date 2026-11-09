@@ -44,7 +44,7 @@ import { KB_ARTICLES, KB_CATEGORIES } from './domain/knowledge_base_data.js';
 import { GridController } from './ui/grid_controller.js';
 import { CrossPlatformHub } from './services/cross_platform_hub.js';
 import { GuideService } from './services/guide_service.js';
-import { bindEnterpriseFeatures } from './ui/feature_controllers.js?v=2026.3.8';
+import { bindEnterpriseFeatures } from './ui/feature_controllers.js?v=2026.3.9';
 import { initWebOsUi } from './ui/webos_ui_controller.js';
 import { AdaptiveShellController } from './ui/adaptive_shell_controller.js';
 import { ExplorerController } from './ui/explorer_controller.js';
