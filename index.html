@@ -68,7 +68,7 @@
 
         /* 🌌 Обои рабочего стола WebOS */
         .desktop-canvas {
-            background: radial-gradient(circle at 50% 15%, #1e1b4b 0%, #0f172a 45%, #020617 100%);
+            background: radial-gradient(circle at 50% 25%, #1e3a8a 0%, #0f172a 45%, #020617 100%);
             background-size: cover;
             background-position: center;
         }
@@ -1766,7 +1766,7 @@
         <!-- ===================================================================== -->
         <!-- ВИДЖЕТ БЫСТРОГО ОФОРМЛЕНИЯ И МАСШТАБИРОВАНИЯ НА РАБОЧЕМ СТОЛЕ         -->
         <!-- ===================================================================== -->
-        <div id="desktopQuickWidget" class="pointer-events-auto absolute right-6 top-6 z-20 w-80 rounded-2xl bg-slate-900/90 backdrop-blur-xl border border-white/20 p-4 shadow-2xl text-white transition-all select-none">
+        <div id="desktopQuickWidget" class="pointer-events-auto absolute right-6 top-6 z-20 w-80 rounded-2xl bg-slate-900/90 backdrop-blur-xl border border-white/20 p-4 shadow-2xl text-white transition-all select-none hidden">
             <div class="flex items-center justify-between pb-2 border-b border-white/10 mb-3">
                 <div class="flex items-center gap-2.5">
                     <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-fuchsia-500 to-pink-500 flex items-center justify-center text-base shadow-sm shadow-fuchsia-500/30">🎨</div>
@@ -4605,6 +4605,147 @@
     <!-- ========================================================================= -->
     <!-- 3. ПАНЕЛЬ ЗАДАЧ (CROSS-PLATFORM TASKBAR & DOCK)                            -->
     <!-- ========================================================================= -->
+    
+    <!-- ========================================================================= -->
+    <!-- 2.16 ОКНО: ЦЕНТР ОБНОВЛЕНИЙ PHARMAGATEWEB (UPDATE CENTER & CHANGELOG)     -->
+    <!-- ========================================================================= -->
+    <div id="winUpdateCenter" class="os-window minimized" style="top: 30px; left: 160px; width: 1040px; height: 680px; z-index: 25;">
+        <!-- Заголовок окна -->
+        <div class="win-header px-4 py-2.5 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <span class="text-sm">🔄</span>
+                <span class="font-bold text-xs text-white">Центр Обновлений PharmaGateWeb — Release Hub & Diagnostics</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[10px] border border-emerald-500/30 font-bold">v2026.3.2 LTS Enterprise</span>
+            </div>
+            <div class="flex items-center gap-1">
+                <button class="win-btn-min w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">_</button>
+                <button class="win-btn-max w-6 h-6 rounded hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white text-xs">□</button>
+                <button class="win-btn-close w-6 h-6 rounded hover:bg-red-600 flex items-center justify-center text-slate-400 hover:text-white text-xs font-bold">✕</button>
+            </div>
+        </div>
+
+        <!-- Тело Центра Обновлений -->
+        <div class="flex-1 flex flex-col overflow-hidden bg-slate-950/80 p-5 space-y-4">
+            
+            <!-- Верхняя Hero-карточка статуса системы -->
+            <div class="p-4 rounded-2xl bg-gradient-to-r from-slate-900/90 via-slate-900/80 to-blue-950/40 border border-white/10 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-2xl shadow-lg shadow-emerald-500/30">
+                        🔄
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-base font-bold text-white">PharmaGateWeb Enterprise Platform</h2>
+                            <span id="ucStatusBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">● Актуально</span>
+                        </div>
+                        <p class="text-xs text-slate-300 mt-0.5">
+                            Текущая сборка: <b class="font-mono text-white">v2026.3.2 LTS</b> (16 активных модулей) · Архитектура: 100% Client-Side WebAssembly
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button id="btnCheckUpdatesNow" class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-blue-600/30 transition-all cursor-pointer">
+                        <span>🔄</span>
+                        <span>Проверить наличие обновлений</span>
+                    </button>
+                    <button id="btnRunDiagnostics" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer">
+                        <span>⚡</span>
+                        <span>Самодиагностика (16/16)</span>
+                    </button>
+                    <button id="btnExportChangelogMd" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer" title="Экспорт Changelog в Markdown">
+                        <span>📥</span>
+                        <span>Экспорт</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Навигационные вкладки -->
+            <div class="flex items-center justify-between pb-2 border-b border-white/10 gap-2 flex-wrap">
+                <div class="flex items-center gap-2">
+                    <button class="uc-tab-btn active px-3.5 py-1.5 rounded-xl bg-blue-600 text-white border border-blue-500 text-xs font-bold transition-all cursor-pointer" data-uc-tab="ucPaneChangelog">
+                        📋 Журнал версий (Changelog)
+                    </button>
+                    <button class="uc-tab-btn px-3.5 py-1.5 rounded-xl bg-slate-800/80 text-slate-300 border border-slate-700 text-xs font-bold hover:text-white transition-all cursor-pointer" data-uc-tab="ucPaneComponents">
+                        🧩 Целостность компонентов (16)
+                    </button>
+                    <button class="uc-tab-btn px-3.5 py-1.5 rounded-xl bg-slate-800/80 text-slate-300 border border-slate-700 text-xs font-bold hover:text-white transition-all cursor-pointer" data-uc-tab="ucPaneLicense">
+                        📜 Регламенты & ГОСТ
+                    </button>
+                </div>
+
+                <!-- Фильтры категорий для Changelog -->
+                <div class="flex items-center gap-1 text-[11px]">
+                    <span class="text-slate-400 mr-1 text-[10px] uppercase font-bold tracking-wider">Фильтр:</span>
+                    <button class="uc-filter-chip px-2.5 py-1 rounded-lg bg-blue-600 text-white border border-blue-400 font-semibold cursor-pointer" data-filter="all">Все</button>
+                    <button class="uc-filter-chip px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 hover:text-white font-semibold cursor-pointer" data-filter="features">✨ Функции</button>
+                    <button class="uc-filter-chip px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 hover:text-white font-semibold cursor-pointer" data-filter="flk">🛡️ ФЛК & Законы</button>
+                    <button class="uc-filter-chip px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 hover:text-white font-semibold cursor-pointer" data-filter="ui">⚡ WebOS UI</button>
+                    <button class="uc-filter-chip px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 hover:text-white font-semibold cursor-pointer" data-filter="fixes">🐛 Фиксы</button>
+                </div>
+            </div>
+
+            <!-- Вкладка 1: Журнал изменений Changelog -->
+            <div id="ucPaneChangelog" class="uc-tab-pane flex-1 overflow-y-auto space-y-4 pr-1">
+                <div id="ucChangelogList" class="space-y-4">
+                    <!-- Заполняется динамически из update_center_controller.js -->
+                </div>
+            </div>
+
+            <!-- Вкладка 2: Таблица целостности компонентов -->
+            <div id="ucPaneComponents" class="uc-tab-pane hidden flex-1 overflow-y-auto pr-1">
+                <div class="rounded-2xl bg-slate-900/90 border border-white/10 overflow-hidden shadow-xl">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-950/90 text-slate-400 font-bold border-b border-white/10 uppercase text-[10px] tracking-wider">
+                                <th class="px-3 py-2.5">Модуль системы</th>
+                                <th class="px-3 py-2.5">Движок / Библиотека</th>
+                                <th class="px-3 py-2.5">Стек технологий</th>
+                                <th class="px-3 py-2.5">Отклик</th>
+                                <th class="px-3 py-2.5">Статус</th>
+                                <th class="px-3 py-2.5 text-right">Действие</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ucComponentsTableBody" class="divide-y divide-white/5">
+                            <!-- Заполняется динамически -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Вкладка 3: Регламенты и ГОСТ -->
+            <div id="ucPaneLicense" class="uc-tab-pane hidden flex-1 overflow-y-auto p-4 rounded-2xl bg-slate-900/90 border border-white/10 space-y-4 text-xs leading-relaxed text-slate-300">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <span>📜</span>
+                    <span>Соответствие стандартам РФ и гарантии безопасности</span>
+                </h3>
+                <p>
+                    Платформа <b>PharmaGateWeb Enterprise</b> функционирует на 100% на стороне клиента (Client-Side In-Browser Execution) без передачи медицинских и коммерческих данных на сторонние серверы, что обеспечивает строгое соблюдение Федерального закона № 152-ФЗ «О персональных данных».
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+                    <div class="p-3 rounded-xl bg-slate-950/60 border border-white/5 space-y-1">
+                        <div class="font-bold text-white text-xs">Федеральный закон № 61-ФЗ</div>
+                        <div class="text-[11px] text-slate-400">Об обращении лекарственных средств и протоколы валидации качества при приёмке.</div>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-950/60 border border-white/5 space-y-1">
+                        <div class="font-bold text-white text-xs">Постановление Правительства РФ № 865</div>
+                        <div class="text-[11px] text-slate-400">Регулирование оптовых и розничных цен на ЖНВЛП по всем 89 субъектам РФ.</div>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-950/60 border border-white/5 space-y-1">
+                        <div class="font-bold text-white text-xs">Приказ ФНС России № ЕД-7-26/970@</div>
+                        <div class="text-[11px] text-slate-400">Формат электронного Универсального передаточного документа (УПД).</div>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-950/60 border border-white/5 space-y-1">
+                        <div class="font-bold text-white text-xs">ГОСТ Р 54830 / ГОСТ 7.67</div>
+                        <div class="text-[11px] text-slate-400">Стандарты кодирования электронного обмена данными EDI и реквизитов накладных.</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
     <!-- ========================================================================= -->
     <!-- 3. ПАНЕЛЬ ЗАДАЧ WINDOWS 11 (WINDOWS 11 FLUENT TASKBAR & CENTERED DOCK)    -->
     <!-- ========================================================================= -->

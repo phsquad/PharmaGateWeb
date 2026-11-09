@@ -82,7 +82,8 @@ export class WebOsUiController {
             winInspector: { id: 'winInspector', title: 'Инспектор ФЛК', icon: '🛠️', badge: 'Аудит' },
             winKb: { id: 'winKb', title: 'База Знаний', icon: '📚', badge: '25+ регламентов' },
             winGuide: { id: 'winGuide', title: 'Гид F1', icon: '📖', badge: 'Обучение' },
-            winSettings: { id: 'winSettings', title: 'Параметры', icon: '⚙️', badge: 'Система' }
+            winSettings: { id: 'winSettings', title: 'Параметры', icon: '⚙️', badge: 'Система' },
+            winUpdateCenter: { id: 'winUpdateCenter', title: 'Центр Обновлений', icon: '🔄', badge: 'v2026.3.2' }
         };
     }
 
