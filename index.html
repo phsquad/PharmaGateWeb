@@ -1439,6 +1439,7 @@
         <!-- Ярлыки рабочего стола (Свободно перемещаются мышью и пальцем) -->
         <div id="desktopIconsLayer" class="relative w-full h-full pointer-events-none z-0">
             
+            <!-- КОЛОНКА 1: ОПЕРАЦИОННАЯ ДЕЯТЕЛЬНОСТЬ (left: 16px) -->
             <div data-app="winEditor" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 16px; top: 16px;"
                  data-tooltip-title="📄 EDI-Редактор Накладных"
                  data-tooltip-desc="Профессиональный редактор накладных: чтение и сохранение DBF/XML/Excel, валидация ФЛК, расчет надбавок ЖНВЛП и согласование цен."
@@ -1449,126 +1450,17 @@
                 <span class="text-xs font-semibold text-white drop-shadow">Накладная</span>
             </div>
 
-            <div data-app="winSchema" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 16px; top: 112px;"
-                 data-tooltip-title="📐 Конструктор Схем Данных"
-                 data-tooltip-desc="Визуальный конструктор и маппер структур: типы полей (C, N, D, L, M), обязательность и правила валидации для таблиц DBF и MS Access."
-                 data-tooltip-badge="DBF · Access MDB"
-                 data-tooltip-shortcut="Клик / Перетаскивание"
-                 aria-label="Конструктор Схем Данных">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-teal-400 flex items-center justify-center text-2xl shadow-lg shadow-emerald-500/30">📐</div>
-                <span class="text-xs font-semibold text-white drop-shadow">Конструктор</span>
-            </div>
-
-            <div data-app="winDb" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 16px; top: 208px;"
-                 data-tooltip-title="🗄️ СУБД ERP (SQLite WASM)"
-                 data-tooltip-desc="Локальная реляционная база данных WebAssembly: каталог номенклатуры ГРЛС (12 000+ медикаментов), остатки аптек и контрагенты без сервера."
-                 data-tooltip-badge="SQLite In-Memory"
-                 data-tooltip-shortcut="Клик / Перетаскивание"
-                 aria-label="СУБД ERP SQLite WASM">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-600 via-pink-600 to-rose-500 flex items-center justify-center text-2xl shadow-lg shadow-purple-500/30">🗄️</div>
-                <span class="text-xs font-semibold text-white drop-shadow">СУБД ERP</span>
-            </div>
-
-            <div data-app="winReconcile" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 16px; top: 304px;"
-                 data-tooltip-title="⚖️ Каскадная Сверка Накладных"
-                 data-tooltip-desc="Интеллектуальное сопоставление позиций с каталогом сети: автопоиск расхождений в ценах, сериях, сроках годности и ставках НДС."
-                 data-tooltip-badge="Smart Match"
-                 data-tooltip-shortcut="Клик / Перетаскивание"
-                 aria-label="Каскадная Сверка Накладных">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-600 via-orange-600 to-yellow-500 flex items-center justify-center text-2xl shadow-lg shadow-amber-500/30">⚖️</div>
-                <span class="text-xs font-semibold text-white drop-shadow">Сверка</span>
-            </div>
-
-            <div data-app="winKb" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 16px; top: 400px;"
-                 data-tooltip-title="📚 База Знаний Фармацевта"
-                 data-tooltip-desc="Нормативно-справочная база: 25+ регламентов, приказы Минздрава, форматы УПД ФНС №970@, маркировка Честный ЗНАК (МДЛП) и формулы ЖНВЛП."
-                 data-tooltip-badge="25+ регламентов"
-                 data-tooltip-shortcut="Клик / Перетаскивание"
-                 aria-label="База Знаний Фармацевта">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center text-2xl shadow-lg shadow-cyan-500/30">📚</div>
-                <span class="text-xs font-semibold text-white drop-shadow">База Знаний</span>
-            </div>
-
-            <div data-app="winWizard" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 120px; top: 16px;"
-                 data-tooltip-title="🚀 Мастер Накладных 2.0"
-                 data-tooltip-desc="Пошаговый ассистент создания и конвертации: определение кодировок, реквизитов поставщика, исправление ошибок и пакетная выгрузка."
-                 data-tooltip-badge="Пошаговый импорт"
-                 data-tooltip-shortcut="Клик / Перетаскивание"
-                 aria-label="Мастер Накладных 2.0">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-500 to-emerald-500 flex items-center justify-center text-2xl shadow-lg shadow-blue-500/30">🚀</div>
-                <span class="text-xs font-semibold text-white drop-shadow">Мастер 2.0</span>
-            </div>
-
-            <div data-app="winInspector" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 120px; top: 112px;"
-                 data-tooltip-title="🛠️ Инспектор Изменений и ФЛК"
-                 data-tooltip-desc="Журнал аудита всех операций, история правок полей накладной, детальный разбор ошибок форматно-логического контроля и трассировка цен."
-                 data-tooltip-badge="Аудит и Трассировка"
-                 data-tooltip-shortcut="Клик / Перетаскивание"
-                 aria-label="Инспектор Изменений и ФЛК">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-violet-600 to-purple-600 flex items-center justify-center text-2xl shadow-lg shadow-purple-500/30">🛠️</div>
-                <span class="text-xs font-semibold text-white drop-shadow">Инспектор</span>
-            </div>
-
-            <div data-app="winSettings" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 120px; top: 208px;"
-                 data-tooltip-title="⚙️ Настройки Системы"
-                 data-tooltip-desc="Управление системными профилями аптечных сетей (НЕО-ФАРМ, Ригла), путями сохранения, кодировками (CP866/1251) и параметрами окружения."
-                 data-tooltip-badge="Конфигурация"
-                 data-tooltip-shortcut="Клик / Перетаскивание"
-                 aria-label="Настройки Системы">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-slate-600 to-slate-800 flex items-center justify-center text-2xl shadow-lg shadow-slate-500/30">⚙️</div>
-                <span class="text-xs font-semibold text-white drop-shadow">Настройки</span>
-            </div>
-
-            <div data-app="winPersonalization" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 120px; top: 304px;"
-                 data-tooltip-title="🎨 Персонализация и Темы"
-                 data-tooltip-desc="Настройка рабочего стола: 6 стилей ОС (Windows 11, macOS Glass, Matrix, Light, Win95, Nebula), акцентные цвета и обои."
-                 data-tooltip-badge="6 стилей ОС"
-                 data-tooltip-shortcut="Клик / Перетаскивание"
-                 aria-label="Персонализация и Темы">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-fuchsia-600 via-pink-600 to-rose-500 flex items-center justify-center text-2xl shadow-lg shadow-pink-500/30">🎨</div>
-                <span class="text-xs font-semibold text-white drop-shadow">Оформление</span>
-            </div>
-
-            <div data-app="winScale" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 120px; top: 400px;"
-                 data-tooltip-title="🔍 Экран и Масштаб (Auto-DPI)"
-                 data-tooltip-desc="Адаптация интерфейса под мониторы любого разрешения. Автоматический расчет DPI для 4K/FullHD и регулировка масштаба таблиц (75%–150%)."
-                 data-tooltip-badge="Auto-DPI · 75%-150%"
-                 data-tooltip-shortcut="Клик / Перетаскивание"
-                 aria-label="Экран и Масштаб">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 via-blue-600 to-indigo-600 flex items-center justify-center text-2xl shadow-lg shadow-blue-500/30">🔍</div>
-                <span class="text-xs font-semibold text-white drop-shadow">Масштаб</span>
-            </div>
-
-            <div data-app="winLiteMode" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 120px; top: 496px;"
-                 data-tooltip-title="⚡ Режим Ускорения Lite Speed"
-                 data-tooltip-desc="Оптимизация для слабого интернет-соединения (2G/3G) и медленных ПК. Отключает анимации, тени и размытия для максимального отклика."
-                 data-tooltip-badge="Турбо-режим"
-                 data-tooltip-shortcut="Клик / Перетаскивание"
-                 aria-label="Режим Ускорения Lite Speed">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 via-orange-500 to-yellow-400 flex items-center justify-center text-2xl shadow-lg shadow-amber-500/30">⚡</div>
-                <span class="text-xs font-semibold text-white drop-shadow">Lite Режим</span>
-            </div>
-
-            <div data-app="winGuide" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 224px; top: 16px;"
-                 data-tooltip-title="📖 Интерактивный Гид и Обучение"
-                 data-tooltip-desc="Пошаговое интерактивное руководство по всем функциям PharmaGate EDI: накладные, аудит ФЛК, калькулятор ЖНВЛП и песочница."
-                 data-tooltip-badge="Bilingual · RU / EN"
-                 data-tooltip-shortcut="Клавиша F1 / Клик"
-                 aria-label="Интерактивный Гид и Обучение">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 via-rose-500 to-indigo-600 flex items-center justify-center text-2xl shadow-lg shadow-rose-500/30">📖</div>
-                <span class="text-xs font-semibold text-white drop-shadow">Гид EDI</span>
-            </div>
-            <div data-app="winCameraScanner" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 224px; top: 112px;"
-                 data-tooltip-title="📱 Камера-ТСД (Сканер 2D)"
+            <div data-app="winCameraScanner" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 16px; top: 112px;"
+                 data-tooltip-title="📷 Камера-ТСД (Сканер 2D)"
                  data-tooltip-desc="Мобильный оптический сканер: считывание штрихкодов EAN-13 и кодов DataMatrix Честный ЗНАК камерой устройства."
                  data-tooltip-badge="DataMatrix & EAN"
                  data-tooltip-shortcut="Клик / Перетаскивание"
                  aria-label="Камера ТСД">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-600 via-pink-600 to-amber-500 flex items-center justify-center text-2xl shadow-lg shadow-rose-500/30">📱</div>
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-600 via-pink-600 to-amber-500 flex items-center justify-center text-2xl shadow-lg shadow-rose-500/30">📷</div>
                 <span class="text-xs font-semibold text-white drop-shadow">Камера ТСД</span>
             </div>
 
-            <div data-app="winBatchProcessor" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 224px; top: 208px;"
+            <div data-app="winBatchProcessor" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 16px; top: 208px;"
                  data-tooltip-title="📦 Пакетный EDI-Конвейер"
                  data-tooltip-desc="Пакетная обработка и авто-ремонт группы накладных (DBF/XML/Excel) с выгрузкой в общий ZIP-архив."
                  data-tooltip-badge="Конвейер & ZIP"
@@ -1578,46 +1470,165 @@
                 <span class="text-xs font-semibold text-white drop-shadow">Пакетный EDI</span>
             </div>
 
-            <div data-app="winJnvlp" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 224px; top: 304px;"
-                 data-tooltip-title="⚖️ Региональный ЖНВЛП"
-                 data-tooltip-desc="Калькулятор предельных оптовых и розничных цен по 89 субъектам РФ (ПП РФ № 865) и Протокол согласования цен."
-                 data-tooltip-badge="89 регионов РФ"
+            <!-- ЖНВЛП & Цены: Уникальный силуэт таблетки/пилюли (больше никаких весов!) -->
+            <div data-app="winJnvlp" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 16px; top: 304px;"
+                 data-tooltip-title="💊 ЖНВЛП & Протокол Цен"
+                 data-tooltip-desc="Калькулятор предельных надбавок по ПП РФ № 865 по 89 субъектам РФ и формирование Протокола согласования цен."
+                 data-tooltip-badge="ПП РФ № 865"
                  data-tooltip-shortcut="Клик / Перетаскивание"
                  aria-label="ЖНВЛП & Цены">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-teal-600 via-emerald-600 to-cyan-500 flex items-center justify-center text-2xl shadow-lg shadow-teal-500/30">⚖️</div>
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-cyan-500 flex items-center justify-center text-2xl shadow-lg shadow-emerald-500/30">💊</div>
                 <span class="text-xs font-semibold text-white drop-shadow">ЖНВЛП & Цены</span>
             </div>
 
-            <div data-app="winLabelPrinter" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 224px; top: 400px;"
-                 data-tooltip-title="🏷️ Печать Термоэтикеток"
+            <div data-app="winLabelPrinter" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 16px; top: 400px;"
+                 data-tooltip-title="🏷️ Студия Термоэтикеток"
                  data-tooltip-desc="Студия печати ценников и термоэтикеток 58×40, 43×25, 30×20 со штрихкодами EAN-13 и DataMatrix."
                  data-tooltip-badge="Термопринтер"
                  data-tooltip-shortcut="Клик / Перетаскивание"
-                 aria-label="Печать ценников">
+                 aria-label="Студия Термоэтикеток">
                 <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-yellow-500 via-amber-500 to-orange-600 flex items-center justify-center text-2xl shadow-lg shadow-yellow-500/30">🏷️</div>
                 <span class="text-xs font-semibold text-white drop-shadow">Ценники</span>
             </div>
 
-            <div data-app="winDiffViewer" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 328px; top: 16px;"
-                 data-tooltip-title="🔍 Visual Diff (Сравнение)"
-                 data-tooltip-desc="Двухколоночное сравнение двух накладных (Документ А vs Документ Б) с подсветкой расхождений и отчетом Excel."
+            <!-- Сравнение накладных: Уникальный символ двухколоночного сопоставления ⇄ (не лупа!) -->
+            <div data-app="winDiffViewer" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 16px; top: 496px;"
+                 data-tooltip-title="⇄ Visual Diff (Сравнение)"
+                 data-tooltip-desc="Двухколоночное сравнение двух накладных (Было ➔ Станет) с подсветкой расхождений в суммах и сериях."
                  data-tooltip-badge="Visual Diff"
                  data-tooltip-shortcut="Клик / Перетаскивание"
                  aria-label="Сравнение EDI">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 via-blue-600 to-cyan-500 flex items-center justify-center text-2xl shadow-lg shadow-indigo-500/30">🔍</div>
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 via-blue-600 to-violet-700 flex items-center justify-center text-2xl shadow-lg shadow-indigo-500/30 font-bold">⇄</div>
                 <span class="text-xs font-semibold text-white drop-shadow">Сравнение</span>
             </div>
 
-            <div data-app="winSqlConsole" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 328px; top: 112px;"
-                 data-tooltip-title="💻 SQL Консоль ERP"
-                 data-tooltip-desc="Интерактивная консоль произвольных SQL-запросов к локальной СУБД SQLite WASM с шаблонами и экспортом."
+            <!-- КОЛОНКА 2: УПРАВЛЕНИЕ ДАННЫМИ И СУБД (left: 120px) -->
+            <!-- SQL Консоль: Настоящий хакерский терминал >_ (не монитор!) -->
+            <div data-app="winSqlConsole" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 120px; top: 16px;"
+                 data-tooltip-title=">_ SQL Консоль Mini-ERP"
+                 data-tooltip-desc="Интерактивная консоль произвольных SQL-запросов к локальной СУБД SQLite WASM с пресетами и экспортом."
                  data-tooltip-badge="SQL Studio"
                  data-tooltip-shortcut="Клик / Перетаскивание"
                  aria-label="SQL Консоль">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-600 via-sky-600 to-blue-700 flex items-center justify-center text-2xl shadow-lg shadow-sky-500/30">💻</div>
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-slate-950 via-slate-900 to-emerald-950 border border-emerald-500/40 flex items-center justify-center font-mono font-bold text-emerald-400 text-xl shadow-lg shadow-emerald-500/20 tracking-tighter">&gt;_</div>
                 <span class="text-xs font-semibold text-white drop-shadow">SQL Консоль</span>
             </div>
 
+            <div data-app="winDb" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 120px; top: 112px;"
+                 data-tooltip-title="🗄️ СУБД ERP (SQLite WASM)"
+                 data-tooltip-desc="Локальная реляционная база данных WebAssembly: каталог номенклатуры ГРЛС (12 000+ медикаментов) и остатки аптек."
+                 data-tooltip-badge="SQLite In-Memory"
+                 data-tooltip-shortcut="Клик / Перетаскивание"
+                 aria-label="СУБД ERP SQLite WASM">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-600 via-pink-600 to-rose-500 flex items-center justify-center text-2xl shadow-lg shadow-purple-500/30">🗄️</div>
+                <span class="text-xs font-semibold text-white drop-shadow">СУБД ERP</span>
+            </div>
+
+            <!-- Сверка: Уникальный силуэт чек-листа сопоставления (не весы!) -->
+            <div data-app="winReconcile" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 120px; top: 208px;"
+                 data-tooltip-title="📋 Каскадная Сверка Номенклатуры"
+                 data-tooltip-desc="Интеллектуальное сопоставление позиций с каталогом сети: автопоиск расхождений в ценах, сериях и НДС."
+                 data-tooltip-badge="Smart Match"
+                 data-tooltip-shortcut="Клик / Перетаскивание"
+                 aria-label="Каскадная Сверка Номенклатуры">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-600 via-orange-600 to-yellow-500 flex items-center justify-center text-2xl shadow-lg shadow-amber-500/30">📋</div>
+                <span class="text-xs font-semibold text-white drop-shadow">Сверка</span>
+            </div>
+
+            <div data-app="winSchema" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 120px; top: 304px;"
+                 data-tooltip-title="📐 Конструктор Схем Данных"
+                 data-tooltip-desc="Визуальный конструктор и маппер структур: типы полей (C, N, D, L, M) и правила валидации для таблиц DBF и MS Access."
+                 data-tooltip-badge="DBF · Access MDB"
+                 data-tooltip-shortcut="Клик / Перетаскивание"
+                 aria-label="Конструктор Схем Данных">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-teal-400 flex items-center justify-center text-2xl shadow-lg shadow-emerald-500/30">📐</div>
+                <span class="text-xs font-semibold text-white drop-shadow">Конструктор</span>
+            </div>
+
+            <div data-app="winWizard" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 120px; top: 400px;"
+                 data-tooltip-title="🚀 Мастер Накладных 2.0"
+                 data-tooltip-desc="Пошаговый ассистент создания и конвертации: определение кодировок, реквизитов поставщика и пакетная выгрузка."
+                 data-tooltip-badge="Пошаговый импорт"
+                 data-tooltip-shortcut="Клик / Перетаскивание"
+                 aria-label="Мастер Накладных 2.0">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-500 to-emerald-500 flex items-center justify-center text-2xl shadow-lg shadow-blue-500/30">🚀</div>
+                <span class="text-xs font-semibold text-white drop-shadow">Мастер 2.0</span>
+            </div>
+
+            <div data-app="winInspector" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 120px; top: 496px;"
+                 data-tooltip-title="🛠️ Инспектор Изменений и ФЛК"
+                 data-tooltip-desc="Журнал аудита всех операций, история правок полей накладной и детальный разбор ошибок ФЛК."
+                 data-tooltip-badge="Аудит и Трассировка"
+                 data-tooltip-shortcut="Клик / Перетаскивание"
+                 aria-label="Инспектор Изменений и ФЛК">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-violet-600 to-purple-600 flex items-center justify-center text-2xl shadow-lg shadow-purple-500/30">🛠️</div>
+                <span class="text-xs font-semibold text-white drop-shadow">Инспектор</span>
+            </div>
+
+            <!-- КОЛОНКА 3: СИСТЕМА, СПРАВКА И ЦЕНТР ОБНОВЛЕНИЙ (left: 224px) -->
+            <div data-app="winKb" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 224px; top: 16px;"
+                 data-tooltip-title="📚 База Знаний Фармацевта"
+                 data-tooltip-desc="Нормативно-справочная база: 25+ регламентов, приказы Минздрава, форматы УПД ФНС №970@ и маркировка МДЛП."
+                 data-tooltip-badge="25+ регламентов"
+                 data-tooltip-shortcut="Клик / Перетаскивание"
+                 aria-label="База Знаний Фармацевта">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center text-2xl shadow-lg shadow-cyan-500/30">📚</div>
+                <span class="text-xs font-semibold text-white drop-shadow">База Знаний</span>
+            </div>
+
+            <div data-app="winGuide" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 224px; top: 112px;"
+                 data-tooltip-title="📖 Интерактивный Гид и Обучение"
+                 data-tooltip-desc="Пошаговое интерактивное руководство по всем функциям PharmaGate EDI и песочница оператора."
+                 data-tooltip-badge="Bilingual · F1"
+                 data-tooltip-shortcut="Клавиша F1 / Клик"
+                 aria-label="Интерактивный Гид и Обучение">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 via-rose-500 to-indigo-600 flex items-center justify-center text-2xl shadow-lg shadow-rose-500/30">📖</div>
+                <span class="text-xs font-semibold text-white drop-shadow">Гид EDI</span>
+            </div>
+
+            <div data-app="winSettings" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 224px; top: 208px;"
+                 data-tooltip-title="⚙️ Настройки Системы"
+                 data-tooltip-desc="Управление профилями аптечных сетей, путями сохранения, кодировками (CP866/1251) и параметрами."
+                 data-tooltip-badge="Конфигурация"
+                 data-tooltip-shortcut="Клик / Перетаскивание"
+                 aria-label="Настройки Системы">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-slate-600 to-slate-800 flex items-center justify-center text-2xl shadow-lg shadow-slate-500/30">⚙️</div>
+                <span class="text-xs font-semibold text-white drop-shadow">Настройки</span>
+            </div>
+
+            <div data-app="winUpdateCenter" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 224px; top: 304px;"
+                 data-tooltip-title="🔄 Центр Обновлений PharmaGateWeb"
+                 data-tooltip-desc="Журнал релизов (Changelog), монитор версий, диагностика модулей и проверка обновлений."
+                 data-tooltip-badge="v2026.3.3 Enterprise"
+                 data-tooltip-shortcut="Клик / Перетаскивание"
+                 aria-label="Центр Обновлений">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-cyan-500 flex items-center justify-center text-2xl shadow-lg shadow-emerald-500/30 animate-pulse">🔄</div>
+                <span class="text-xs font-semibold text-white drop-shadow">Центр Обновлений</span>
+            </div>
+
+            <!-- Экран и масштаб: Уникальный символ лупы со шкалой зума ± (не обычная синяя лупа!) -->
+            <div data-app="winScale" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 224px; top: 400px;"
+                 data-tooltip-title="🔎± Экран и Масштаб (Auto-DPI)"
+                 data-tooltip-desc="Адаптация интерфейса: расчет DPI для 4K/FullHD мониторов и плавная регулировка масштаба таблиц."
+                 data-tooltip-badge="Auto-DPI · 75%-150%"
+                 data-tooltip-shortcut="Клик / Перетаскивание"
+                 aria-label="Экран и Масштаб">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 via-blue-600 to-indigo-600 flex items-center justify-center text-xl font-bold shadow-lg shadow-blue-500/30 relative">
+                    <span>🔎</span>
+                    <span class="absolute bottom-1 right-1.5 text-[10px] font-mono font-black text-amber-300">±</span>
+                </div>
+                <span class="text-xs font-semibold text-white drop-shadow">Масштаб</span>
+            </div>
+
+            <div data-app="winPersonalization" class="desktop-icon pointer-events-auto absolute flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-white/10 transition-colors w-24 text-center cursor-pointer select-none" style="left: 224px; top: 496px;"
+                 data-tooltip-title="🎨 Персонализация и Темы"
+                 data-tooltip-desc="Настройка оформления: 6 тем ОС (Windows 11, macOS Glass, Matrix, Light, Win95, Nebula) и обои."
+                 data-tooltip-badge="6 стилей ОС"
+                 data-tooltip-shortcut="Клик / Перетаскивание"
+                 aria-label="Персонализация и Темы">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-fuchsia-600 via-pink-600 to-rose-500 flex items-center justify-center text-2xl shadow-lg shadow-pink-500/30">🎨</div>
+                <span class="text-xs font-semibold text-white drop-shadow">Оформление</span>
+            </div>
 
         </div>
 
@@ -3975,90 +3986,62 @@
         </div>
 
 <!-- 📑 КОНТЕКСТНОЕ МЕНЮ РАБОЧЕГО СТОЛА (DESKTOP CONTEXT MENU) -->
-        <div id="desktopContextMenu" class="fixed z-[100005] bg-slate-900/96 backdrop-blur-3xl border border-white/15 rounded-xl shadow-2xl py-1.5 min-w-[270px] hidden text-xs text-slate-200 select-none animate-fadeIn">
-        <button id="ctxRefreshDesktop" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between cursor-pointer">
-            <span class="flex items-center gap-2.5"><span>🔄</span> Обновить рабочий стол</span>
-            <span class="text-[10px] text-slate-400 font-mono">F5</span>
-        </button>
-        <button id="ctxArrangeGrid" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between cursor-pointer">
-            <span class="flex items-center gap-2.5"><span>📐</span> Упорядочить значки по сетке</span>
-            <span class="text-[10px] text-slate-400 font-mono">Grid</span>
-        </button>
-        <button id="ctxToggleIcons" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2.5 cursor-pointer">
-            <span>👁️</span> Скрыть / Показать значки
-        </button>
+        <div id="desktopContextMenu" class="fixed z-[100005] bg-slate-900/96 backdrop-blur-3xl border border-white/15 rounded-xl shadow-2xl py-2 px-1 min-w-[320px] max-w-[360px] hidden text-xs text-slate-200 select-none animate-fadeIn space-y-0.5">
+            <button id="ctxRefreshDesktop" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
+                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm">🔄</span> <span class="truncate">Обновить рабочий стол</span></span>
+                <kbd class="font-mono text-[10px] bg-slate-800/80 px-1.5 py-0.5 rounded text-slate-400 group-hover:text-slate-200 border border-slate-700/60 shrink-0">F5</kbd>
+            </button>
+            <button id="ctxArrangeGrid" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
+                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm">📐</span> <span class="truncate">Упорядочить значки по сетке</span></span>
+                <span class="text-[10px] text-slate-500 group-hover:text-slate-300 shrink-0">Авто</span>
+            </button>
+            <button id="ctxToggleIcons" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
+                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm">👁️</span> <span class="truncate">Скрыть / Показать значки</span></span>
+            </button>
 
-        <div class="h-px bg-white/10 my-1"></div>
+            <div class="h-px bg-white/10 my-1 mx-2"></div>
 
-        <button id="ctxNewInvoice" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2.5 cursor-pointer">
-            <span>📄</span> Создать накладную (Мастер 2.0)
-        </button>
-        <button id="ctxDemoInvoice" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2.5 cursor-pointer">
-            <span>🎲</span> Сгенерировать демо-накладную (50)
-        </button>
-        <button id="ctxOpenSpotlightMenu" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between cursor-pointer">
-            <span class="flex items-center gap-2.5"><span>🔍</span> Поиск Spotlight</span>
-            <span class="text-[10px] text-slate-400 font-mono">Ctrl+K</span>
-        </button>
-        <button id="ctxTaskViewMenu" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between cursor-pointer">
-            <span class="flex items-center gap-2.5"><span>❐</span> Представление задач</span>
-            <span class="text-[10px] text-slate-400 font-mono">Win+Tab</span>
-        </button>
-        <button id="ctxControlCenterMenu" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between cursor-pointer">
-            <span class="flex items-center gap-2.5"><span>🎛️</span> Центр управления WebOS</span>
-            <span class="text-[10px] text-slate-400 font-mono">Ctrl+Shift+C</span>
-        </button>
-        <button id="ctxOpenSql" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2.5 cursor-pointer">
-            <span>💻</span> Открыть SQL Консоль Mini-ERP
-        </button>
+            <button id="ctxNewInvoice" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
+                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm">📄</span> <span class="truncate">Создать накладную (Мастер 2.0)</span></span>
+            </button>
+            <button id="ctxDemoInvoice" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
+                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm">🎲</span> <span class="truncate">Сгенерировать демо-накладную (50)</span></span>
+            </button>
+            <button id="ctxOpenSpotlightMenu" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
+                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm">🔍</span> <span class="truncate">Поиск Spotlight</span></span>
+                <kbd class="font-mono text-[10px] bg-slate-800/80 px-1.5 py-0.5 rounded text-slate-400 group-hover:text-slate-200 border border-slate-700/60 shrink-0">Ctrl+K</kbd>
+            </button>
+            <button id="ctxTaskViewMenu" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
+                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm">❐</span> <span class="truncate">Представление задач</span></span>
+                <kbd class="font-mono text-[10px] bg-slate-800/80 px-1.5 py-0.5 rounded text-slate-400 group-hover:text-slate-200 border border-slate-700/60 shrink-0">Win+Tab</kbd>
+            </button>
+            <button id="ctxControlCenterMenu" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
+                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm">🎛️</span> <span class="truncate">Центр управления WebOS</span></span>
+                <kbd class="font-mono text-[10px] bg-slate-800/80 px-1.5 py-0.5 rounded text-slate-400 group-hover:text-slate-200 border border-slate-700/60 shrink-0">Ctrl+Shift+C</kbd>
+            </button>
+            <button id="ctxOpenSql" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
+                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm font-mono text-emerald-400 font-bold">&gt;_</span> <span class="truncate">Открыть SQL Консоль Mini-ERP</span></span>
+            </button>
+            <button id="ctxOpenUpdateCenter" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
+                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm">🔄</span> <span class="truncate">Центр Обновлений PharmaGateWeb</span></span>
+                <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0">v2026.3.3</span>
+            </button>
 
-        <div class="h-px bg-white/10 my-1"></div>
+            <div class="h-px bg-white/10 my-1 mx-2"></div>
 
-        <button id="ctxPersonalization" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2.5 cursor-pointer">
-            <span>🖼️</span> Персонализация & Обои...
-        </button>
-        <button id="ctxSystemSettings" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2.5 cursor-pointer">
-            <span>⚙️</span> Параметры системы...
-        </button>
-        <button id="ctxLockScreen" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between cursor-pointer">
-            <span class="flex items-center gap-2.5"><span>🔒</span> Заблокировать экран</span>
-            <span class="text-[10px] text-slate-400 font-mono">Win+L</span>
-        </button>
-    </div>
-            <button id="ctxTimeCalendar" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
-                <span>🕒</span> Время, Дата & Календарь...
+            <button id="ctxPersonalization" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
+                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm">🎨</span> <span class="truncate">Персонализация & Обои...</span></span>
             </button>
-            <button id="ctxTaskbarPosMenu" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
-                <span>🪟</span> Панель задач & macOS Dock...
+            <button id="ctxSystemSettings" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
+                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm">⚙️</span> <span class="truncate">Параметры системы...</span></span>
             </button>
-            <button id="ctxOptimization" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
-                <span>🚀</span> Оптимизация под устройство...
+            <button id="ctxFullscreen" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
+                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm">⛶</span> <span class="truncate">Полноэкранный режим</span></span>
+                <kbd class="font-mono text-[10px] bg-slate-800/80 px-1.5 py-0.5 rounded text-slate-400 group-hover:text-slate-200 border border-slate-700/60 shrink-0">F11</kbd>
             </button>
-            <div class="h-px bg-slate-800 my-1"></div>
-            <button id="ctxDemoInvoice" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
-                <span>🎲</span> Сгенерировать демо-накладную (50)
-            </button>
-            <button id="ctxNewInvoice" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
-                <span>🚀</span> Мастер создания накладной
-            </button>
-            <button id="ctxAutoRepair" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
-                <span>🛠️</span> Авто-Ремонт ФЛК (F5)
-            </button>
-            <div class="h-px bg-slate-800 my-1"></div>
-            <button id="ctxScaleMenu" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
-                <span>🔍</span> Масштаб экрана (Auto-DPI / %)...
-            </button>
-            <button id="ctxLiteMode" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
-                <span>⚡</span> Упрощенный режим (Lite Speed)
-            </button>
-            <button id="ctxPersonalization" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
-                <span>🎨</span> Персонализация и Обои...
-            </button>
-            <button id="ctxOpenSettings" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
-                <span>⚙️</span> Параметры системы...
-            </button>
-            <button id="ctxFullscreen" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
-                <span>⛶</span> Полноэкранный режим (F11)
+            <button id="ctxLockScreen" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
+                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm">🔒</span> <span class="truncate">Заблокировать экран</span></span>
+                <kbd class="font-mono text-[10px] bg-slate-800/80 px-1.5 py-0.5 rounded text-slate-400 group-hover:text-slate-200 border border-slate-700/60 shrink-0">Win+L</kbd>
             </button>
         </div>
 
@@ -4752,29 +4735,44 @@
     <footer id="taskbar" class="h-12 bg-slate-950/90 backdrop-blur-2xl border-t border-white/10 px-3 flex items-center justify-between shrink-0 z-50 shadow-2xl select-none transition-all">
         
         <!-- ЛЕВАЯ ЧАСТЬ: ВИДЖЕТ ФИНАНСОВ / WIDGETS CHIP (WINDOWS 11 WIDGETS) -->
-        <div class="flex items-center gap-2 min-w-0">
+        <div class="flex items-center gap-2 min-w-0 shrink-0">
             <button id="taskbarWidgetsBtn" onclick="window.PharmaGate?.webOsUi?.toggleTaskView()" 
                     data-tooltip-title="📊 Сводка Документа & Виджеты"
                     data-tooltip-desc="Клик открывает панель финансового аудита документа и виджетов рабочего стола"
                     data-tooltip-badge="ФЛК Контроль"
-                    class="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-mono transition-colors cursor-pointer">
-                <span>📊</span>
-                <span id="hudTotalSum" class="text-emerald-400 font-bold">0.00 ₽</span>
-                <span class="text-slate-500">|</span>
-                <span id="hudItemsCount" class="text-slate-300">0</span>
-                <span class="text-slate-500">|</span>
-                <span id="hudReadinessBadge" class="text-emerald-400 font-semibold">100% Готов</span>
+                    class="h-9 px-3 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-mono transition-colors flex items-center gap-3 cursor-pointer shadow-sm">
+                <!-- Блок баланса: изолированная круглая плашка рубля с безопасным отступом -->
+                <div id="taskbarTotalSumBtn" class="flex items-center gap-2 shrink-0">
+                    <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] font-bold border border-emerald-500/40 shrink-0">₽</span>
+                    <span id="hudTotalSum" class="text-emerald-400 font-bold tracking-tight">0.00 ₽</span>
+                </div>
+
+                <span class="text-slate-600 select-none">|</span>
+
+                <!-- Количество строк -->
+                <div class="flex items-center gap-1.5 text-slate-300 shrink-0">
+                    <span class="text-slate-400 text-[10px]">Строк:</span>
+                    <span id="hudItemsCount" class="font-bold">0</span>
+                </div>
+
+                <span class="text-slate-600 select-none">|</span>
+
+                <!-- Статус готовности с пульсирующей точкой -->
+                <div id="taskbarStatusBtn" class="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-950/80 border border-emerald-700/60 text-emerald-300 text-[11px] font-semibold shrink-0">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0 animate-pulse"></span>
+                    <span id="hudReadinessBadge">100% Готов</span>
+                </div>
             </button>
         </div>
 
-        <!-- ЦЕНТРАЛЬНАЯ ЧАСТЬ: WINDOWS 11 CENTERED DOCK (СИСТЕМНЫЕ КНОПКИ + ТОЛЬКО ОТКРЫТЫЕ ОКНА) -->
-        <div class="flex items-center gap-1.5 mx-auto">
+        <!-- ЦЕНТРАЛЬНАЯ ЧАСТЬ: WINDOWS 11 CENTERED DOCK (СИСТЕМНЫЕ КНОПКИ + ТОЛЬКО ОТКРЫТЫЕ ОКНА С ГОРИЗОНТАЛЬНЫМ СКРОЛЛОМ) -->
+        <div id="taskbarCenterDock" class="flex items-center gap-1.5 mx-auto min-w-0 max-w-[calc(100vw-360px)] shrink">
             <!-- Кнопка Пуск (Windows 11 Start 4 Tiles) -->
             <button id="btnStartMenu" onclick="window.PharmaGate.toggleStartMenu()" 
                     data-tooltip-title="🪟 Меню «Пуск» (Windows 11)"
                     data-tooltip-desc="Главное меню запуска программ, инструментов и настроек системы"
                     data-tooltip-badge="Клавиша Win"
-                    class="w-10 h-10 rounded-lg hover:bg-white/10 flex items-center justify-center transition-all cursor-pointer group" title="Пуск (Win)">
+                    class="w-10 h-10 rounded-lg hover:bg-white/10 flex items-center justify-center transition-all cursor-pointer group shrink-0" title="Пуск (Win)">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" class="group-hover:scale-105 transition-transform">
                     <rect width="9" height="9" rx="1.5" fill="#0078D4"/>
                     <rect x="11" width="9" height="9" rx="1.5" fill="#0078D4"/>
@@ -4783,36 +4781,36 @@
                 </svg>
             </button>
 
-            <!-- Кнопка быстрого поиска Spotlight / Поиск -->
+            <!-- Кнопка быстрого поиска Spotlight / Команд -->
             <button id="btnOpenSpotlight" 
                     data-tooltip-title="🔍 Поиск & Spotlight"
                     data-tooltip-desc="Быстрый поиск документов, лекарств и системных действий"
                     data-tooltip-badge="Ctrl+K"
-                    class="w-10 h-10 rounded-lg hover:bg-white/10 flex items-center justify-center text-slate-300 hover:text-white transition-all cursor-pointer" title="Поиск (Ctrl+K)">
+                    class="w-10 h-10 rounded-lg hover:bg-white/10 flex items-center justify-center text-slate-300 hover:text-white transition-all cursor-pointer shrink-0" title="Поиск (Ctrl+K)">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <circle cx="11" cy="11" r="8"/>
-                    <path d="M21 21l-4.35-4.35"/>
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
             </button>
 
-            <!-- Представление задач / Виртуальные рабочие столы (Task View) -->
+            <!-- Кнопка Task View / Представление задач -->
             <button id="btnTaskView" onclick="window.PharmaGate?.webOsUi?.toggleTaskView()"
                     data-tooltip-title="❐ Представление задач (Task View)"
                     data-tooltip-desc="Обзор открытых окон и переключение между виртуальными рабочими столами"
                     data-tooltip-badge="Win+Tab"
-                    class="w-10 h-10 rounded-lg hover:bg-white/10 flex items-center justify-center text-slate-300 hover:text-white transition-all cursor-pointer" title="Представление задач (Win+Tab)">
+                    class="w-10 h-10 rounded-lg hover:bg-white/10 flex items-center justify-center text-slate-300 hover:text-white transition-all cursor-pointer shrink-0" title="Представление задач (Win+Tab)">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="3" width="13" height="13" rx="2"/>
-                    <path d="M8 8h13v13H8z"/>
+                    <rect x="3" y="3" width="12" height="12" rx="2"></rect>
+                    <path d="M9 15h10a2 2 0 0 0 2-2V5"></path>
                 </svg>
             </button>
 
-            <!-- Проводник Накладных / File Explorer -->
+            <!-- Проводник файлов / File Explorer -->
             <button id="btnFileExplorer" onclick="window.PharmaGate.openApp('winEditor')"
-                    data-tooltip-title="📁 Проводник Накладных"
-                    data-tooltip-desc="Открыть редактор накладных и проводник документов"
+                    data-tooltip-title="📁 Проводник накладных"
+                    data-tooltip-desc="Открыть редактор и обозреватель документов"
                     data-tooltip-badge="EDI Grid"
-                    class="w-10 h-10 rounded-lg hover:bg-white/10 flex items-center justify-center transition-all cursor-pointer" title="Проводник накладных">
+                    class="w-10 h-10 rounded-lg hover:bg-white/10 flex items-center justify-center transition-all cursor-pointer shrink-0" title="Проводник накладных">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                     <path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6z" fill="#FFA000"/>
                     <path d="M3 9h18v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z" fill="#FFCA28"/>
@@ -4820,10 +4818,25 @@
             </button>
 
             <!-- Тонкий разделитель -->
-            <div id="taskbarDockDivider" class="h-6 w-px bg-white/10 mx-0.5"></div>
+            <div id="taskbarDockDivider" class="h-6 w-px bg-white/10 mx-0.5 shrink-0"></div>
 
-            <!-- ИКОНКИ ТОЛЬКО ОТКРЫТЫХ / ЗАПУЩЕННЫХ ОКОН (WINDOWS 11 STYLE) -->
-            <div id="taskbarAppsContainer" class="flex items-center gap-1"></div>
+            <!-- Стрелка скролла влево при переполнении -->
+            <button id="btnTaskbarScrollLeft" class="hidden w-6 h-8 rounded hover:bg-white/15 text-slate-400 hover:text-white flex items-center justify-center text-xs shrink-0 cursor-pointer transition-colors" title="Прокрутить вкладки влево">‹</button>
+
+            <!-- ДИНАМИЧЕСКИЙ КОНТЕЙНЕР ОТКРЫТЫХ ОКОН (С ГОРИЗОНТАЛЬНЫМ СКРОЛЛОМ МЫШЬЮ И МАСКОЙ) -->
+            <div id="taskbarAppsContainer" class="flex items-center gap-1 overflow-x-auto no-scrollbar scroll-smooth shrink relative py-0.5"></div>
+
+            <!-- Стрелка скролла вправо при переполнении -->
+            <button id="btnTaskbarScrollRight" class="hidden w-6 h-8 rounded hover:bg-white/15 text-slate-400 hover:text-white flex items-center justify-center text-xs shrink-0 cursor-pointer transition-colors" title="Прокрутить вкладки вправо">›</button>
+
+            <!-- Выпадающее меню переполнения «Еще (+N)» -->
+            <div class="relative shrink-0">
+                <button id="btnTaskbarOverflow" class="hidden h-8 px-2 rounded-lg bg-blue-600/20 hover:bg-blue-600/40 border border-blue-500/40 text-[11px] font-bold text-blue-300 flex items-center gap-1 transition-colors cursor-pointer" title="Скрытые открытые окна">
+                    <span>···</span>
+                    <span id="taskbarOverflowCount">+0</span>
+                </button>
+                <div id="taskbarOverflowDropdown" class="hidden absolute bottom-full mb-2 right-0 bg-slate-900/96 backdrop-blur-2xl border border-white/15 rounded-xl shadow-2xl p-1.5 min-w-[200px] z-50 text-xs space-y-0.5"></div>
+            </div>
         </div>
 
         <!-- ПРАВАЯ ЧАСТЬ: WINDOWS 11 СИСТЕМНЫЙ ТРЕЙ (SYSTEM TRAY) -->
