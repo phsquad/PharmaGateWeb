@@ -37,6 +37,12 @@ const requiredIds = [
     'taskViewGrid',
     'desktopContextMenu',
     'windowContextMenu',
+    'mobileSpringboard',
+    'mobileBottomBar',
+    'mobNavScanner',
+    'mobNavInvoice',
+    'mobNavApps',
+    'mobNavSettings',
     'controlCenterModal',
     'osLockScreen'
 ];
@@ -103,7 +109,7 @@ console.log('\n--- Step 3: Checking WebOsUiController Windows 11 Taskbar Logic -
         const { PHARMAGATE_RELEASES, PHARMAGATE_MODULES_SPECS, bindUpdateCenter } = await import('./js/ui/update_center_controller.js');
         assert(Array.isArray(PHARMAGATE_RELEASES), 'PHARMAGATE_RELEASES must be an array');
         assert(PHARMAGATE_RELEASES.length >= 4, 'Must have at least 4 releases documented');
-        assert(PHARMAGATE_RELEASES[0].version.includes('2026.3.4'), 'Latest release must be 2026.3.4');
+        assert(PHARMAGATE_RELEASES[0].version.includes('2026.3.5'), 'Latest release must be 2026.3.5');
         assert(Array.isArray(PHARMAGATE_MODULES_SPECS), 'PHARMAGATE_MODULES_SPECS must be an array');
         assert(PHARMAGATE_MODULES_SPECS.length >= 16, 'Must document at least 16 enterprise modules');
         assert(typeof bindUpdateCenter === 'function', 'bindUpdateCenter must be a function');
