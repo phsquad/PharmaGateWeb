@@ -1,54 +1,174 @@
-/* css/tabulator_custom.css - Стилизация виртуальной таблицы Tabulator и бейджей ФЛК */
+/* css/tabulator_custom.css - Ультрасовременная стеклянная стилизация виртуальной таблицы Tabulator в стиле WebOS */
+
 .tabulator {
-    background-color: #ffffff;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-    font-size: 13px;
+    background: rgba(11, 15, 25, 0.75) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', monospace;
+    font-size: 12px;
+    color: #e2e8f0 !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
 }
 
+/* Шапка таблицы */
 .tabulator .tabulator-header {
-    background-color: #f1f5f9;
-    color: #1e293b;
+    background: linear-gradient(180deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
+    color: #94a3b8 !important;
     font-weight: 700;
-    border-bottom: 2px solid #cbd5e1;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid rgba(59, 130, 246, 0.4) !important;
+    border-top: none !important;
 }
 
 .tabulator .tabulator-header .tabulator-col {
-    background-color: #f1f5f9;
-    border-right: 1px solid #cbd5e1;
+    background: transparent !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+    transition: background-color 0.15s ease;
+}
+
+.tabulator .tabulator-header .tabulator-col:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: #ffffff !important;
+}
+
+.tabulator .tabulator-header .tabulator-col.tabulator-sortable .tabulator-col-title {
+    padding-right: 18px;
+}
+
+.tabulator .tabulator-col-resize-handle {
+    width: 6px;
+    margin-right: -3px;
+    background: transparent;
+    transition: background-color 0.15s ease;
+}
+
+.tabulator .tabulator-col-resize-handle:hover {
+    background: #3b82f6 !important;
+}
+
+/* Строки таблицы */
+.tabulator .tabulator-tableholder .tabulator-table {
+    background-color: transparent !important;
+    color: #e2e8f0 !important;
 }
 
 .tabulator .tabulator-row {
-    border-bottom: 1px solid #e2e8f0;
+    background-color: rgba(11, 15, 25, 0.6) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+    transition: background-color 0.12s ease, transform 0.12s ease;
+    color: #e2e8f0 !important;
 }
 
+.tabulator .tabulator-row:nth-child(even),
 .tabulator .tabulator-row.tabulator-row-even {
-    background-color: #f8fafc;
+    background-color: rgba(15, 23, 42, 0.5) !important;
 }
 
 .tabulator .tabulator-row:hover {
-    background-color: #f1f5f9 !important;
+    background-color: rgba(59, 130, 246, 0.12) !important;
+    color: #ffffff !important;
 }
 
 .tabulator .tabulator-row.tabulator-selected {
-    background-color: #dbeafe !important;
-    color: #1e3a8a !important;
+    background-color: rgba(59, 130, 246, 0.25) !important;
+    color: #ffffff !important;
+    border-left: 3px solid #3b82f6 !important;
 }
 
-/* Статусные подсветки ячеек ФЛК */
-.flk-critical {
-    background-color: #fee2e2 !important;
-    color: #991b1b !important;
-    font-weight: bold;
+/* Ячейки */
+.tabulator .tabulator-cell {
+    border-right: 1px solid rgba(255, 255, 255, 0.04) !important;
+    padding: 6px 10px !important;
+    vertical-align: middle;
 }
 
-.flk-warning {
-    background-color: #fef3c7 !important;
-    color: #92400e !important;
+.tabulator .tabulator-cell:focus {
+    outline: 1px solid #3b82f6 !important;
+    outline-offset: -1px;
+    background: rgba(59, 130, 246, 0.15) !important;
 }
 
-.flk-info {
-    background-color: #e0f2fe !important;
-    color: #0369a1 !important;
+/* Стилизация скроллбаров внутри таблицы */
+.tabulator .tabulator-tableholder::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.tabulator .tabulator-tableholder::-webkit-scrollbar-track {
+    background: rgba(11, 15, 25, 0.8);
+    border-radius: 4px;
+}
+
+.tabulator .tabulator-tableholder::-webkit-scrollbar-thumb {
+    background: rgba(71, 85, 105, 0.6);
+    border-radius: 4px;
+    border: 2px solid rgba(11, 15, 25, 0.8);
+}
+
+.tabulator .tabulator-tableholder::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 116, 139, 0.9);
+}
+
+/* Статусные подсветки ячеек и строк ФЛК */
+.flk-critical,
+.tabulator-row.flk-critical {
+    background-color: rgba(239, 68, 68, 0.18) !important;
+    color: #fca5a5 !important;
+    border-left: 3px solid #ef4444 !important;
+}
+
+.flk-warning,
+.tabulator-row.flk-warning {
+    background-color: rgba(245, 158, 11, 0.16) !important;
+    color: #fcd34d !important;
+    border-left: 3px solid #f59e0b !important;
+}
+
+.flk-info,
+.tabulator-row.flk-info {
+    background-color: rgba(59, 130, 246, 0.15) !important;
+    color: #93c5fd !important;
+    border-left: 3px solid #3b82f6 !important;
+}
+
+.flk-success,
+.tabulator-row.flk-success {
+    background-color: rgba(16, 185, 129, 0.15) !important;
+    color: #6ee7b7 !important;
+    border-left: 3px solid #10b981 !important;
+}
+
+/* Статусные бейджи-чипы */
+.grid-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.grid-pill-jnvlp {
+    background: rgba(168, 85, 247, 0.2);
+    color: #d8b4fe;
+    border: 1px solid rgba(168, 85, 247, 0.4);
+}
+
+.grid-pill-ok {
+    background: rgba(16, 185, 129, 0.2);
+    color: #6ee7b7;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.grid-pill-err {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.4);
 }

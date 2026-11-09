@@ -45,6 +45,7 @@ import { GridController } from './ui/grid_controller.js';
 import { CrossPlatformHub } from './services/cross_platform_hub.js';
 import { GuideService } from './services/guide_service.js';
 import { bindEnterpriseFeatures } from './ui/feature_controllers.js';
+import { initWebOsUi } from './ui/webos_ui_controller.js';
 
 export class PharmaGateWebOS {
     constructor() {
@@ -146,6 +147,8 @@ export class PharmaGateWebOS {
 
         // 9.1 Регистрация модулей расширения (Камера-ТСД, Пакетный EDI, ЖНВЛП, Этикетки, Diff, SQL, PWA File, Share)
         bindEnterpriseFeatures(this);
+        // 9.1. Инициализация визуальной системы WebOS
+        initWebOsUi(this);
 
         // 10. Глобальные слушатели горячих клавиш, Drag & Drop и таймер автосохранения
         this._bindKeyboardShortcuts();
