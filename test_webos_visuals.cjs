@@ -37,12 +37,7 @@ const requiredIds = [
     'taskViewGrid',
     'desktopContextMenu',
     'windowContextMenu',
-    'mobileSpringboard',
-    'mobileBottomBar',
-    'mobNavScanner',
-    'mobNavInvoice',
-    'mobNavApps',
-    'mobNavSettings',
+    'mobilePortal',
     'controlCenterModal',
     'osLockScreen'
 ];

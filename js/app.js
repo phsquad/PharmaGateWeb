@@ -153,6 +153,11 @@ export class PharmaGateWebOS {
         initWebOsUi(this);
         this.adaptiveShell = new AdaptiveShellController(this);
         this.adaptiveShell.init();
+
+        this.openMobilePortalApp = (winId) => this.adaptiveShell?.openMobilePortalApp(winId);
+        this.closeMobilePortalApp = () => this.adaptiveShell?.closeMobilePortalApp();
+        this.toggleForceDesktopMode = () => this.adaptiveShell?.toggleForceDesktopMode();
+
         this.explorer = new ExplorerController(this);
         this.explorer.init();
 
