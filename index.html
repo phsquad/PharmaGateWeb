@@ -1331,6 +1331,97 @@
             transform: scale(1.2);
         }
 
+    
+        #windowContextMenu {
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.12) !important;
+        }
+
+        /* ========================================================================= */
+        /* 🪟 WINDOWS 11 FLUENT TASKBAR & RESPONSIVE SCALING ENGINE                  */
+        /* ========================================================================= */
+
+        #taskbar {
+            height: 48px !important;
+            background: rgba(13, 17, 23, 0.88) !important;
+            backdrop-filter: blur(28px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+            box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        .taskbar-app-tile {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+            background: transparent;
+        }
+        .taskbar-app-tile:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-1.5px);
+        }
+        .taskbar-app-tile:active {
+            transform: translateY(0) scale(0.95);
+        }
+        .taskbar-app-tile.is-active {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        /* Светящаяся полоска под активным окном (Windows 11 Active Accent Line) */
+        .taskbar-active-line {
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 16px;
+            height: 3px;
+            border-radius: 2px;
+            background: #38bdf8;
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.85);
+            transition: width 0.2s ease;
+        }
+
+        /* Точка под свернутым / фоновым запущенным окном */
+        .taskbar-running-dot {
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #94a3b8;
+            transition: all 0.2s ease;
+        }
+
+        /* ❐ Оверлей Task View / Виртуальные рабочие столы */
+        #taskViewOverlay {
+            animation: taskViewFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes taskViewFadeIn {
+            0% { opacity: 0; transform: scale(1.02); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Адаптивность для мобильных и планшетных экранов */
+        @media (max-width: 768px) {
+            #taskbarWidgetsBtn { display: none !important; }
+            #btnTaskView, #btnFileExplorer { display: none !important; }
+            #trayShield, #trayNetwork { display: none !important; }
+            .desktop-gadget { display: none !important; }
+            .os-window {
+                width: 100vw !important;
+                height: calc(100dvh - 48px) !important;
+                left: 0 !important;
+                top: 0 !important;
+                border-radius: 0 !important;
+            }
+        }
+
     </style>
 </head>
 <body class="h-full w-full overflow-hidden text-slate-100 flex flex-col desktop-canvas">
@@ -3884,20 +3975,56 @@
         </div>
 
 <!-- 📑 КОНТЕКСТНОЕ МЕНЮ РАБОЧЕГО СТОЛА (DESKTOP CONTEXT MENU) -->
-        <div id="desktopContextMenu" class="fixed z-[100001] bg-[#0f172a]/95 backdrop-blur-2xl border border-slate-700/80 rounded-xl shadow-2xl py-1.5 min-w-[240px] hidden text-xs text-slate-200">
-            <button id="ctxRefreshDesktop" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
-                <span>🔄</span> Обновить рабочий стол
-            </button>
-            <button id="ctxArrangeGrid" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
-                <span>📐</span> Упорядочить значки по сетке
-            </button>
-            <button id="ctxToggleIcons" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
-                <span>👁️</span> Скрыть / Показать значки
-            </button>
-            <button id="ctxToggleGadgets" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
-                <span>📱</span> Виджеты рабочего стола (Gadgets)
-            </button>
-            <div class="h-px bg-slate-800 my-1"></div>
+        <div id="desktopContextMenu" class="fixed z-[100005] bg-slate-900/96 backdrop-blur-3xl border border-white/15 rounded-xl shadow-2xl py-1.5 min-w-[270px] hidden text-xs text-slate-200 select-none animate-fadeIn">
+        <button id="ctxRefreshDesktop" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between cursor-pointer">
+            <span class="flex items-center gap-2.5"><span>🔄</span> Обновить рабочий стол</span>
+            <span class="text-[10px] text-slate-400 font-mono">F5</span>
+        </button>
+        <button id="ctxArrangeGrid" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between cursor-pointer">
+            <span class="flex items-center gap-2.5"><span>📐</span> Упорядочить значки по сетке</span>
+            <span class="text-[10px] text-slate-400 font-mono">Grid</span>
+        </button>
+        <button id="ctxToggleIcons" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2.5 cursor-pointer">
+            <span>👁️</span> Скрыть / Показать значки
+        </button>
+
+        <div class="h-px bg-white/10 my-1"></div>
+
+        <button id="ctxNewInvoice" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2.5 cursor-pointer">
+            <span>📄</span> Создать накладную (Мастер 2.0)
+        </button>
+        <button id="ctxDemoInvoice" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2.5 cursor-pointer">
+            <span>🎲</span> Сгенерировать демо-накладную (50)
+        </button>
+        <button id="ctxOpenSpotlightMenu" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between cursor-pointer">
+            <span class="flex items-center gap-2.5"><span>🔍</span> Поиск Spotlight</span>
+            <span class="text-[10px] text-slate-400 font-mono">Ctrl+K</span>
+        </button>
+        <button id="ctxTaskViewMenu" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between cursor-pointer">
+            <span class="flex items-center gap-2.5"><span>❐</span> Представление задач</span>
+            <span class="text-[10px] text-slate-400 font-mono">Win+Tab</span>
+        </button>
+        <button id="ctxControlCenterMenu" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between cursor-pointer">
+            <span class="flex items-center gap-2.5"><span>🎛️</span> Центр управления WebOS</span>
+            <span class="text-[10px] text-slate-400 font-mono">Ctrl+Shift+C</span>
+        </button>
+        <button id="ctxOpenSql" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2.5 cursor-pointer">
+            <span>💻</span> Открыть SQL Консоль Mini-ERP
+        </button>
+
+        <div class="h-px bg-white/10 my-1"></div>
+
+        <button id="ctxPersonalization" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2.5 cursor-pointer">
+            <span>🖼️</span> Персонализация & Обои...
+        </button>
+        <button id="ctxSystemSettings" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2.5 cursor-pointer">
+            <span>⚙️</span> Параметры системы...
+        </button>
+        <button id="ctxLockScreen" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between cursor-pointer">
+            <span class="flex items-center gap-2.5"><span>🔒</span> Заблокировать экран</span>
+            <span class="text-[10px] text-slate-400 font-mono">Win+L</span>
+        </button>
+    </div>
             <button id="ctxTimeCalendar" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2 cursor-pointer">
                 <span>🕒</span> Время, Дата & Календарь...
             </button>
@@ -4478,240 +4605,168 @@
     <!-- ========================================================================= -->
     <!-- 3. ПАНЕЛЬ ЗАДАЧ (CROSS-PLATFORM TASKBAR & DOCK)                            -->
     <!-- ========================================================================= -->
-    <footer id="taskbar" class="h-12 bg-slate-950/95 backdrop-blur-2xl border-t border-slate-800/90 px-3 flex items-center justify-between shrink-0 z-50 shadow-2xl transition-all">
+    <!-- ========================================================================= -->
+    <!-- 3. ПАНЕЛЬ ЗАДАЧ WINDOWS 11 (WINDOWS 11 FLUENT TASKBAR & CENTERED DOCK)    -->
+    <!-- ========================================================================= -->
+    <footer id="taskbar" class="h-12 bg-slate-950/90 backdrop-blur-2xl border-t border-white/10 px-3 flex items-center justify-between shrink-0 z-50 shadow-2xl select-none transition-all">
         
-        <div class="flex items-center gap-2">
-            <!-- Кнопка Меню (ОС-адаптивная) -->
-            <button id="btnStartMenu" onclick="window.PharmaGate.toggleStartMenu()" 
-                    data-tooltip-title="🪟 Меню «Пуск» и macOS Finder"
-                    data-tooltip-desc="Единый центр запуска программ, навигатор по документам и накладным, быстрые действия и настройки системы."
-                    data-tooltip-badge="WebOS Меню"
-                    data-tooltip-shortcut="Клик / Клавиша Win"
-                    class="w-8 h-8 rounded-lg bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center text-sm shadow-md shadow-blue-600/30 transition-all cursor-pointer" title="Меню приложений">
-                🪟
+        <!-- ЛЕВАЯ ЧАСТЬ: ВИДЖЕТ ФИНАНСОВ / WIDGETS CHIP (WINDOWS 11 WIDGETS) -->
+        <div class="flex items-center gap-2 min-w-0">
+            <button id="taskbarWidgetsBtn" onclick="window.PharmaGate?.webOsUi?.toggleTaskView()" 
+                    data-tooltip-title="📊 Сводка Документа & Виджеты"
+                    data-tooltip-desc="Клик открывает панель финансового аудита документа и виджетов рабочего стола"
+                    data-tooltip-badge="ФЛК Контроль"
+                    class="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-mono transition-colors cursor-pointer">
+                <span>📊</span>
+                <span id="hudTotalSum" class="text-emerald-400 font-bold">0.00 ₽</span>
+                <span class="text-slate-500">|</span>
+                <span id="hudItemsCount" class="text-slate-300">0</span>
+                <span class="text-slate-500">|</span>
+                <span id="hudReadinessBadge" class="text-emerald-400 font-semibold">100% Готов</span>
             </button>
-
-            <!-- Кнопка быстрого поиска Spotlight / Command Palette -->
-            <button id="btnOpenSpotlight" 
-                    data-tooltip-title="🔍 Spotlight & Командная Палитра"
-                    data-tooltip-desc="Глобальный быстрый поиск по системе: мгновенный переход между окнами, поиск документов и вызов системных команд."
-                    data-tooltip-badge="⌘K / Ctrl+K"
-                    data-tooltip-shortcut="Нажмите ⌘K или Ctrl+K"
-                    class="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#090d16] hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-lg text-xs cursor-pointer transition-colors" title="Открыть Command Palette / Spotlight">
-                <span>🔍</span>
-                <span class="hidden sm:inline text-[11px] text-slate-400">Поиск</span>
-                <span id="kbdSpotlightHint" class="px-1.5 py-0.5 rounded bg-slate-900 text-blue-400 font-mono text-[10px] border border-slate-700">⌘K</span>
-            </button>
-
-            <!-- Селектор стратегий компоновки окон -->
-            <select id="strategySelect" 
-                    data-tooltip-title="🪟 Компоновка Окон"
-                    data-tooltip-desc="Автоматическая организация окон: Каскад, Сплит 50/50 для сверки таблиц, Сетка 2x2 или Фокус на весь экран."
-                    data-tooltip-badge="Оконный менеджер"
-                    data-tooltip-shortcut="Выбор из списка"
-                    class="bg-[#090d16] text-slate-300 border border-slate-800 rounded-lg px-2 py-1 text-xs font-semibold focus:outline-none cursor-pointer">
-                <option value="cascade">🪟 Каскад</option>
-                <option value="split_lr">🪟 Сплит 50/50</option>
-                <option value="grid_2x2">🪟 Сетка 2x2</option>
-                <option value="focus">🪟 Фокус (Макс)</option>
-            </select>
-
-            <div class="h-5 w-px bg-slate-800 mx-0.5 hidden md:block"></div>
-
-            <!-- Иконки активных окон на панели задач -->
-            <div id="taskbarAppsContainer" class="flex items-center gap-1.5"></div>
         </div>
 
-        <div class="flex items-center gap-2.5 text-xs font-medium text-slate-400 flex-wrap">
-            <!-- HUD индикатор финансовых итогов -->
-            <div id="hudFinancialSummary" 
-                 data-tooltip-title="📊 Финансовый Аудит Документа"
-                 data-tooltip-desc="Общая сумма накладной с НДС, суммарное число строк номенклатуры и текущий статус форматно-логического контроля."
-                 data-tooltip-badge="ФЛК Контроль"
-                 data-tooltip-shortcut="В реальном времени"
-                 class="hidden xl:flex items-center gap-3 bg-[#090d16] px-3 py-1 rounded-lg border border-slate-800 font-mono text-[11px] cursor-help">
-                <div>Сумма: <b id="hudTotalSum" class="text-emerald-400">0.00 ₽</b></div>
-                <div class="h-3 w-px bg-slate-700"></div>
-                <div>Строк: <b id="hudItemsCount" class="text-slate-300">0</b></div>
-                <div class="h-3 w-px bg-slate-700"></div>
-                <div id="hudReadinessBadge" class="text-emerald-400 font-bold">100% Готов</div>
-            </div>
-
-            <!-- Кроссплатформенные селекторы (ОС / Окончания строк / Кодировка) -->
-            <div class="flex items-center gap-1 bg-[#090d16] p-1 rounded-lg border border-slate-800 text-[11px]">
-                <button id="hudOsBadge" 
-                        data-tooltip-title="🪟 Стиль Оформления ОС"
-                        data-tooltip-desc="Переключение декораций окон и кнопок управления: Windows 11 Fluent, macOS Glass (светофор слева) или Linux."
-                        data-tooltip-badge="Win / macOS / Linux"
-                        data-tooltip-shortcut="Клик для переключения"
-                        class="px-1.5 py-0.5 rounded bg-slate-800/80 hover:bg-slate-700 text-blue-300 font-semibold cursor-pointer" title="Стиль интерфейса (macOS / Windows / Linux)">
-                    🪟 Win
-                </button>
-                <button id="hudLineEndingBadge" 
-                        data-tooltip-title="📄 Окончания Строк в Экспорте"
-                        data-tooltip-desc="Формат переноса строк: CRLF (\r\n для Windows/1С) или LF (\n для macOS/Linux) при сохранении файлов."
-                        data-tooltip-badge="CRLF / LF"
-                        data-tooltip-shortcut="Клик для переключения"
-                        class="px-1.5 py-0.5 rounded bg-slate-800/80 hover:bg-slate-700 text-amber-300 font-mono text-[10px] cursor-pointer" title="Окончания строк: CRLF (Windows) / LF (Linux/Mac)">
-                    CRLF
-                </button>
-                <button id="hudEncBadge" 
-                        data-tooltip-title="🔤 Целевая Кодировка DBF"
-                        data-tooltip-desc="Кодовая страница экспорта таблиц: DOS CP866 (традиционная для аптечных шлюзов и 1С) или Windows CP1251 (ANSI)."
-                        data-tooltip-badge="CP866 / CP1251"
-                        data-tooltip-shortcut="Клик для переключения"
-                        class="px-1.5 py-0.5 rounded bg-slate-800/80 hover:bg-slate-700 text-emerald-300 font-mono text-[10px] cursor-pointer" title="Целевая кодировка DBF (CP866 / CP1251)">
-                    CP866
-                </button>
-            </div>
-
-            <!-- Кнопка быстрого переключения Lite режима (медленная сеть / слабые ПК) -->
-            <button id="btnTaskbarLiteMode" 
-                    data-tooltip-title="⚡ Режим Lite Speed"
-                    data-tooltip-desc="Турбо-режим: мгновенное отключение анимаций, теней и акрила для плавной работы на слабых устройствах и 2G/3G связи."
-                    data-tooltip-badge="Lite Speed"
-                    data-tooltip-shortcut="Ctrl + L"
-                    class="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-[#090d16] hover:bg-slate-800 text-slate-300 border border-slate-800 text-[11px] cursor-pointer transition-colors" title="Упрощенный режим (Lite Speed) для медленной сети 2G/3G">
-                <span id="taskbarLiteIcon">💎</span>
-                <span id="taskbarLiteLabel" class="hidden md:inline font-semibold text-[10px]">Full</span>
+        <!-- ЦЕНТРАЛЬНАЯ ЧАСТЬ: WINDOWS 11 CENTERED DOCK (СИСТЕМНЫЕ КНОПКИ + ТОЛЬКО ОТКРЫТЫЕ ОКНА) -->
+        <div class="flex items-center gap-1.5 mx-auto">
+            <!-- Кнопка Пуск (Windows 11 Start 4 Tiles) -->
+            <button id="btnStartMenu" onclick="window.PharmaGate.toggleStartMenu()" 
+                    data-tooltip-title="🪟 Меню «Пуск» (Windows 11)"
+                    data-tooltip-desc="Главное меню запуска программ, инструментов и настроек системы"
+                    data-tooltip-badge="Клавиша Win"
+                    class="w-10 h-10 rounded-lg hover:bg-white/10 flex items-center justify-center transition-all cursor-pointer group" title="Пуск (Win)">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" class="group-hover:scale-105 transition-transform">
+                    <rect width="9" height="9" rx="1.5" fill="#0078D4"/>
+                    <rect x="11" width="9" height="9" rx="1.5" fill="#0078D4"/>
+                    <rect y="11" width="9" height="9" rx="1.5" fill="#0078D4"/>
+                    <rect x="11" y="11" width="9" height="9" rx="1.5" fill="#0078D4"/>
+                </svg>
             </button>
 
-            <!-- Масштаб экрана с выпадающим меню Auto-DPI и ползунком -->
-            <div class="relative">
-                <div class="flex items-center gap-0.5 bg-[#090d16] p-0.5 rounded-lg border border-slate-800 text-[11px]">
-                    <button id="btnZoomMinus" 
-                            data-tooltip-title="🔍 Уменьшить Масштаб (-5%)"
-                            data-tooltip-desc="Уменьшение экранного масштаба для вывода большего объема данных в таблицах на экран."
-                            data-tooltip-shortcut="Ctrl + Минус"
-                            class="w-5 h-5 flex items-center justify-center rounded hover:bg-slate-800 text-slate-300 font-bold" title="Уменьшить масштаб">-</button>
-                    <button id="btnScaleMenuTrigger" 
-                            data-tooltip-title="🔍 Масштабирование & Auto-DPI"
-                            data-tooltip-desc="Текущий масштаб экрана. Открывает всплывающее меню с быстрыми пресетами и включением авто-DPI."
-                            data-tooltip-badge="Меню масштаба"
-                            data-tooltip-shortcut="Клик для меню"
-                            class="flex items-center gap-1 px-1.5 py-0.5 rounded hover:bg-slate-800 text-blue-400 font-mono font-bold text-[10px] cursor-pointer" title="Меню масштабирования и Auto-DPI">
-                        <span id="hudZoomVal">100%</span>
-                        <span class="text-[8px] text-slate-500">▾</span>
-                    </button>
-                    <button id="btnZoomPlus" 
-                            data-tooltip-title="🔍 Увеличить Масштаб (+5%)"
-                            data-tooltip-desc="Увеличение экранного масштаба и шрифта для четкого и комфортного чтения на 4K/HiDPI дисплеях."
-                            data-tooltip-shortcut="Ctrl + Плюс"
-                            class="w-5 h-5 flex items-center justify-center rounded hover:bg-slate-800 text-slate-300 font-bold" title="Увеличить масштаб">+</button>
-                </div>
-
-                <!-- Всплывающее мини-окно масштабирования -->
-                <div id="quickScaleDropdown" class="hidden absolute right-0 bottom-full mb-2.5 w-72 bg-[#090d16]/98 backdrop-blur-2xl border border-slate-700/90 rounded-2xl shadow-2xl p-3 z-50 text-xs space-y-2.5">
-                    <div class="flex items-center justify-between pb-1.5 border-b border-slate-800">
-                        <span class="font-bold text-white text-xs flex items-center gap-1.5">
-                            <span>🔍</span> Масштаб & Плотность
-                        </span>
-                        <span id="dropdownDpiBadge" class="text-[9px] font-mono text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">100%</span>
-                    </div>
-
-                    <!-- Быстрый выбор плотности интерфейса -->
-                    <div class="flex items-center justify-between p-1.5 rounded-lg bg-[#040711] border border-slate-800 text-[11px]">
-                        <span class="text-slate-300 font-medium">Плотность UI:</span>
-                        <div class="flex items-center gap-1">
-                            <button id="btnDropdownDensityCompact" class="btn-dropdown-density px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-300 hover:text-white transition-colors" data-density="compact">📦 Компакт</button>
-                            <button id="btnDropdownDensityStandard" class="btn-dropdown-density px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-600 text-white transition-colors" data-density="standard">⚖️ Норма</button>
-                        </div>
-                    </div>
-
-                    <label class="flex items-center justify-between p-1.5 rounded-lg bg-[#040711] border border-slate-800 text-[11px] cursor-pointer">
-                        <span class="text-slate-300">Auto-DPI под разрешение</span>
-                        <input type="checkbox" id="dropdownChkAutoDpi" class="rounded text-blue-600 cursor-pointer">
-                    </label>
-
-                    <div class="space-y-1">
-                        <div class="flex items-center justify-between text-[10px] text-slate-400">
-                            <span>Масштаб рабочей области:</span>
-                            <span id="dropdownScaleVal" class="font-mono font-bold text-blue-400">100%</span>
-                        </div>
-                        <input type="range" id="dropdownScaleSlider" min="70" max="150" step="5" value="100" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500">
-                    </div>
-
-                    <div class="grid grid-cols-6 gap-1 pt-1 border-t border-slate-800/80">
-                        <button data-quickscale="0.75" class="btn-quick-scale py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-[10px] text-center transition-colors">75%</button>
-                        <button data-quickscale="0.85" class="btn-quick-scale py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-[10px] text-center transition-colors">85%</button>
-                        <button data-quickscale="0.90" class="btn-quick-scale py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-[10px] text-center transition-colors">90%</button>
-                        <button data-quickscale="1.00" class="btn-quick-scale py-0.5 rounded bg-blue-600 text-white font-mono text-[10px] text-center font-bold transition-colors">100%</button>
-                        <button data-quickscale="1.15" class="btn-quick-scale py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-[10px] text-center transition-colors">115%</button>
-                        <button data-quickscale="1.25" class="btn-quick-scale py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-[10px] text-center transition-colors">125%</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Быстрый доступ к персонализации -->
-            <button onclick="window.PharmaGate.openSettingsTab('tabPersonalization')" 
-                    data-tooltip-title="🎨 Темы и Оформление"
-                    data-tooltip-desc="Быстрый переход в параметры персонализации: выбор из 6 стилей ОС, акцентных цветов, шрифтов и обоев."
-                    data-tooltip-badge="Персонализация"
-                    data-tooltip-shortcut="Клик мышью"
-                    class="p-1 rounded-lg bg-[#090d16] border border-slate-800 hover:bg-slate-800 text-xs cursor-pointer text-slate-300" title="Оформление, темы и обои">
-                🎨
+            <!-- Кнопка быстрого поиска Spotlight / Поиск -->
+            <button id="btnOpenSpotlight" 
+                    data-tooltip-title="🔍 Поиск & Spotlight"
+                    data-tooltip-desc="Быстрый поиск документов, лекарств и системных действий"
+                    data-tooltip-badge="Ctrl+K"
+                    class="w-10 h-10 rounded-lg hover:bg-white/10 flex items-center justify-center text-slate-300 hover:text-white transition-all cursor-pointer" title="Поиск (Ctrl+K)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="M21 21l-4.35-4.35"/>
+                </svg>
             </button>
 
-            <!-- Кнопка Интерактивного Гида -->
-            <button id="btnTaskbarGuide" onclick="window.PharmaGate.toggleApp('winGuide')"
-                    data-tooltip-title="📖 Интерактивный Гид & Справка (F1)"
-                    data-tooltip-desc="Открыть интерактивное руководство пользователя: пошаговое обучение, симуляторы ФЛК и калькулятор ЖНВЛП (RU / EN)."
-                    data-tooltip-badge="F1 · RU / EN"
-                    data-tooltip-shortcut="Клавиша F1"
-                    class="flex items-center gap-1 px-2 py-1 rounded-lg bg-[#090d16] hover:bg-slate-800 text-slate-300 border border-slate-800 text-[11px] cursor-pointer transition-colors" title="Интерактивный Гид и Справка (F1)">
-                <span>📖</span>
-                <span class="hidden xl:inline font-semibold text-[10px]">Гид F1</span>
+            <!-- Представление задач / Виртуальные рабочие столы (Task View) -->
+            <button id="btnTaskView" onclick="window.PharmaGate?.webOsUi?.toggleTaskView()"
+                    data-tooltip-title="❐ Представление задач (Task View)"
+                    data-tooltip-desc="Обзор открытых окон и переключение между виртуальными рабочими столами"
+                    data-tooltip-badge="Win+Tab"
+                    class="w-10 h-10 rounded-lg hover:bg-white/10 flex items-center justify-center text-slate-300 hover:text-white transition-all cursor-pointer" title="Представление задач (Win+Tab)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="13" height="13" rx="2"/>
+                    <path d="M8 8h13v13H8z"/>
+                </svg>
             </button>
 
-            <!-- Полный экран -->
-            <button id="btnToggleFullscreen" 
-                    data-tooltip-title="⛶ Полноэкранный Режим"
-                    data-tooltip-desc="Переключение в режим на весь экран (F11) для работы без отвлекающих рамок браузера."
-                    data-tooltip-badge="Full Screen"
-                    data-tooltip-shortcut="Клавиша F11"
-                    class="p-1 rounded-lg bg-[#090d16] border border-slate-800 hover:bg-slate-800 text-xs text-slate-300 cursor-pointer" title="Полноэкранный режим (F11)">
-                ⛶
+            <!-- Проводник Накладных / File Explorer -->
+            <button id="btnFileExplorer" onclick="window.PharmaGate.openApp('winEditor')"
+                    data-tooltip-title="📁 Проводник Накладных"
+                    data-tooltip-desc="Открыть редактор накладных и проводник документов"
+                    data-tooltip-badge="EDI Grid"
+                    class="w-10 h-10 rounded-lg hover:bg-white/10 flex items-center justify-center transition-all cursor-pointer" title="Проводник накладных">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6z" fill="#FFA000"/>
+                    <path d="M3 9h18v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z" fill="#FFCA28"/>
+                </svg>
             </button>
 
-            <!-- Центрирование Дока -->
-            <button id="btnToggleDockCenter" 
-                    data-tooltip-title="📌 Центрирование Дока"
-                    data-tooltip-desc="Переключение стиля панели задач: по центру (Windows 11 / macOS) или прижато влево."
-                    data-tooltip-badge="Док"
-                    data-tooltip-shortcut="Клик"
-                    class="p-1 rounded-lg bg-[#090d16] border border-slate-800 hover:bg-slate-800 text-xs text-slate-300 cursor-pointer" title="Центрирование дока">
-                📌
+            <!-- Тонкий разделитель -->
+            <div id="taskbarDockDivider" class="h-6 w-px bg-white/10 mx-0.5"></div>
+
+            <!-- ИКОНКИ ТОЛЬКО ОТКРЫТЫХ / ЗАПУЩЕННЫХ ОКОН (WINDOWS 11 STYLE) -->
+            <div id="taskbarAppsContainer" class="flex items-center gap-1"></div>
+        </div>
+
+        <!-- ПРАВАЯ ЧАСТЬ: WINDOWS 11 СИСТЕМНЫЙ ТРЕЙ (SYSTEM TRAY) -->
+        <div class="flex items-center gap-1 text-xs">
+            
+            <!-- Стрелка трея ^ (скрытые значки) -->
+            <button id="btnTrayOverflow" onclick="window.PharmaGate?.webOsUi?.toggleTrayOverflow()"
+                    class="w-7 h-8 rounded hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center text-xs cursor-pointer font-bold transition-colors" title="Скрытые значки">
+                ^
             </button>
 
-            <!-- Центр Управления WebOS (Control Center & Quick Settings) -->
-            <button id="btnOpenControlCenter" 
-                    data-tooltip-title="🎛️ Центр Управления WebOS"
-                    data-tooltip-desc="Быстрые параметры: громкость звуков, масштаб DPI, темы, обои, блокировка экрана и Lite-режим."
-                    data-tooltip-badge="Control Center"
-                    data-tooltip-shortcut="Клик / Ctrl+Shift+C"
-                    class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/40 text-xs cursor-pointer transition-colors shadow-sm" title="Центр управления WebOS">
-                <span>🎛️</span>
-                <span class="hidden md:inline font-semibold text-[11px]">Центр</span>
+            <!-- Иконка Защиты Windows Defender / ФЛК -->
+            <button id="trayShield" onclick="window.PharmaGate.openApp('winInspector')"
+                    class="w-8 h-8 rounded hover:bg-white/10 flex items-center justify-center text-emerald-400 text-sm cursor-pointer transition-colors" title="ФЛК Защита: Активна (100% Норма)">
+                🛡️
             </button>
 
-            <!-- Звуковые эффекты -->
+            <!-- Иконка Сети / PWA Offline -->
+            <button id="trayNetwork" 
+                    class="w-8 h-8 rounded hover:bg-white/10 flex items-center justify-center text-slate-300 hover:text-white text-sm cursor-pointer transition-colors" title="Сеть: Подключено (PWA автономный режим активен)">
+                🛜
+            </button>
+
+            <!-- Иконка Звука -->
             <button id="btnToggleSound" 
-                    data-tooltip-title="🔔 Звуковые Эффекты"
-                    data-tooltip-desc="Включение или отключение звуков кликов, перемещения окон и предупреждений валидатора ФЛК."
-                    data-tooltip-badge="Аудио-HUD"
-                    data-tooltip-shortcut="Клик мышью"
-                    class="p-1 rounded-lg bg-[#090d16] border border-slate-800 hover:bg-slate-800 text-xs cursor-pointer" title="Звуковые эффекты">
+                    class="w-8 h-8 rounded hover:bg-white/10 flex items-center justify-center text-slate-300 hover:text-white text-sm cursor-pointer transition-colors" title="Звуковые эффекты">
                 🔔
             </button>
 
-            <!-- Селектор целевого шлюза -->
-            <div data-tooltip-title="🎯 Профиль Аптечной Сети"
-                 data-tooltip-desc="Выбор целевого профиля интеграции: автоматическая загрузка требований ФЛК, схем полей и кодировки для выбранной сети."
-                 data-tooltip-badge="Контрагент"
-                 data-tooltip-shortcut="Выбор из списка"
-                 class="hidden lg:flex items-center gap-1 bg-[#090d16] px-2 py-1 rounded-lg border border-slate-800 text-[11px] cursor-pointer">
-                <span>🎯</span>
-                <select id="profileSelect" class="bg-transparent text-emerald-400 font-bold focus:outline-none cursor-pointer">
+            <!-- Языковой бейдж РУС / ENG -->
+            <button id="btnLangToggle" onclick="window.PharmaGate?.webOsUi?.toggleLanguage()"
+                    class="px-1.5 py-1 rounded hover:bg-white/10 text-[10px] font-bold text-slate-300 hover:text-white cursor-pointer font-mono tracking-wider transition-colors" title="Язык интерфейса: Русский (РУС)">
+                РУС
+            </button>
+
+            <!-- Двухстрочные системные часы (Windows 11 Time & Date) -->
+            <button id="systemClock" 
+                 class="flex flex-col items-end px-2 py-0.5 rounded hover:bg-white/10 transition-colors cursor-pointer select-none leading-tight font-mono text-right border border-transparent hover:border-white/10" title="Время, дата и календарь">
+                <span id="systemClockTime" class="text-xs font-semibold text-white tracking-wide">22:38</span>
+                <span id="systemClockDate" class="text-[9px] text-slate-400">09.11.2026</span>
+            </button>
+
+            <!-- Кнопка Центра Уведомлений / Управления (Action Center) -->
+            <button id="btnOpenControlCenter" 
+                    class="w-8 h-8 rounded hover:bg-white/10 flex items-center justify-center text-slate-300 hover:text-white text-xs cursor-pointer relative transition-colors" title="Центр управления WebOS (Ctrl+Shift+C)">
+                <span>🎛️</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-blue-400 absolute top-1.5 right-1.5"></span>
+            </button>
+
+            <!-- Полоска Показать рабочий стол / Aero Peek (Show Desktop) -->
+            <button id="btnShowDesktop" onclick="window.PharmaGate?.webOsUi?.toggleShowDesktop()"
+                    class="w-1.5 h-8 rounded-full hover:bg-blue-400/80 bg-slate-700/60 transition-colors ml-1 cursor-pointer" title="Свернуть все окна / Показать рабочий стол">
+            </button>
+        </div>
+
+        <!-- ВСПЛЫВАЮЩИЙ ТРЕЙ ДЛЯ СКРЫТЫХ ЗНАЧКОВ (^ Tray Overflow Flyout) -->
+        <div id="trayOverflowFlyout" class="fixed right-20 bottom-14 z-[99999] bg-slate-900/96 backdrop-blur-2xl border border-white/15 rounded-xl shadow-2xl p-3 text-xs text-white hidden select-none space-y-2 min-w-[220px]">
+            <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider pb-1 border-b border-white/10 flex items-center justify-between">
+                <span>Параметры станции</span>
+                <span id="hudOsBadge" class="text-blue-400 font-mono text-[9px]">WIN</span>
+            </div>
+            
+            <div class="flex items-center justify-between py-0.5">
+                <span class="text-slate-400">Перевод строк:</span>
+                <button id="hudLineEndingBadge" class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono text-[10px] border border-slate-700">CRLF</button>
+            </div>
+
+            <div class="flex items-center justify-between py-0.5">
+                <span class="text-slate-400">Кодировка:</span>
+                <button id="hudEncBadge" class="px-1.5 py-0.5 rounded bg-slate-800 text-emerald-400 font-mono text-[10px] border border-slate-700">CP1251</button>
+            </div>
+
+            <div class="flex items-center justify-between py-0.5">
+                <span class="text-slate-400">Масштаб UI:</span>
+                <div class="flex items-center gap-1 font-mono text-[10px]">
+                    <button id="btnZoomMinus" class="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 flex items-center justify-center cursor-pointer">−</button>
+                    <span id="hudZoomVal" class="text-blue-400">100%</span>
+                    <button id="btnZoomPlus" class="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 flex items-center justify-center cursor-pointer">+</button>
+                </div>
+            </div>
+
+            <div class="pt-1.5 border-t border-white/10">
+                <div class="text-slate-400 text-[10px] mb-1">Профиль сети:</div>
+                <select id="profileSelect" class="w-full bg-slate-800 border border-slate-700 text-emerald-400 font-bold rounded px-2 py-1 text-xs focus:outline-none cursor-pointer">
                     <option value="neofarm" class="bg-slate-900">НЕО-ФАРМ</option>
                     <option value="rigla" class="bg-slate-900">Ригла</option>
                     <option value="katren" class="bg-slate-900">Катрен</option>
@@ -4721,16 +4776,15 @@
                 </select>
             </div>
 
-            <!-- Часы (Интерактивные: клик открывает календарь и таймер) -->
-            <button id="systemClock" 
-                 data-tooltip-title="🕒 Системное Время, Дата и Календарь"
-                 data-tooltip-desc="Локальное системное время станции и быстрый доступ к интерактивному календарю, часовым поясам и регламентному таймеру."
-                 data-tooltip-badge="Интерактивные часы"
-                 data-tooltip-shortcut="Клик / Календарь"
-                 class="font-mono text-slate-300 hover:text-white hover:bg-slate-800/80 px-2 py-1 rounded-lg transition-colors cursor-pointer flex flex-col items-end leading-tight border border-transparent hover:border-slate-700">
-                <span id="systemClockTime" class="font-bold text-xs">12:00</span>
-                <span id="systemClockDate" class="text-[9px] text-slate-400 font-normal">24.09.2026</span>
-            </button>
+            <div class="pt-1 border-t border-white/10">
+                <div class="text-slate-400 text-[10px] mb-1">Компоновка окон:</div>
+                <select id="strategySelect" class="w-full bg-slate-800 border border-slate-700 text-slate-200 rounded px-2 py-1 text-xs focus:outline-none cursor-pointer">
+                    <option value="cascade">🪟 Каскад</option>
+                    <option value="split_lr">🪟 Сплит 50/50</option>
+                    <option value="grid_2x2">🪟 Сетка 2x2</option>
+                    <option value="focus">🪟 Фокус (Макс)</option>
+                </select>
+            </div>
         </div>
     </footer>
 
@@ -4979,6 +5033,57 @@
                 Нажмите любую клавишу, Пробел или кликните по экрану
             </div>
         </div>
+    </div>
+
+
+    
+    <!-- ========================================================================= -->
+    <!-- 4.3 ПРЕДСТАВЛЕНИЕ ЗАДАЧ / ВИРТУАЛЬНЫЕ РАБОЧИЕ СТОЛЫ (TASK VIEW)           -->
+    <!-- ========================================================================= -->
+    <div id="taskViewOverlay" class="fixed inset-0 z-[100000] bg-slate-950/80 backdrop-blur-3xl hidden flex flex-col p-8 select-none transition-all">
+        <div class="flex items-center justify-between pb-6 border-b border-white/10">
+            <div class="flex items-center gap-3">
+                <div class="text-xs uppercase font-bold text-slate-400 tracking-wider">Рабочие столы:</div>
+                <button class="vdesktop-tab active px-4 py-2 rounded-xl bg-blue-600/30 text-white border border-blue-500/60 flex items-center gap-2 text-xs font-semibold shadow-lg shadow-blue-500/20 cursor-pointer" data-desk="1">
+                    <span>🖥️</span>
+                    <span>Рабочий стол 1: Приемка & Накладные</span>
+                </button>
+                <button class="vdesktop-tab px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 flex items-center gap-2 text-xs font-semibold cursor-pointer" data-desk="2">
+                    <span>📊</span>
+                    <span>Рабочий стол 2: СУБД ERP & Аналитика</span>
+                </button>
+            </div>
+            <button onclick="window.PharmaGate?.webOsUi?.closeTaskView()" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs text-white cursor-pointer font-semibold">✕ Закрыть (Esc)</button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto py-6">
+            <div class="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                <span>🪟</span>
+                <span>Открытые программы</span>
+                <span id="taskViewCountBadge" class="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold">1</span>
+            </div>
+            <div id="taskViewGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+        </div>
+    </div>
+
+    <!-- КОНТЕКСТНОЕ МЕНЮ ОКНА (WINDOW TITLEBAR CONTEXT MENU) -->
+    <div id="windowContextMenu" class="fixed z-[100005] bg-slate-900/96 backdrop-blur-3xl border border-white/15 rounded-xl shadow-2xl py-1.5 min-w-[210px] hidden text-xs text-slate-200 select-none">
+        <button id="wctxMin" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2.5 cursor-pointer">
+            <span>_</span> Свернуть окно
+        </button>
+        <button id="wctxMax" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2.5 cursor-pointer">
+            <span>□</span> Развернуть / Восстановить
+        </button>
+        <button id="wctxSnapLeft" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2.5 cursor-pointer">
+            <span>◧</span> Прижать к левому краю (50%)
+        </button>
+        <button id="wctxSnapRight" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center gap-2.5 cursor-pointer">
+            <span>◨</span> Прижать к правому краю (50%)
+        </button>
+        <div class="h-px bg-white/10 my-1"></div>
+        <button id="wctxClose" class="w-full px-3 py-1.5 text-left hover:bg-red-600/40 hover:text-red-200 text-red-300 flex items-center gap-2.5 cursor-pointer font-semibold">
+            <span>✕</span> Закрыть (Alt+F4)
+        </button>
     </div>
 
 
