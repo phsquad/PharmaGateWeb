@@ -69,6 +69,7 @@ export class WebOsUiController {
         // Метаданные всех приложений WebOS
         this.appsCatalog = {
             winEditor: { id: 'winEditor', title: 'Редактор Накладных', icon: '📄', badge: 'EDI Grid' },
+            winExplorer: { id: 'winExplorer', title: 'Проводник VFS', icon: '📁', badge: 'Диск C:' },
             winCameraScanner: { id: 'winCameraScanner', title: 'ТСД Сканер', icon: '📱', badge: 'Честный ЗНАК' },
             winBatchProcessor: { id: 'winBatchProcessor', title: 'Пакетный EDI', icon: '📦', badge: 'Конвейер' },
             winJnvlp: { id: 'winJnvlp', title: 'ЖНВЛП & Цены', icon: '💊', badge: '89 регионов' },

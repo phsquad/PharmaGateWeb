@@ -22,6 +22,40 @@ import { DateEngine } from '../engine/date_engine.js';
 
 export const PHARMAGATE_RELEASES = [
     {
+        version: "v2026.3.6",
+        date: "10.11.2026",
+        title: "Virtual File System (VFS IndexedDB) & File Explorer Studio",
+        badge: "Enterprise",
+        badgeColor: "bg-blue-500/20 text-blue-300 border-blue-500/40",
+        summary: "Полноценная локальная файловая система VFS на IndexedDB и окно «Проводник» (File Explorer): папки диска C:\, Drag & Drop импорт файлов с реального ПК, мгновенный запуск накладных по двойному клику и выгрузка Blob.",
+        highlights: [
+            {
+                category: "features",
+                catLabel: "VFS IndexedDB",
+                title: "Локальный виртуальный диск C:\ без серверной базы данных",
+                desc: "Файловая система с папками «Документы», «Загрузки», «База ERP» и «Схемы DBF» сохраняется в браузере клиента под 152-ФЗ."
+            },
+            {
+                category: "ui",
+                catLabel: "Проводник",
+                title: "Окно «Проводник» (winExplorer) с хлебными крошками и режимами вида",
+                desc: "Навигация Вперед/Назад/Вверх, адресная строка, поиск файлов, переключение Сетка / Список, создание папок и текстовых файлов."
+            },
+            {
+                category: "performance",
+                catLabel: "Drag & Drop мост",
+                title: "Перетаскивание файлов из Windows/macOS прямо в Проводник",
+                desc: "Любые файлы .dbf, .xml, .xlsx, перетащенные из проводника компьютера, сохраняются в VFS и открываются в редакторе по двойному клику."
+            },
+            {
+                category: "features",
+                catLabel: "Экспорт",
+                title: "Выгрузка любого виртуального файла на физический диск ПК",
+                desc: "Кнопка «Скачать на ПК» генерирует Blob и загружает оригинальный файл в папку Загрузки пользователя."
+            }
+        ]
+    },
+    {
         version: "v2026.3.5",
         date: "09.11.2026",
         title: "Adaptive Shell Evolution: MobileShell & Springboard Launcher",
