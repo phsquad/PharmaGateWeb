@@ -863,7 +863,24 @@ export class PharmaGateWebOS {
         }
         const win = document.getElementById(winId);
         if (win) {
+            const wasMin = win.classList.contains('minimized');
             win.classList.remove('minimized');
+
+            // 🪟 Программный каскадный офсет для открываемых окон (чтобы они не накладывались ровно друг на друга)
+            if (wasMin && !win._hasUserMoved && winId !== 'winEditor') {
+                this._cascadeIndex = ((this._cascadeIndex || 0) + 1) % 7;
+                const zoom = this.crossPlatform?.zoomFactor || 1;
+                const baseTop = 32;
+                const baseLeft = 140; // безопасный отступ справа от столбцов ярлыков
+                const step = 28;
+                const maxTop = Math.max(baseTop, ((window.innerHeight - 200) / zoom));
+                const maxLeft = Math.max(baseLeft, ((window.innerWidth - 300) / zoom));
+                const newTop = Math.min(maxTop, baseTop + (this._cascadeIndex * step));
+                const newLeft = Math.min(maxLeft, baseLeft + (this._cascadeIndex * step));
+                win.style.top = `${newTop}px`;
+                win.style.left = `${newLeft}px`;
+            }
+
             this.focusWindow(winId);
             this._updateTaskbar();
             this._redrawWindowContents(winId);

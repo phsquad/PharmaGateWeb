@@ -81,10 +81,10 @@ export class WebOsUiController {
             winWizard: { id: 'winWizard', title: 'Мастер 2.0', icon: '🚀', badge: 'Конвертация' },
             winInspector: { id: 'winInspector', title: 'Инспектор ФЛК', icon: '🛠️', badge: 'Аудит' },
             winKb: { id: 'winKb', title: 'База Знаний', icon: '📚', badge: '25+ регламентов' },
-            winGuide: { id: 'winGuide', title: 'Гид F1', icon: '📖', badge: 'Обучение' },
+            winGuide: { id: 'winGuide', title: 'Гид & Обучение', icon: '🎓', badge: 'Интерактив' },
             winSettings: { id: 'winSettings', title: 'Параметры', icon: '⚙️', badge: 'Система' },
             winUpdateCenter: { id: 'winUpdateCenter', title: 'Центр Обновлений', icon: '🔄', badge: 'v2026.3.3' },
-            winScale: { id: 'winScale', title: 'Экран & Масштаб', icon: '🔎±', badge: 'Auto-DPI' },
+            winScale: { id: 'winScale', title: 'Экран & Масштаб', icon: '🖥️±', badge: 'Auto-DPI' },
             winPersonalization: { id: 'winPersonalization', title: 'Персонализация', icon: '🎨', badge: 'Обои & Темы' }
         };
     }
@@ -348,14 +348,14 @@ export class WebOsUiController {
                 const isMinimized = !win || win.classList.contains('minimized');
                 const isFront = !isMinimized && (parseInt(win.style.zIndex || '10', 10) >= (app.topZIndex - 1));
 
-                // Стили кнопки тайла как в Windows 11
-                let tileClass = 'taskbar-app-tile relative w-10 h-10 rounded-lg flex items-center justify-center transition-all cursor-pointer select-none shrink-0 ';
+                // Стили кнопки динамической вкладки (Chrome-style shrink + Windows 11 Fluent)
+                let tileClass = 'taskbar-app-tile taskbar-tab relative rounded-lg flex items-center gap-2 px-2.5 py-1 border transition-all cursor-pointer select-none shrink ';
                 if (isFront) {
-                    tileClass += 'bg-white/15 is-active';
+                    tileClass += 'bg-white/15 border-blue-500/50 shadow-sm is-active';
                 } else if (!isMinimized) {
-                    tileClass += 'bg-white/5 hover:bg-white/10';
+                    tileClass += 'bg-white/5 hover:bg-white/10 border-white/10';
                 } else {
-                    tileClass += 'hover:bg-white/10 opacity-75 hover:opacity-100';
+                    tileClass += 'hover:bg-white/10 border-transparent opacity-75 hover:opacity-100';
                 }
 
                 // Индикатор под иконкой
@@ -372,7 +372,8 @@ export class WebOsUiController {
                             data-tooltip-badge="${item.badge}"
                             data-tooltip-pos="top"
                             aria-label="${item.title}">
-                        <span class="text-xl filter drop-shadow leading-none flex items-center justify-center font-bold">${item.icon}</span>
+                        <span class="text-base filter drop-shadow leading-none flex items-center justify-center font-bold shrink-0">${item.icon}</span>
+                        <span class="taskbar-tab-title text-xs font-semibold text-slate-200 truncate hidden sm:inline leading-tight">${item.title}</span>
                         ${indicatorHtml}
                     </button>
                 `;
