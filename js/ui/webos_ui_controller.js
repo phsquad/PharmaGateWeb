@@ -71,19 +71,21 @@ export class WebOsUiController {
             winEditor: { id: 'winEditor', title: 'Редактор Накладных', icon: '📄', badge: 'EDI Grid' },
             winCameraScanner: { id: 'winCameraScanner', title: 'ТСД Сканер', icon: '📱', badge: 'Честный ЗНАК' },
             winBatchProcessor: { id: 'winBatchProcessor', title: 'Пакетный EDI', icon: '📦', badge: 'Конвейер' },
-            winJnvlp: { id: 'winJnvlp', title: 'ЖНВЛП & Цены', icon: '⚖️', badge: '89 регионов' },
+            winJnvlp: { id: 'winJnvlp', title: 'ЖНВЛП & Цены', icon: '💊', badge: '89 регионов' },
             winLabelPrinter: { id: 'winLabelPrinter', title: 'Печать ценников', icon: '🏷️', badge: 'Термопринтер' },
-            winDiffViewer: { id: 'winDiffViewer', title: 'Сравнение EDI', icon: '🔍', badge: 'Visual Diff' },
-            winSqlConsole: { id: 'winSqlConsole', title: 'SQL Консоль', icon: '💻', badge: 'SQLite WASM' },
+            winDiffViewer: { id: 'winDiffViewer', title: 'Сравнение EDI', icon: '⇄', badge: 'Visual Diff' },
+            winSqlConsole: { id: 'winSqlConsole', title: 'SQL Консоль', icon: '>_', badge: 'SQLite WASM' },
             winDb: { id: 'winDb', title: 'СУБД ERP', icon: '🗄️', badge: 'Каталог ГРЛС' },
-            winReconcile: { id: 'winReconcile', title: 'Сверка Накладных', icon: '⚖️', badge: 'Smart Match' },
+            winReconcile: { id: 'winReconcile', title: 'Сверка Накладных', icon: '📋', badge: 'Smart Match' },
             winSchema: { id: 'winSchema', title: 'Конструктор Схем', icon: '📐', badge: 'DBF Doctor' },
             winWizard: { id: 'winWizard', title: 'Мастер 2.0', icon: '🚀', badge: 'Конвертация' },
             winInspector: { id: 'winInspector', title: 'Инспектор ФЛК', icon: '🛠️', badge: 'Аудит' },
             winKb: { id: 'winKb', title: 'База Знаний', icon: '📚', badge: '25+ регламентов' },
             winGuide: { id: 'winGuide', title: 'Гид F1', icon: '📖', badge: 'Обучение' },
             winSettings: { id: 'winSettings', title: 'Параметры', icon: '⚙️', badge: 'Система' },
-            winUpdateCenter: { id: 'winUpdateCenter', title: 'Центр Обновлений', icon: '🔄', badge: 'v2026.3.2' }
+            winUpdateCenter: { id: 'winUpdateCenter', title: 'Центр Обновлений', icon: '🔄', badge: 'v2026.3.3' },
+            winScale: { id: 'winScale', title: 'Экран & Масштаб', icon: '🔎±', badge: 'Auto-DPI' },
+            winPersonalization: { id: 'winPersonalization', title: 'Персонализация', icon: '🎨', badge: 'Обои & Темы' }
         };
     }
 
@@ -267,6 +269,59 @@ export class WebOsUiController {
         const app = this.app;
         if (!app) return;
 
+        // Привязываем слушатели колесика мыши и скролла к панели задач
+        if (typeof document !== 'undefined') {
+            const container = document.getElementById('taskbarAppsContainer');
+            const btnLeft = document.getElementById('btnTaskbarScrollLeft');
+            const btnRight = document.getElementById('btnTaskbarScrollRight');
+            const btnOverflow = document.getElementById('btnTaskbarOverflow');
+            const overflowDropdown = document.getElementById('taskbarOverflowDropdown');
+
+            if (container && !container._wheelBound) {
+                container._wheelBound = true;
+                container.addEventListener('wheel', (e) => {
+                    if (e.deltaY !== 0) {
+                        e.preventDefault();
+                        container.scrollLeft += (e.deltaY * 1.5);
+                        this._updateTaskbarOverflowUI();
+                    }
+                }, { passive: false });
+
+                container.addEventListener('scroll', () => {
+                    this._updateTaskbarOverflowUI();
+                });
+
+                window.addEventListener('resize', () => {
+                    this._updateTaskbarOverflowUI();
+                });
+            }
+
+            if (btnLeft && !btnLeft._clickBound) {
+                btnLeft._clickBound = true;
+                btnLeft.addEventListener('click', () => {
+                    container?.scrollBy({ left: -140, behavior: 'smooth' });
+                });
+            }
+
+            if (btnRight && !btnRight._clickBound) {
+                btnRight._clickBound = true;
+                btnRight.addEventListener('click', () => {
+                    container?.scrollBy({ left: 140, behavior: 'smooth' });
+                });
+            }
+
+            if (btnOverflow && !btnOverflow._clickBound) {
+                btnOverflow._clickBound = true;
+                btnOverflow.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    overflowDropdown?.classList.toggle('hidden');
+                });
+                document.addEventListener('click', () => {
+                    overflowDropdown?.classList.add('hidden');
+                });
+            }
+        }
+
         app._updateTaskbar = () => {
             if (typeof document === 'undefined') return;
             const container = document.getElementById('taskbarAppsContainer');
@@ -277,6 +332,7 @@ export class WebOsUiController {
             if (this.runningApps.size === 0) {
                 container.innerHTML = '';
                 if (divider) divider.style.display = 'none';
+                this._updateTaskbarOverflowUI();
                 return;
             }
 
@@ -292,8 +348,8 @@ export class WebOsUiController {
                 const isMinimized = !win || win.classList.contains('minimized');
                 const isFront = !isMinimized && (parseInt(win.style.zIndex || '10', 10) >= (app.topZIndex - 1));
 
-                // Стили кнопки тайла как в Windows 11 (Image 2)
-                let tileClass = 'taskbar-app-tile relative w-10 h-10 rounded-lg flex items-center justify-center transition-all cursor-pointer select-none ';
+                // Стили кнопки тайла как в Windows 11
+                let tileClass = 'taskbar-app-tile relative w-10 h-10 rounded-lg flex items-center justify-center transition-all cursor-pointer select-none shrink-0 ';
                 if (isFront) {
                     tileClass += 'bg-white/15 is-active';
                 } else if (!isMinimized) {
@@ -302,7 +358,7 @@ export class WebOsUiController {
                     tileClass += 'hover:bg-white/10 opacity-75 hover:opacity-100';
                 }
 
-                // Индикатор под иконкой: светящаяся линия под активным окном, точка под фоновым
+                // Индикатор под иконкой
                 const indicatorHtml = isFront
                     ? '<span class="taskbar-active-line"></span>'
                     : '<span class="taskbar-running-dot"></span>';
@@ -316,14 +372,71 @@ export class WebOsUiController {
                             data-tooltip-badge="${item.badge}"
                             data-tooltip-pos="top"
                             aria-label="${item.title}">
-                        <span class="text-xl filter drop-shadow leading-none">${item.icon}</span>
+                        <span class="text-xl filter drop-shadow leading-none flex items-center justify-center font-bold">${item.icon}</span>
                         ${indicatorHtml}
                     </button>
                 `;
             }).join('');
+
+            this._updateTaskbarOverflowUI();
         };
 
         app._updateTaskbar();
+    }
+
+    _updateTaskbarOverflowUI() {
+        if (typeof document === 'undefined') return;
+        const container = document.getElementById('taskbarAppsContainer');
+        const btnLeft = document.getElementById('btnTaskbarScrollLeft');
+        const btnRight = document.getElementById('btnTaskbarScrollRight');
+        const btnOverflow = document.getElementById('btnTaskbarOverflow');
+        const overflowCount = document.getElementById('taskbarOverflowCount');
+        const overflowDropdown = document.getElementById('taskbarOverflowDropdown');
+
+        if (!container) return;
+
+        const isOverflowing = container.scrollWidth > (container.clientWidth + 2);
+        
+        if (btnLeft && btnRight) {
+            if (isOverflowing) {
+                btnLeft.classList.toggle('hidden', container.scrollLeft <= 4);
+                btnRight.classList.toggle('hidden', container.scrollLeft >= (container.scrollWidth - container.clientWidth - 4));
+            } else {
+                btnLeft.classList.add('hidden');
+                btnRight.classList.add('hidden');
+            }
+        }
+
+        if (btnOverflow && overflowDropdown && overflowCount) {
+            if (isOverflowing && this.runningApps.size > 5) {
+                const hiddenCount = Math.max(1, Math.round((container.scrollWidth - container.clientWidth) / 44));
+                overflowCount.textContent = `+${hiddenCount}`;
+                btnOverflow.classList.remove('hidden');
+
+                // Рендерим выпадающий список окон для быстрого переключения
+                const runningItems = Array.from(this.runningApps)
+                    .map(id => this.appsCatalog[id])
+                    .filter(Boolean);
+
+                overflowDropdown.innerHTML = runningItems.map(item => {
+                    const win = document.getElementById(item.id);
+                    const isMin = !win || win.classList.contains('minimized');
+                    return `
+                        <button class="w-full px-2.5 py-1.5 text-left hover:bg-blue-600/30 hover:text-white rounded flex items-center justify-between gap-3 text-xs text-slate-200 cursor-pointer"
+                                onclick="window.PharmaGate.webOsUi.handleTaskbarIconClick('${item.id}')">
+                            <span class="flex items-center gap-2 truncate">
+                                <span>${item.icon}</span>
+                                <span class="truncate">${item.title}</span>
+                            </span>
+                            <span class="text-[10px] text-slate-500 font-mono">${isMin ? 'свернуто' : 'открыто'}</span>
+                        </button>
+                    `;
+                }).join('');
+            } else {
+                btnOverflow.classList.add('hidden');
+                overflowDropdown.classList.add('hidden');
+            }
+        }
     }
 
     // Клик по значку в панели задач (поведение Windows 11)
@@ -527,7 +640,7 @@ export class WebOsUiController {
             if (!dMenu) return;
             this.app.crossPlatform?.playSound?.('click');
 
-            const mWidth = 270;
+            const mWidth = 330;
             const mHeight = 360;
             const left = Math.max(10, Math.min(window.innerWidth - mWidth - 10, e.clientX));
             const top = Math.max(10, Math.min(window.innerHeight - mHeight - 50, e.clientY));
