@@ -1422,6 +1422,31 @@
             }
         }
 
+    
+        /* 🪟 CHROME/WINDOWS 11 HYBRID DYNAMIC TASKBAR TABS */
+        .taskbar-tab {
+            min-width: 40px !important;
+            max-width: 160px !important;
+            flex: 1 1 auto !important;
+            height: 38px !important;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        .taskbar-tab .taskbar-tab-title {
+            display: inline-block;
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        @media (max-width: 1200px) {
+            .taskbar-tab { max-width: 125px !important; }
+            .taskbar-tab .taskbar-tab-title { max-width: 75px; }
+        }
+        @media (max-width: 900px) {
+            .taskbar-tab { min-width: 40px !important; max-width: 44px !important; padding-left: 0 !important; padding-right: 0 !important; justify-content: center !important; }
+            .taskbar-tab .taskbar-tab-title { display: none !important; }
+        }
+
     </style>
 </head>
 <body class="h-full w-full overflow-hidden text-slate-100 flex flex-col desktop-canvas">
@@ -1582,7 +1607,7 @@
                  data-tooltip-badge="Bilingual · F1"
                  data-tooltip-shortcut="Клавиша F1 / Клик"
                  aria-label="Интерактивный Гид и Обучение">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 via-rose-500 to-indigo-600 flex items-center justify-center text-2xl shadow-lg shadow-rose-500/30">📖</div>
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 via-rose-500 to-indigo-600 flex items-center justify-center text-2xl shadow-lg shadow-rose-500/30">🎓</div>
                 <span class="text-xs font-semibold text-white drop-shadow">Гид EDI</span>
             </div>
 
@@ -3988,60 +4013,102 @@
 <!-- 📑 КОНТЕКСТНОЕ МЕНЮ РАБОЧЕГО СТОЛА (DESKTOP CONTEXT MENU) -->
         <div id="desktopContextMenu" class="fixed z-[100005] bg-slate-900/96 backdrop-blur-3xl border border-white/15 rounded-xl shadow-2xl py-2 px-1 min-w-[320px] max-w-[360px] hidden text-xs text-slate-200 select-none animate-fadeIn space-y-0.5">
             <button id="ctxRefreshDesktop" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
-                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm">🔄</span> <span class="truncate">Обновить рабочий стол</span></span>
-                <kbd class="font-mono text-[10px] bg-slate-800/80 px-1.5 py-0.5 rounded text-slate-400 group-hover:text-slate-200 border border-slate-700/60 shrink-0">F5</kbd>
+                <div class="flex items-center gap-2.5 min-w-0 mr-auto">
+                    <span class="shrink-0 text-sm">🔄</span>
+                    <span class="truncate">Обновить рабочий стол</span>
+                </div>
+                <kbd class="shrink-0 ml-auto font-mono text-[10px] bg-slate-800/80 px-1.5 py-0.5 rounded text-white/60 group-hover:text-white border border-slate-700/60 tracking-wider">F5</kbd>
             </button>
             <button id="ctxArrangeGrid" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
-                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm">📐</span> <span class="truncate">Упорядочить значки по сетке</span></span>
-                <span class="text-[10px] text-slate-500 group-hover:text-slate-300 shrink-0">Авто</span>
+                <div class="flex items-center gap-2.5 min-w-0 mr-auto">
+                    <span class="shrink-0 text-sm">📐</span>
+                    <span class="truncate">Упорядочить значки по сетке</span>
+                </div>
+                <span class="shrink-0 ml-auto text-[10px] text-emerald-400 font-semibold bg-emerald-950/60 border border-emerald-800/60 px-1.5 py-0.5 rounded">✓ По сетке</span>
             </button>
             <button id="ctxToggleIcons" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
-                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm">👁️</span> <span class="truncate">Скрыть / Показать значки</span></span>
+                <div class="flex items-center gap-2.5 min-w-0 mr-auto">
+                    <span class="shrink-0 text-sm">👁️</span>
+                    <span class="truncate">Скрыть / Показать значки</span>
+                </div>
             </button>
 
             <div class="h-px bg-white/10 my-1 mx-2"></div>
 
             <button id="ctxNewInvoice" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
-                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm">📄</span> <span class="truncate">Создать накладную (Мастер 2.0)</span></span>
+                <div class="flex items-center gap-2.5 min-w-0 mr-auto">
+                    <span class="shrink-0 text-sm">📄</span>
+                    <span class="truncate">Создать накладную (Мастер 2.0)</span>
+                </div>
             </button>
             <button id="ctxDemoInvoice" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
-                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm">🎲</span> <span class="truncate">Сгенерировать демо-накладную (50)</span></span>
+                <div class="flex items-center gap-2.5 min-w-0 mr-auto">
+                    <span class="shrink-0 text-sm">🎲</span>
+                    <span class="truncate">Сгенерировать демо-накладную (50)</span>
+                </div>
             </button>
             <button id="ctxOpenSpotlightMenu" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
-                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm">🔍</span> <span class="truncate">Поиск Spotlight</span></span>
-                <kbd class="font-mono text-[10px] bg-slate-800/80 px-1.5 py-0.5 rounded text-slate-400 group-hover:text-slate-200 border border-slate-700/60 shrink-0">Ctrl+K</kbd>
+                <div class="flex items-center gap-2.5 min-w-0 mr-auto">
+                    <span class="shrink-0 text-sm">🔍</span>
+                    <span class="truncate">Поиск Spotlight</span>
+                </div>
+                <kbd class="shrink-0 ml-auto font-mono text-[10px] bg-slate-800/80 px-1.5 py-0.5 rounded text-white/60 group-hover:text-white border border-slate-700/60 tracking-wider">Ctrl+K</kbd>
             </button>
             <button id="ctxTaskViewMenu" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
-                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm">❐</span> <span class="truncate">Представление задач</span></span>
-                <kbd class="font-mono text-[10px] bg-slate-800/80 px-1.5 py-0.5 rounded text-slate-400 group-hover:text-slate-200 border border-slate-700/60 shrink-0">Win+Tab</kbd>
+                <div class="flex items-center gap-2.5 min-w-0 mr-auto">
+                    <span class="shrink-0 text-sm">❐</span>
+                    <span class="truncate">Представление задач</span>
+                </div>
+                <kbd class="shrink-0 ml-auto font-mono text-[10px] bg-slate-800/80 px-1.5 py-0.5 rounded text-white/60 group-hover:text-white border border-slate-700/60 tracking-wider">Win+Tab</kbd>
             </button>
             <button id="ctxControlCenterMenu" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
-                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm">🎛️</span> <span class="truncate">Центр управления WebOS</span></span>
-                <kbd class="font-mono text-[10px] bg-slate-800/80 px-1.5 py-0.5 rounded text-slate-400 group-hover:text-slate-200 border border-slate-700/60 shrink-0">Ctrl+Shift+C</kbd>
+                <div class="flex items-center gap-2.5 min-w-0 mr-auto">
+                    <span class="shrink-0 text-sm">🎛️</span>
+                    <span class="truncate">Центр управления WebOS</span>
+                </div>
+                <kbd class="shrink-0 ml-auto font-mono text-[10px] bg-slate-800/80 px-1.5 py-0.5 rounded text-white/60 group-hover:text-white border border-slate-700/60 tracking-wider">Ctrl+Shift+C</kbd>
             </button>
             <button id="ctxOpenSql" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
-                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm font-mono text-emerald-400 font-bold">&gt;_</span> <span class="truncate">Открыть SQL Консоль Mini-ERP</span></span>
+                <div class="flex items-center gap-2.5 min-w-0 mr-auto">
+                    <span class="shrink-0 text-sm font-mono text-emerald-400 font-bold">&gt;_</span>
+                    <span class="truncate">Открыть SQL Консоль Mini-ERP</span>
+                </div>
             </button>
             <button id="ctxOpenUpdateCenter" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
-                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm">🔄</span> <span class="truncate">Центр Обновлений PharmaGateWeb</span></span>
-                <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0">v2026.3.3</span>
+                <div class="flex items-center gap-2.5 min-w-0 mr-auto">
+                    <span class="shrink-0 text-sm">🔄</span>
+                    <span class="truncate">Центр Обновлений PharmaGateWeb</span>
+                </div>
+                <span class="shrink-0 ml-auto text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">v2026.3.4</span>
             </button>
 
             <div class="h-px bg-white/10 my-1 mx-2"></div>
 
             <button id="ctxPersonalization" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
-                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm">🎨</span> <span class="truncate">Персонализация & Обои...</span></span>
+                <div class="flex items-center gap-2.5 min-w-0 mr-auto">
+                    <span class="shrink-0 text-sm">🎨</span>
+                    <span class="truncate">Персонализация & Обои...</span>
+                </div>
             </button>
             <button id="ctxSystemSettings" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
-                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm">⚙️</span> <span class="truncate">Параметры системы...</span></span>
+                <div class="flex items-center gap-2.5 min-w-0 mr-auto">
+                    <span class="shrink-0 text-sm">⚙️</span>
+                    <span class="truncate">Параметры системы...</span>
+                </div>
             </button>
             <button id="ctxFullscreen" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
-                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm">⛶</span> <span class="truncate">Полноэкранный режим</span></span>
-                <kbd class="font-mono text-[10px] bg-slate-800/80 px-1.5 py-0.5 rounded text-slate-400 group-hover:text-slate-200 border border-slate-700/60 shrink-0">F11</kbd>
+                <div class="flex items-center gap-2.5 min-w-0 mr-auto">
+                    <span class="shrink-0 text-sm">⛶</span>
+                    <span class="truncate">Полноэкранный режим</span>
+                </div>
+                <kbd class="shrink-0 ml-auto font-mono text-[10px] bg-slate-800/80 px-1.5 py-0.5 rounded text-white/60 group-hover:text-white border border-slate-700/60 tracking-wider">F11</kbd>
             </button>
             <button id="ctxLockScreen" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
-                <span class="flex items-center gap-2.5 truncate mr-auto"><span class="shrink-0 text-sm">🔒</span> <span class="truncate">Заблокировать экран</span></span>
-                <kbd class="font-mono text-[10px] bg-slate-800/80 px-1.5 py-0.5 rounded text-slate-400 group-hover:text-slate-200 border border-slate-700/60 shrink-0">Win+L</kbd>
+                <div class="flex items-center gap-2.5 min-w-0 mr-auto">
+                    <span class="shrink-0 text-sm">🔒</span>
+                    <span class="truncate">Заблокировать экран</span>
+                </div>
+                <kbd class="shrink-0 ml-auto font-mono text-[10px] bg-slate-800/80 px-1.5 py-0.5 rounded text-white/60 group-hover:text-white border border-slate-700/60 tracking-wider">Win+L</kbd>
             </button>
         </div>
 
