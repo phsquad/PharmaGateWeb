@@ -14,6 +14,8 @@
  * © 2026 Alexander Talents Agency. All Rights Reserved.
  */
 
+import { DateEngine } from './date_engine.js';
+
 const CP866_MAP = [
     0x0410, 0x0411, 0x0412, 0x0413, 0x0414, 0x0415, 0x0416, 0x0417,
     0x0418, 0x0419, 0x041A, 0x041B, 0x041C, 0x041D, 0x041E, 0x041F,
@@ -103,6 +105,33 @@ export class WebDBFEngine {
         return out;
     }
 
+    static encodeCP1251(str) {
+        if (!str) return new Uint8Array(0);
+        const s = String(str);
+        const out = new Uint8Array(s.length);
+        for (let i = 0; i < s.length; i++) {
+            const code = s.charCodeAt(i);
+            if (code < 128) {
+                out[i] = code;
+            } else if (code >= 0x0410 && code <= 0x044F) {
+                out[i] = code - 0x0410 + 192;
+            } else if (code === 0x0401) {
+                out[i] = 168; // Ё
+            } else if (code === 0x0451) {
+                out[i] = 184; // ё
+            } else if (code === 0x2116) {
+                out[i] = 78;  // N
+            } else if (code === 0x00AB || code === 0x00BB) {
+                out[i] = 34;  // "
+            } else if (code === 0x2014 || code === 0x2013) {
+                out[i] = 45;  // -
+            } else {
+                out[i] = 63;  // '?'
+            }
+        }
+        return out;
+    }
+
     static readDBF(arrayBuffer, forcedEncoding = 'auto') {
         if (!arrayBuffer || arrayBuffer.byteLength < 32) {
             throw new Error("Файл поврежден: заголовок DBF меньше 32 байт.");
@@ -135,7 +164,7 @@ export class WebDBFEngine {
         }
 
         const isCp1251 = activeEncoding.includes('1251');
-        const decoder1251 = isCp1251 && window.TextDecoder ? new TextDecoder('windows-1251') : null;
+        const decoder1251 = isCp1251 && typeof TextDecoder !== 'undefined' ? new TextDecoder('windows-1251') : null;
 
         const fields = [];
         let curOffset = 1;
@@ -250,7 +279,7 @@ export class WebDBFEngine {
 
                 if (f.type === 'C') {
                     const strVal = String(val !== null && val !== undefined ? val : '').trim();
-                    const encoded = is866 ? this.encodeCP866(strVal) : asciiEncoder.encode(strVal);
+                    const encoded = is866 ? this.encodeCP866(strVal) : this.encodeCP1251(strVal);
                     fieldSlice.set(encoded.subarray(0, Math.min(encoded.length, f.length)));
                 } else if (f.type === 'N' || f.type === 'F') {
                     if (val !== null && val !== undefined && String(val).trim() !== '') {
@@ -260,12 +289,8 @@ export class WebDBFEngine {
                         fieldSlice.set(encoded.subarray(0, Math.min(encoded.length, f.length)));
                     }
                 } else if (f.type === 'D') {
-                    if (val && String(val).trim() !== '' && !String(val).startsWith('1990') && !String(val).startsWith('1900')) {
-                        const dateDigits = String(val).replace(/\D/g, '').slice(0, 8);
-                        if (dateDigits.length === 8) {
-                            fieldSlice.set(asciiEncoder.encode(dateDigits));
-                        }
-                    }
+                    const dbfDate = DateEngine.formatForDBF(val);
+                    fieldSlice.set(asciiEncoder.encode(dbfDate));
                 } else if (f.type === 'L') {
                     bytes[recPos + f.offset] = val ? 0x54 : 0x46;
                 }

@@ -1630,6 +1630,26 @@ export class CrossPlatformHub {
             this.toggleDesktopIcons(isHidden);
         });
 
+                document.getElementById('ctxToggleGadgets')?.addEventListener('click', () => {
+            hideMenu();
+            this.app.openSettingsTab('tabGadgets');
+        });
+
+        document.getElementById('ctxTimeCalendar')?.addEventListener('click', () => {
+            hideMenu();
+            this.toggleTimeFlyout(true);
+        });
+
+        document.getElementById('ctxTaskbarPosMenu')?.addEventListener('click', () => {
+            hideMenu();
+            this.app.openSettingsTab('tabTaskbar');
+        });
+
+        document.getElementById('ctxOptimization')?.addEventListener('click', () => {
+            hideMenu();
+            this.app.openSettingsTab('tabHardware');
+        });
+
         document.getElementById('ctxDemoInvoice')?.addEventListener('click', () => {
             hideMenu();
             this.generateDemoPharmaInvoice(50);
@@ -1642,7 +1662,7 @@ export class CrossPlatformHub {
 
         document.getElementById('ctxAutoRepair')?.addEventListener('click', () => {
             hideMenu();
-            this.app._autoRepairAllErrors?.();
+            document.getElementById('btnAutoRepair')?.click();
         });
 
         document.getElementById('ctxScaleMenu')?.addEventListener('click', () => {

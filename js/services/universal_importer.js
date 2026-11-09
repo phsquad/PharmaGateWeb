@@ -1,5 +1,5 @@
 /**
- * js/services/universal_importer.js - ETL-модуль потокового импорта Excel, DBF, Access, JSON 1С и CSV.
+ * js/services/universal_importer.js - ETL-модуль потокового импорта Excel, DBF, XML УПД 970@, Access, JSON 1С и CSV.
  * 
  * Developed by Alexander Talents Agency
  * Support: phsquad@internet.ru
@@ -12,6 +12,9 @@ import { PharmaMath } from '../engine/pharma_math.js';
 import { EncodingGuard } from '../engine/text_engine.js';
 import { PipelineSanitizers } from '../engine/pipeline_sanitizers.js';
 import { getNaklSchema } from '../domain/models.js';
+import { FuzzyColumnMatcher } from '../domain/fuzzy_column_matcher.js';
+import { ColumnPresetManager } from '../domain/column_presets.js';
+import { AccessWasmDriver } from './access_wasm_driver.js';
 
 export const MAPPING_1C_TO_SENTINEL = {
     'PROD_CODE': 'CODEPST', 'CODE_PST': 'CODEPST', 'АРТИКУЛ': 'CODEPST', 'КОД': 'CODEPST', 
@@ -40,6 +43,105 @@ export const MAPPING_1C_TO_SENTINEL = {
 };
 
 export class UniversalImporter {
+    /**
+     * Полноценный парсер электронных УПД (Приказы ФНС России № ЕД-7-26/970@ и № ММВ-7-15/820@)
+     */
+    static parseUpdXml(xmlString) {
+        if (typeof DOMParser === 'undefined') {
+            throw new Error('DOMParser недоступен в данной среде.');
+        }
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(xmlString, 'text/xml');
+        const parseError = doc.querySelector('parsererror');
+        if (parseError) {
+            throw new Error('Ошибка структуры XML: ' + parseError.textContent.slice(0, 100));
+        }
+
+        const metaHeader = {};
+        const documentEl = doc.querySelector('Документ');
+        if (documentEl) {
+            metaHeader.NDOC = documentEl.getAttribute('ПорядНомСчФ') || documentEl.getAttribute('НомДок') || '1';
+            metaHeader.DATEDOC = documentEl.getAttribute('ДатаСчФ') || documentEl.getAttribute('ДатаДок') || '';
+        }
+
+        const seller = doc.querySelector('СвПрод СвЮЛУч, СвПрод СвИП');
+        if (seller) {
+            metaHeader.SENDER_NAME = seller.getAttribute('НаимОрг') || seller.getAttribute('ФИО') || '';
+            metaHeader.SENDER_INN = seller.getAttribute('ИННЮЛ') || seller.getAttribute('ИННФЛ') || '';
+            metaHeader.SENDER_KPP = seller.getAttribute('КПП') || '';
+        }
+
+        const buyer = doc.querySelector('СвПокуп СвЮЛУч, СвПокуп СвИП');
+        if (buyer) {
+            metaHeader.RCV_NAME = buyer.getAttribute('НаимОрг') || buyer.getAttribute('ФИО') || '';
+            metaHeader.RCV_INN = buyer.getAttribute('ИННЮЛ') || buyer.getAttribute('ИННФЛ') || '';
+            metaHeader.RCV_KPP = buyer.getAttribute('КПП') || '';
+        }
+
+        const itemEls = doc.querySelectorAll('ТаблСчФакт СведТов');
+        const rawRecords = [];
+
+        itemEls.forEach((item, idx) => {
+            const row = {};
+            row.NAME = item.getAttribute('НаимТов') || ('Товар ' + (idx + 1));
+            row.QNT = parseFloat(item.getAttribute('КолТов')) || 1.0;
+            row.PRICE2N = parseFloat(item.getAttribute('ЦенаТов')) || 0.0;
+            row.SUMSTR = parseFloat(item.getAttribute('СтТовУчНал')) || 0.0;
+            row.SUMSNDS = parseFloat(item.getAttribute('СумНал')) || 0.0;
+
+            const rawNds = item.getAttribute('НалСт') || '';
+            row.NDS = parseInt(rawNds.replace(/\D/g, ''), 10) || 0;
+            if (rawNds.toLowerCase().includes('без')) row.NDS = 0;
+
+            if (row.QNT > 0 && row.SUMSTR > 0) {
+                row.PRICE2 = PharmaMath.roundMoney(row.SUMSTR / row.QNT);
+            } else if (row.PRICE2N > 0) {
+                row.PRICE2 = PharmaMath.roundMoney(row.PRICE2N * (1 + row.NDS / 100));
+            }
+
+            const dop = item.querySelector('ДопСведТов');
+            if (dop) {
+                row.CODEPST = dop.getAttribute('Артикул') || dop.getAttribute('КодТов') || '';
+            }
+
+            const gtd = item.querySelector('СвТД');
+            if (gtd) {
+                row.NUMGTD = gtd.getAttribute('НомТД') || '';
+                row.CNTR = gtd.getAttribute('КрНаимСтр') || gtd.getAttribute('КодПроисх') || '';
+            }
+
+            const kizEl = item.querySelector('НомСредИдент');
+            if (kizEl) {
+                const kiz = kizEl.getAttribute('КИЗ') || kizEl.getAttribute('НомУпак') || '';
+                if (kiz) {
+                    if (kiz.startsWith('01') && kiz.length >= 16) {
+                        row.GTIN = kiz.slice(2, 16);
+                        row.EAN13 = row.GTIN.slice(-13);
+                    }
+                }
+            }
+
+            const textInfs = item.querySelectorAll('ТекстИнф');
+            textInfs.forEach(ti => {
+                const ident = (ti.getAttribute('Идент') || '').toUpperCase();
+                const val = ti.getAttribute('Значен') || '';
+                if (ident.includes('СЕРИЯ') || ident === 'SER') row.SER = val;
+                else if (ident.includes('СРОК') || ident.includes('ГОДЕН') || ident === 'GDATE') row.GDATE = val;
+                else if (ident.includes('ИЗГОТОВЛЕНИЯ') || ident.includes('ВЫПУСКА') || ident === 'DATEMADE') row.DATEMADE = val;
+                else if (ident.includes('ПРОИЗВОДИТЕЛ') || ident === 'PRICE1') row.PRICE1 = parseFloat(val) || 0.0;
+                else if (ident.includes('РЕЕСТР') || ident.includes('ЖНВЛП') || ident === 'REGPRC') row.REGPRC = parseFloat(val) || 0.0;
+                else if (ident.includes('ШТРИХ') || ident === 'EAN13') row.EAN13 = val;
+                else if (ident.includes('GTIN')) row.GTIN = val;
+                else if (ident.includes('ФИРМА') || ident.includes('ЗАВОД') || ident === 'FIRM') row.FIRM = val;
+                else if (ident.includes('АПТЕК') || ident === 'PODRCD') row.PODRCD = val;
+            });
+
+            rawRecords.push(row);
+        });
+
+        return { metaHeader, rawRecords };
+    }
+
     static async importFile(fileOrBuffer, fileName = "document.xlsx", targetSchema = null) {
         const schema = targetSchema || getNaklSchema();
         const ext = fileName.split('.').pop().toLowerCase();
@@ -56,7 +158,7 @@ export class UniversalImporter {
         let formatInfo = "Unknown";
         let metaHeader = {};
 
-        // 1. ИЗОЛЯЦИЯ
+        // 1. ИЗОЛЯЦИЯ И ПАРСИНГ ФОРМАТОВ
         if (ext === 'dbf') {
             const dbfData = WebDBFEngine.readDBF(arrayBuffer);
             rawHeaders = dbfData.fields.map(f => f.name);
@@ -70,11 +172,10 @@ export class UniversalImporter {
             const jsonData = window.XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
 
             if (jsonData.length > 0) {
-                // Поиск строки заголовков
                 let headerRowIdx = 0;
-                for (let i = 0; i < Math.min(jsonData.length, 20); i++) {
+                for (let i = 0; i < Math.min(jsonData.length, 25); i++) {
                     const rowStr = jsonData[i].join(' ').toUpperCase();
-                    if (rowStr.includes('НАИМЕНОВАНИЕ') || rowStr.includes('ТОВАР') || rowStr.includes('ЦЕНА') || rowStr.includes('CODEPST')) {
+                    if (rowStr.includes('НАИМЕНОВАНИЕ') || rowStr.includes('ТОВАР') || rowStr.includes('ЦЕНА') || rowStr.includes('CODEPST') || rowStr.includes('АРТИКУЛ')) {
                         headerRowIdx = i;
                         break;
                     }
@@ -89,6 +190,27 @@ export class UniversalImporter {
                 });
             }
             formatInfo = "Excel OpenXML (SheetJS)";
+        } else if (ext === 'xml') {
+            // XML УПД 970@ / 820@
+            let xmlText;
+            const bytes = new Uint8Array(arrayBuffer);
+            if (bytes[0] === 0xEF && bytes[1] === 0xBB && bytes[2] === 0xBF) {
+                xmlText = new TextDecoder('utf-8').decode(bytes.subarray(3));
+            } else {
+                try {
+                    xmlText = new TextDecoder('windows-1251').decode(arrayBuffer);
+                    if (xmlText.includes('encoding="utf-8"') || xmlText.includes("encoding='utf-8'")) {
+                        xmlText = new TextDecoder('utf-8').decode(arrayBuffer);
+                    }
+                } catch {
+                    xmlText = new TextDecoder('utf-8').decode(arrayBuffer);
+                }
+            }
+            const xmlRes = this.parseUpdXml(xmlText);
+            rawRecords = xmlRes.rawRecords;
+            rawHeaders = rawRecords.length > 0 ? Object.keys(rawRecords[0]) : [];
+            metaHeader = xmlRes.metaHeader;
+            formatInfo = "XML УПД (Приказ ФНС 970@ / 820@)";
         } else if (ext === 'json') {
             const text = new TextDecoder('utf-8').decode(arrayBuffer);
             const parsed = JSON.parse(text);
@@ -98,41 +220,87 @@ export class UniversalImporter {
                 metaHeader = { ...parsed };
                 delete metaHeader.LINES;
                 delete metaHeader.ITEMS;
+                delete metaHeader.PRODUCTS;
                 rawRecords = parsed.LINES || parsed.ITEMS || parsed.PRODUCTS || [];
             }
             rawHeaders = rawRecords.length > 0 ? Object.keys(rawRecords[0]) : [];
             formatInfo = "1C JSON Exchange v2026";
+        } else if (ext === 'accdb' || ext === 'mdb') {
+            try {
+                const accRes = await AccessWasmDriver.readAccessDatabase(arrayBuffer);
+                rawHeaders = accRes.columns || [];
+                rawRecords = accRes.records || [];
+                formatInfo = `MS Access (${accRes.tableName || ext.toUpperCase()})`;
+            } catch (accErr) {
+                console.warn("[Access Importer] Предупреждение:", accErr);
+                throw new Error(`Формат MS Access (.${ext}): ${accErr.message}`);
+            }
         } else {
-            // CSV / TSV / TXT
-            const text = new TextDecoder('windows-1251').decode(arrayBuffer);
+            // CSV / TSV / TXT с автодетекцией UTF-8 / Windows-1251
+            let text;
+            const bytes = new Uint8Array(arrayBuffer);
+            if (bytes[0] === 0xEF && bytes[1] === 0xBB && bytes[2] === 0xBF) {
+                text = new TextDecoder('utf-8').decode(bytes.subarray(3));
+            } else {
+                try {
+                    text = new TextDecoder('utf-8', { fatal: true }).decode(arrayBuffer);
+                } catch {
+                    text = new TextDecoder('windows-1251').decode(arrayBuffer);
+                }
+            }
             const lines = text.split(/\r?\n/).filter(l => l.trim());
-            const delimiter = lines[0].includes(';') ? ';' : (lines[0].includes('\t') ? '\t' : ',');
-            rawHeaders = lines[0].split(delimiter).map(h => h.trim().replace(/^"|"$/g, ''));
-            rawRecords = lines.slice(1).map(l => {
-                const parts = l.split(delimiter);
-                const obj = {};
-                rawHeaders.forEach((h, idx) => {
-                    obj[h] = parts[idx] ? parts[idx].trim().replace(/^"|"$/g, '') : "";
+            if (lines.length > 0) {
+                const delimiter = lines[0].includes(';') ? ';' : (lines[0].includes('\t') ? '\t' : ',');
+                rawHeaders = lines[0].split(delimiter).map(h => h.trim().replace(/^"|"$/g, ''));
+                rawRecords = lines.slice(1).map(l => {
+                    const parts = l.split(delimiter);
+                    const obj = {};
+                    rawHeaders.forEach((h, idx) => {
+                        obj[h] = parts[idx] ? parts[idx].trim().replace(/^"|"$/g, '') : "";
+                    });
+                    return obj;
                 });
-                return obj;
-            });
-            formatInfo = `CSV (${delimiter === ';' ? 'Точка с запятой' : 'Табуляция'})`;
+                formatInfo = `CSV (${delimiter === ';' ? 'Точка с запятой' : (delimiter === '\t' ? 'Табуляция' : 'Запятая')})`;
+            }
         }
 
         // 2. ОЧИСТКА ПРИЗРАКОВ
         const { records: cleanedRecords, ghostsCount } = PipelineSanitizers.cleanBatch(rawRecords);
 
-        // 3. МАППИНГ И КАСТИНГ ТИПОВ
+        // 3. МАППИНГ И КАСТИНГ ТИПОВ С ПОДДЕРЖКОЙ AI-МАТЧЕРА
         const defaultDocDate = metaHeader.DATEDOC ? DateEngine.parseAnyDate(metaHeader.DATEDOC) : new Date().toISOString().split('T')[0];
         const defaultNdoc = String(metaHeader.NDOC || '1').trim();
         const defaultPodrcd = String(metaHeader.PODRCD || '001').trim();
+
+        // Сбор образцов значений для нечеткого маппинга
+        const headerSamples = new Map();
+        if (cleanedRecords.length > 0) {
+            rawHeaders.forEach(h => {
+                const samples = cleanedRecords.slice(0, 5).map(r => r[h]);
+                headerSamples.set(h, samples);
+            });
+        }
 
         const mappedRecords = cleanedRecords.map(r => {
             const rowDict = {};
 
             Object.entries(r).forEach(([k, v]) => {
                 const kClean = String(k).trim().toUpperCase().replace(/[\s.-]/g, '_');
-                const targetKey = MAPPING_1C_TO_SENTINEL[kClean] || kClean;
+                let targetKey = MAPPING_1C_TO_SENTINEL[kClean];
+
+                // Если не найдено в статическом словаре, проверяем интеллектуальный AI-матчер
+                if (!targetKey && typeof FuzzyColumnMatcher !== 'undefined') {
+                    const samples = headerSamples.get(k) || [v];
+                    const suggestion = FuzzyColumnMatcher.matchColumn(k, samples, schema);
+                    if (suggestion && suggestion.suggestedTarget && suggestion.confidencePercent >= 65) {
+                        targetKey = suggestion.suggestedTarget;
+                    }
+                }
+
+                if (!targetKey) {
+                    targetKey = kClean;
+                }
+
                 const fieldRule = schema.fields.find(f => f.name === targetKey);
 
                 if (!fieldRule) {

@@ -28,6 +28,7 @@ import { ProfileManager } from './domain/network_profiles.js';
 import { FLKEngine } from './domain/flk_engine.js';
 import { CommercialGuard } from './domain/commercial_guard.js';
 import { ActionInspectorEngine, ProposedAction } from './domain/action_inspector_engine.js';
+import { FileDiagnosticAdvisor } from './domain/advisor_engine.js';
 import { UniversalImporter } from './services/universal_importer.js';
 import { WebDBFEngine, DBFFieldDescriptor } from './engine/dbf_engine.js';
 import { Torg12ExcelGenerator, UpdFns970Generator } from './services/export_service.js';
@@ -1345,6 +1346,22 @@ export class PharmaGateWebOS {
                 await this.loadFile(file);
                 fileInput.value = '';
             }
+        });
+
+                document.getElementById('btnOpenCreateWizard')?.addEventListener('click', () => {
+            this.openApp('winWizard');
+        });
+
+        document.getElementById('btnToolbarUndo')?.addEventListener('click', () => {
+            this.undo();
+        });
+
+        document.getElementById('btnToolbarRedo')?.addEventListener('click', () => {
+            this.redo();
+        });
+
+        document.getElementById('btnExportAuditReport')?.addEventListener('click', () => {
+            this.exportAuditReport();
         });
 
         document.getElementById('btnLoadDemoInvoice')?.addEventListener('click', () => {

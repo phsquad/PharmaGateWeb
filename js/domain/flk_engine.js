@@ -82,7 +82,7 @@ export class FLKEngine {
             }
             if (qnt > 0 && p2 > 0) {
                 const expectedSum = PharmaMath.roundMoney(qnt * p2);
-                if (Math.abs(expectedSum - sumstr) > 0.0) {
+                if (Math.abs(expectedSum - sumstr) > 0.02) {
                     issues.push(new ValidationIssue("WARNING", "SUMSTR", rowNum, `Расхождение сумм: расчет QNT*PRICE2 = ${expectedSum.toFixed(2)}, в файле = ${sumstr.toFixed(2)}`, "MATH_MISMATCH", "ERR_MATH_BALANCE", true));
                 }
             }
