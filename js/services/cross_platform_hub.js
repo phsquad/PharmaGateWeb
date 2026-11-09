@@ -1056,6 +1056,54 @@ export class CrossPlatformHub {
                 action: () => this.app.openApp('winSettings')
             },
             {
+                id: 'open_camera',
+                title: 'Открыть: 📷 Камера-ТСД (Оптический 2D Сканер Честный ЗНАК)',
+                shortcut: '',
+                icon: '📱',
+                category: 'Окна',
+                action: () => this.app.openApp('winCameraScanner')
+            },
+            {
+                id: 'open_batch',
+                title: 'Открыть: 📦 Пакетный EDI-Конвейер (Групповой ремонт и ZIP)',
+                shortcut: '',
+                icon: '📦',
+                category: 'Окна',
+                action: () => this.app.openApp('winBatchProcessor')
+            },
+            {
+                id: 'open_jnvlp',
+                title: 'Открыть: ⚖️ Региональный калькулятор ЖНВЛП (ПП РФ № 865)',
+                shortcut: '',
+                icon: '⚖️',
+                category: 'Окна',
+                action: () => this.app.openApp('winJnvlp')
+            },
+            {
+                id: 'open_label_printer',
+                title: 'Открыть: 🏷️ Студия печати термоэтикеток и ценников',
+                shortcut: '',
+                icon: '🏷️',
+                category: 'Окна',
+                action: () => this.app.openApp('winLabelPrinter')
+            },
+            {
+                id: 'open_diff',
+                title: 'Открыть: 🔍 Visual Diff (Сравнение двух накладных)',
+                shortcut: '',
+                icon: '🔍',
+                category: 'Окна',
+                action: () => this.app.openApp('winDiffViewer')
+            },
+            {
+                id: 'open_sql',
+                title: 'Открыть: 💻 SQL Консоль & Query Studio СУБД Mini-ERP',
+                shortcut: '',
+                icon: '💻',
+                category: 'Окна',
+                action: () => this.app.openApp('winSqlConsole')
+            },
+            {
                 id: 'os_macos',
                 title: 'Оформление ОС: переключить на macOS (Apple Cupertino)',
                 shortcut: '',

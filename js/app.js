@@ -44,6 +44,7 @@ import { KB_ARTICLES, KB_CATEGORIES } from './domain/knowledge_base_data.js';
 import { GridController } from './ui/grid_controller.js';
 import { CrossPlatformHub } from './services/cross_platform_hub.js';
 import { GuideService } from './services/guide_service.js';
+import { bindEnterpriseFeatures } from './ui/feature_controllers.js';
 
 export class PharmaGateWebOS {
     constructor() {
@@ -142,6 +143,9 @@ export class PharmaGateWebOS {
         this._bindActionInspector();
         this._bindSettingsCenter();
         this._bindWindowStrategySelectors();
+
+        // 9.1 Регистрация модулей расширения (Камера-ТСД, Пакетный EDI, ЖНВЛП, Этикетки, Diff, SQL, PWA File, Share)
+        bindEnterpriseFeatures(this);
 
         // 10. Глобальные слушатели горячих клавиш, Drag & Drop и таймер автосохранения
         this._bindKeyboardShortcuts();
@@ -909,6 +913,10 @@ export class PharmaGateWebOS {
         if (winId === 'winSchema') this._renderSchemaDesigner();
         if (winId === 'winKb') this._renderKbCards();
         if (winId === 'winGuide') this.guideService?.render();
+        if (winId === 'winDiffViewer' && this.diffGrid) { try { this.diffGrid.redraw(true); } catch (e) {} }
+        if (winId === 'winSqlConsole' && this.sqlGrid) { try { this.sqlGrid.redraw(true); } catch (e) {} }
+        if (winId === 'winLabelPrinter') this._updateLabelPreview?.();
+        if (winId === 'winJnvlp') this._recalcJnvlpSingle?.();
         if (winId === 'winInspector') this._renderActionInspector();
         if (winId === 'winReconcile' && this.reconcilerGrid) {
             try { this.reconcilerGrid.redraw(true); } catch (e) {}
@@ -982,6 +990,48 @@ export class PharmaGateWebOS {
                 icon: '⚙️',
                 badge: 'Параметры',
                 desc: 'Профили сетей (НЕО-ФАРМ, Ригла, Катрен), автосохранение, кодировки и системные опции.'
+            },
+            { 
+                id: 'winCameraScanner', 
+                title: 'Камера ТСД', 
+                icon: '📱',
+                badge: 'DataMatrix & EAN',
+                desc: 'Мобильный оптический сканер штрихкодов и кодов Честный ЗНАК камерой устройства.'
+            },
+            { 
+                id: 'winBatchProcessor', 
+                title: 'Пакетный EDI', 
+                icon: '📦',
+                badge: 'Конвейер & ZIP',
+                desc: 'Пакетная обработка и авто-ремонт группы накладных с выгрузкой в единый ZIP-архив.'
+            },
+            { 
+                id: 'winJnvlp', 
+                title: 'ЖНВЛП & Цены', 
+                icon: '⚖️',
+                badge: '89 регионов РФ',
+                desc: 'Региональный калькулятор надбавок по ПП РФ № 865 и Протокол согласования цен.'
+            },
+            { 
+                id: 'winLabelPrinter', 
+                title: 'Печать ценников', 
+                icon: '🏷️',
+                badge: 'Термопринтер',
+                desc: 'Студия печати этикеток 58×40, 43×25, 30×20 со штрихкодами EAN-13 и DataMatrix.'
+            },
+            { 
+                id: 'winDiffViewer', 
+                title: 'Сравнение EDI', 
+                icon: '🔍',
+                badge: 'Visual Diff',
+                desc: 'Двухколоночное сравнение двух накладных (Было ➔ Станет) с подсветкой расхождений.'
+            },
+            { 
+                id: 'winSqlConsole', 
+                title: 'SQL Консоль', 
+                icon: '💻',
+                badge: 'SQLite Studio',
+                desc: 'Интерактивная консоль произвольных SQL-запросов к локальной СУБД Mini-ERP.'
             }
         ];
 

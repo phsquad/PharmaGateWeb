@@ -26,5 +26,35 @@
   "background_color": "#0f172a",
   "theme_color": "#030712",
   "display": "standalone",
-  "orientation": "any"
+  "orientation": "any",
+  "file_handlers": [
+    {
+      "action": "./index.html",
+      "name": "Фармацевтическая накладная",
+      "accept": {
+        "application/x-dbf": [".dbf"],
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
+        "application/vnd.ms-excel": [".xls"],
+        "application/xml": [".xml"],
+        "text/xml": [".xml"],
+        "text/csv": [".csv"],
+        "application/json": [".json"]
+      }
+    }
+  ],
+  "share_target": {
+    "action": "./index.html",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "files": [
+        {
+          "name": "file",
+          "accept": [".dbf", ".xlsx", ".xls", ".xml", ".csv"]
+        }
+      ]
+    }
+  }
 }

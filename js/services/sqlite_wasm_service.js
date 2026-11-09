@@ -28,7 +28,7 @@ export class SQLiteWasmService {
         if (this.db) return this.db;
 
         try {
-            if (window.initSqlJs) {
+            if (typeof window !== 'undefined' && window.initSqlJs) {
                 this.SQL = await window.initSqlJs({
                     locateFile: (file) => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
                 });
@@ -113,7 +113,14 @@ export class SQLiteWasmService {
                     free: () => {}
                 };
             },
-            export: () => new Uint8Array([])
+            export: () => new Uint8Array([]),
+            exec: (sql) => {
+                const prods = Array.from(memoryProducts.values());
+                return [{
+                    columns: ['codepst', 'name', 'ean13', 'regprc', 'firm', 'cntr'],
+                    values: prods.map(p => [p.codepst, p.name, p.ean13 || '', p.regprc || 0, p.firm || '', p.cntr || ''])
+                }];
+            }
         };
     }
 
@@ -375,7 +382,7 @@ export class SQLiteWasmService {
      * @private
      */
     static async _autoSaveDatabase() {
-        if (!this.db) return;
+        if (!this.db || typeof indexedDB === 'undefined') return;
         try {
             const binaryArray = this.db.export();
             await this._saveDatabaseToIndexedDB(binaryArray.buffer);
@@ -421,6 +428,111 @@ export class SQLiteWasmService {
             });
         } catch (e) {
             return null;
+        }
+    }
+
+    /**
+     * Предустановленные шаблоны аналитических SQL-запросов
+     */
+    static SQL_PRESETS = [
+        {
+            name: "Все товары номенклатуры (Top 100)",
+            sql: "SELECT id, codepst AS 'Код', name AS 'Наименование', ean13 AS 'Штрихкод', regprc AS 'Реестр. цена', firm AS 'Производитель' FROM products ORDER BY id DESC LIMIT 100;"
+        },
+        {
+            name: "Группировка по производителям",
+            sql: "SELECT firm AS 'Производитель', COUNT(*) AS 'Позиций', ROUND(AVG(regprc), 2) AS 'Средняя реестр. цена' FROM products GROUP BY firm HAVING COUNT(*) >= 1 ORDER BY 2 DESC LIMIT 50;"
+        },
+        {
+            name: "Дорогие позиции (> 500 ₽)",
+            sql: "SELECT codepst AS 'Код', name AS 'Наименование', regprc AS 'Цена', firm AS 'Производитель' FROM products WHERE regprc > 500 ORDER BY regprc DESC;"
+        },
+        {
+            name: "Распределение по странам",
+            sql: "SELECT cntr AS 'Страна', COUNT(*) AS 'Кол-во товаров' FROM products GROUP BY cntr ORDER BY 2 DESC;"
+        },
+        {
+            name: "Журнал отказов и дефектуры",
+            sql: "SELECT id, codepst AS 'Код', name AS 'Наименование', refused_qnt AS 'Отказано шт.', refusal_sum AS 'Сумма отказа', refusal_date AS 'Дата' FROM defectura_log ORDER BY id DESC LIMIT 100;"
+        },
+        {
+            name: "Сводка по проведенным накладным",
+            sql: "SELECT id, doc_type AS 'Тип', ndoc AS '№ Накладной', datedoc AS 'Дата', podrcd AS 'Склад', total_sum AS 'Сумма с НДС', total_nds AS 'Сумма НДС', total_qnt AS 'Кол-во шт.' FROM documents ORDER BY id DESC;"
+        }
+    ];
+
+    /**
+     * Выполнение произвольного SQL запроса пользователя (SQL Консоль)
+     * @param {string} sqlQuery
+     * @returns {{ success: boolean, columns: string[], rows: any[][], rowCount: number, executionTimeMs: number, error?: string, message?: string }}
+     */
+    static executeUserQuery(sqlQuery) {
+        if (!sqlQuery || !sqlQuery.trim()) {
+            return {
+                success: false,
+                columns: [],
+                rows: [],
+                rowCount: 0,
+                executionTimeMs: 0,
+                error: "Текст SQL запроса пуст."
+            };
+        }
+
+        const startTime = performance.now();
+        try {
+            if (!this.db) {
+                throw new Error("База данных SQLite не инициализирована.");
+            }
+
+            const cleanSql = sqlQuery.trim();
+            if (typeof this.db.exec === 'function') {
+                const results = this.db.exec(cleanSql);
+                const executionTimeMs = PharmaMath.cleanDecimal(performance.now() - startTime, 0.0);
+
+                if (results && results.length > 0) {
+                    const lastResult = results[results.length - 1];
+                    return {
+                        success: true,
+                        columns: lastResult.columns || [],
+                        rows: lastResult.values || [],
+                        rowCount: (lastResult.values && lastResult.values.length) || 0,
+                        executionTimeMs,
+                        message: `Успешно возвращено строк: ${lastResult.values ? lastResult.values.length : 0} (${executionTimeMs} мс)`
+                    };
+                } else {
+                    return {
+                        success: true,
+                        columns: [],
+                        rows: [],
+                        rowCount: 0,
+                        executionTimeMs,
+                        message: `Запрос успешно выполнен за ${executionTimeMs} мс (без возврата записей)`
+                    };
+                }
+            } else if (typeof this.db.run === 'function') {
+                this.db.run(cleanSql);
+                const executionTimeMs = PharmaMath.cleanDecimal(performance.now() - startTime, 0.0);
+                return {
+                    success: true,
+                    columns: [],
+                    rows: [],
+                    rowCount: 0,
+                    executionTimeMs,
+                    message: `Запрос выполнен за ${executionTimeMs} мс`
+                };
+            } else {
+                throw new Error("Текущий драйвер БД не поддерживает метод exec/run");
+            }
+        } catch (err) {
+            const executionTimeMs = PharmaMath.cleanDecimal(performance.now() - startTime, 0.0);
+            return {
+                success: false,
+                columns: [],
+                rows: [],
+                rowCount: 0,
+                executionTimeMs,
+                error: err.message || String(err)
+            };
         }
     }
 }
