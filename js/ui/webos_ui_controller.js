@@ -679,6 +679,11 @@ export class WebOsUiController {
         document.getElementById('ctxControlCenterMenu')?.addEventListener('click', () => {
             this.toggleControlCenter();
         });
+        document.getElementById('ctxOpenExplorer')?.addEventListener('click', () => {
+            this.app?.openApp?.('winExplorer');
+            this.hideDesktopContextMenu();
+        });
+
         document.getElementById('ctxOpenSql')?.addEventListener('click', () => {
             this.app.openApp('winSqlConsole');
         });
@@ -1380,6 +1385,21 @@ export class WebOsUiController {
             if (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.code === 'KeyC')) {
                 e.preventDefault();
                 this.toggleControlCenter();
+                return;
+            }
+
+            
+            // Win+E или Alt+E — Открыть Проводник (Диск C:)
+            if ((e.code === 'KeyE' && (e.metaKey || (e.altKey && !e.ctrlKey))) || (e.code === 'KeyE' && e.ctrlKey && e.shiftKey)) {
+                e.preventDefault();
+                this.app?.openApp?.('winExplorer');
+                return;
+            }
+
+            // Win+I или Alt+I — Параметры системы
+            if ((e.code === 'KeyI' && (e.metaKey || (e.altKey && !e.ctrlKey)))) {
+                e.preventDefault();
+                this.app?.openApp?.('winSettings');
                 return;
             }
 

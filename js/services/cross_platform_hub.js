@@ -162,8 +162,8 @@ export class CrossPlatformHub {
             const header = win.querySelector('.win-header');
             if (!header) return;
 
-            const titleWrap = header.querySelector('.flex.items-center.gap-2');
-            const btnsWrap = header.querySelector('.flex.items-center.gap-1');
+            const titleWrap = header.firstElementChild;
+            const btnsWrap = header.lastElementChild;
 
             if (effectiveOs === 'macos') {
                 if (btnsWrap && !btnsWrap.classList.contains('mac-traffic-lights')) {

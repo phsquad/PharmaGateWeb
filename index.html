@@ -574,6 +574,138 @@
             box-shadow: 0 0 24px rgba(var(--app-accent-rgb), 0.25), 0 22px 60px rgba(0, 0, 0, 0.85) !important;
         }
 
+        
+        /* ========================================================================= */
+        /* 🍎 ТЕМА: macOS SONOMA GLASSMORPHISM & TRAFFIC LIGHTS CHROME               */
+        /* ========================================================================= */
+        html.theme-macos .os-window,
+        .os-mode-macos .os-window {
+            border-radius: 16px !important;
+            backdrop-filter: blur(36px) saturate(190%) !important;
+            -webkit-backdrop-filter: blur(36px) saturate(190%) !important;
+            background: rgba(24, 30, 44, 0.78) !important;
+            border: 1px solid rgba(255, 255, 255, 0.22) !important;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65), 0 2px 10px rgba(255, 255, 255, 0.08) inset !important;
+        }
+        html.theme-macos .win-header,
+        .os-mode-macos .win-header {
+            background: rgba(255, 255, 255, 0.06) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+            border-top-left-radius: 16px !important;
+            border-top-right-radius: 16px !important;
+            height: 38px !important;
+            padding-left: 14px !important;
+            padding-right: 14px !important;
+        }
+        /* Traffic Lights Buttons */
+        .mac-traffic-lights {
+            display: flex !important;
+            flex-direction: row-reverse !important;
+            align-items: center !important;
+            gap: 8px !important;
+        }
+        .mac-traffic-lights .win-btn-close {
+            order: 1 !important;
+            width: 12px !important;
+            height: 12px !important;
+            min-width: 12px !important;
+            min-height: 12px !important;
+            border-radius: 50% !important;
+            background: #ff5f56 !important;
+            border: 1px solid #e0443e !important;
+            color: transparent !important;
+            font-size: 0 !important;
+            line-height: 1 !important;
+            padding: 0 !important;
+            transition: all 0.15s ease !important;
+            cursor: pointer !important;
+        }
+        .mac-traffic-lights .win-btn-close:hover {
+            background: #ff5f56 !important;
+            color: #4d0000 !important;
+            font-size: 8px !important;
+        }
+        .mac-traffic-lights .win-btn-min {
+            order: 2 !important;
+            width: 12px !important;
+            height: 12px !important;
+            min-width: 12px !important;
+            min-height: 12px !important;
+            border-radius: 50% !important;
+            background: #ffbd2e !important;
+            border: 1px solid #dea123 !important;
+            color: transparent !important;
+            font-size: 0 !important;
+            line-height: 1 !important;
+            padding: 0 !important;
+            transition: all 0.15s ease !important;
+            cursor: pointer !important;
+        }
+        .mac-traffic-lights .win-btn-min:hover {
+            background: #ffbd2e !important;
+            color: #593b00 !important;
+            font-size: 8px !important;
+        }
+        .mac-traffic-lights .win-btn-max {
+            order: 3 !important;
+            width: 12px !important;
+            height: 12px !important;
+            min-width: 12px !important;
+            min-height: 12px !important;
+            border-radius: 50% !important;
+            background: #27c93f !important;
+            border: 1px solid #1aab29 !important;
+            color: transparent !important;
+            font-size: 0 !important;
+            line-height: 1 !important;
+            padding: 0 !important;
+            transition: all 0.15s ease !important;
+            cursor: pointer !important;
+        }
+        .mac-traffic-lights .win-btn-max:hover {
+            background: #27c93f !important;
+            color: #004d00 !important;
+            font-size: 8px !important;
+        }
+
+        /* ========================================================================= */
+        /* 🌌 ТЕМА: MIDNIGHT NEBULA (ГЛУБОКИЙ КОСМИЧЕСКИЙ ГРАДИЕНТ И ФИОЛЕТОВЫЙ НЕОН) */
+        /* ========================================================================= */
+        html.theme-midnight-nebula #desktopBackground {
+            background: radial-gradient(circle at 50% 10%, #2e1065 0%, #090514 85%) !important;
+        }
+        html.theme-midnight-nebula .os-window {
+            background: rgba(18, 12, 38, 0.88) !important;
+            border: 1px solid rgba(168, 85, 247, 0.45) !important;
+            box-shadow: 0 0 35px rgba(168, 85, 247, 0.25), 0 25px 60px rgba(0, 0, 0, 0.9) !important;
+        }
+        html.theme-midnight-nebula .win-header {
+            background: linear-gradient(90deg, rgba(88, 28, 135, 0.6), rgba(14, 165, 233, 0.45)) !important;
+            border-bottom: 1px solid rgba(168, 85, 247, 0.35) !important;
+            color: #f3e8ff !important;
+        }
+        html.theme-midnight-nebula .win-title {
+            color: #f3e8ff !important;
+            text-shadow: 0 0 8px rgba(168, 85, 247, 0.6) !important;
+        }
+        html.theme-midnight-nebula #taskbar {
+            background: rgba(12, 8, 26, 0.92) !important;
+            border-top: 1px solid rgba(168, 85, 247, 0.4) !important;
+            box-shadow: 0 -4px 25px rgba(168, 85, 247, 0.2) !important;
+        }
+
+        /* ========================================================================= */
+        /* 💾 ТЕМА: RETRO WIN95 / 2000 (КЛАССИЧЕСКИЙ БИРЮЗОВЫЙ СТОЛ И 3D-РАМКИ)      */
+        /* ========================================================================= */
+        html.theme-retro-win95 #desktopBackground {
+            background: #008080 !important;
+        }
+        html.theme-retro-win95 .taskbar-app-tile.is-active {
+            border: 2px inset #ffffff !important;
+            background: #d4d0c8 !important;
+            box-shadow: inset 1px 1px 2px rgba(0,0,0,0.4) !important;
+        }
+
         /* 📜 СТИЛЬ ТЕМЫ: Светлая клиническая (Pharma Clean Light) */
         html.theme-pharma-light .os-window {
             background: #ffffff !important;
@@ -1553,7 +1685,7 @@
                     </div>
                 </div>
                 <button onclick="window.PharmaGate?.openApp('winUpdateCenter')" class="px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-mono text-[10px] font-bold">
-                    v2026.3.5
+                    v2026.3.6
                 </button>
             </div>
 
@@ -2072,7 +2204,7 @@
                         <button id="btnGadgetSendToScanner" class="hidden text-blue-400 hover:text-blue-300 font-bold cursor-pointer">В ТСД-Сканер →</button>
                     </div>
                 </div>
-            </div>>
+            </div>
 
         </div>
 
@@ -4345,6 +4477,13 @@
                 </div>
                 <kbd class="shrink-0 ml-auto font-mono text-[10px] bg-slate-800/80 px-1.5 py-0.5 rounded text-white/60 group-hover:text-white border border-slate-700/60 tracking-wider">Ctrl+Shift+C</kbd>
             </button>
+                        <button id="ctxOpenExplorer" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
+                <div class="flex items-center gap-2.5 min-w-0 mr-auto">
+                    <span class="shrink-0 text-sm">📁</span>
+                    <span class="truncate">Проводник (Диск C:\ VFS)</span>
+                </div>
+                <kbd class="shrink-0 ml-auto font-mono text-[10px] bg-slate-800/80 px-1.5 py-0.5 rounded text-white/60 group-hover:text-white border border-slate-700/60 tracking-wider">Win+E</kbd>
+            </button>
             <button id="ctxOpenSql" class="w-full px-3 py-1.5 text-left hover:bg-blue-600/30 hover:text-white flex items-center justify-between gap-4 cursor-pointer transition-colors rounded-lg group">
                 <div class="flex items-center gap-2.5 min-w-0 mr-auto">
                     <span class="shrink-0 text-sm font-mono text-emerald-400 font-bold">&gt;_</span>
@@ -4356,7 +4495,7 @@
                     <span class="shrink-0 text-sm">🔄</span>
                     <span class="truncate">Центр Обновлений PharmaGateWeb</span>
                 </div>
-                <span class="shrink-0 ml-auto text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">v2026.3.4</span>
+                <span class="shrink-0 ml-auto text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">v2026.3.6</span>
             </button>
 
             <div class="h-px bg-white/10 my-1 mx-2"></div>
