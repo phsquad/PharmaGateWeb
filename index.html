@@ -1672,6 +1672,28 @@
             }
         }
 
+        
+        /* Сенсорная прокрутка и плавные свайпы для мобильных */
+        @media (max-width: 900px) {
+            html, body {
+                touch-action: pan-y !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+            #mobilePortal,
+            .mobile-sections-container,
+            .mobile-links-list,
+            .os-window.mobile-active-page,
+            .os-window.mobile-active-page > div {
+                touch-action: pan-y !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+            .mobile-hero-btn,
+            .mobile-link-item,
+            .mobile-portal-back-btn {
+                -webkit-tap-highlight-color: transparent !important;
+            }
+        }
+
         /* Стили компонентов мобильного портала */
         .mobile-portal-header {
             display: flex;
@@ -1967,7 +1989,7 @@
                             </div>
                             <span class="link-arrow">→</span>
                         </button>
-                        <button onclick="window.PharmaGate?.openMobilePortalApp('winBatch')" class="mobile-link-item">
+                        <button onclick="window.PharmaGate?.openMobilePortalApp('winBatchProcessor')" class="mobile-link-item">
                             <span class="link-icon">📦</span>
                             <div class="link-info">
                                 <span class="link-title">Пакетный конвейер EDI</span>
@@ -2006,7 +2028,7 @@
                             </div>
                             <span class="link-arrow">→</span>
                         </button>
-                        <button onclick="window.PharmaGate?.openMobilePortalApp('winPriceTags')" class="mobile-link-item">
+                        <button onclick="window.PharmaGate?.openMobilePortalApp('winLabelPrinter')" class="mobile-link-item">
                             <span class="link-icon">🏷️</span>
                             <div class="link-info">
                                 <span class="link-title">Печать ценников и этикеток</span>
@@ -2037,7 +2059,7 @@
                             </div>
                             <span class="link-arrow">→</span>
                         </button>
-                        <button onclick="window.PharmaGate?.openMobilePortalApp('winDatabase')" class="mobile-link-item">
+                        <button onclick="window.PharmaGate?.openMobilePortalApp('winDb')" class="mobile-link-item">
                             <span class="link-icon">🗄️</span>
                             <div class="link-info">
                                 <span class="link-title">СУБД Mini-ERP (SQLite WASM)</span>
@@ -2053,7 +2075,7 @@
                             </div>
                             <span class="link-arrow">→</span>
                         </button>
-                        <button onclick="window.PharmaGate?.openMobilePortalApp('winConstructor')" class="mobile-link-item">
+                        <button onclick="window.PharmaGate?.openMobilePortalApp('winSchema')" class="mobile-link-item">
                             <span class="link-icon">📐</span>
                             <div class="link-info">
                                 <span class="link-title">Конструктор схем DBF</span>
