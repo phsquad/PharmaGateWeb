@@ -46,6 +46,7 @@ import { CrossPlatformHub } from './services/cross_platform_hub.js';
 import { GuideService } from './services/guide_service.js';
 import { bindEnterpriseFeatures } from './ui/feature_controllers.js';
 import { initWebOsUi } from './ui/webos_ui_controller.js';
+import { AdaptiveShellController } from './ui/adaptive_shell_controller.js';
 
 export class PharmaGateWebOS {
     constructor() {
@@ -149,6 +150,8 @@ export class PharmaGateWebOS {
         bindEnterpriseFeatures(this);
         // 9.1. Инициализация визуальной системы WebOS
         initWebOsUi(this);
+        this.adaptiveShell = new AdaptiveShellController(this);
+        this.adaptiveShell.init();
 
         // 10. Глобальные слушатели горячих клавиш, Drag & Drop и таймер автосохранения
         this._bindKeyboardShortcuts();
@@ -853,6 +856,10 @@ export class PharmaGateWebOS {
     }
 
     openApp(winId) {
+        if (this.adaptiveShell?.isMobile) {
+            this.adaptiveShell.openMobileApp(winId);
+            return;
+        }
         if (winId === 'winPersonalization' || winId === 'winScale') {
             this.openSettingsTab('tabPersonalization');
             return;
@@ -900,6 +907,10 @@ export class PharmaGateWebOS {
     }
 
     closeApp(winId) {
+        if (this.adaptiveShell?.isMobile && this.adaptiveShell.currentActiveApp === winId) {
+            this.adaptiveShell.closeMobileApp();
+            return;
+        }
         const win = document.getElementById(winId);
         if (win) {
             win.classList.add('minimized');
